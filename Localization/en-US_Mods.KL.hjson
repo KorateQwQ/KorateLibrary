@@ -1,0 +1,77 @@
+Projectiles: {
+	DrawTestProj.DisplayName: Draw Test Proj
+	WindCircle.DisplayName: Wind Circle
+	FireWind.DisplayName: Fire Wind
+	LightningProj.DisplayName: Lightning Proj
+}
+
+Items: {
+	测试物品: {
+		DisplayName: 测试物品
+		Tooltip: ""
+	}
+}
+
+Configs: {
+	Keybinds: {
+		上个技能.DisplayName: 上个技能
+		下个技能.DisplayName: 下个技能
+		释放技能.DisplayName: 释放技能
+	}
+
+	BloomConfig: {
+		ShouldBloom: {
+			Tooltip: ""
+			Label: Should Bloom
+		}
+
+		BloomIteration: {
+			Tooltip: ""
+			Label: Bloom Iteration
+		}
+
+		BloomStrength: {
+			Tooltip: ""
+			Label: Bloom Strength
+		}
+
+		DisplayName: Bloom Config
+	}
+}
+
+Keybinds: {
+	上个技能.DisplayName: 上个技能
+	下个技能.DisplayName: 下个技能
+	释放技能.DisplayName: 释放技能
+}
+
+DamageClasses: {
+	ExampleDamageClass.DisplayName: Example Damage
+	FireDamage.DisplayName: Fire Damage
+	WaterDamage.DisplayName: Water Damage
+	IceDamage.DisplayName: Ice Damage
+	ThunderDamage.DisplayName: Thunder Damage
+	WindDamage.DisplayName: Wind Damage
+}
+
+Buffs: {
+	ElementalAffliction_Fire: {
+		DisplayName: Elemental Affliction_ Fire
+		Description: Mods.KL.Buffs.ElementalAffliction_Fire.Description
+	}
+
+	ElementalAffliction_Freeze: {
+		DisplayName: Elemental Affliction_ Freeze
+		Description: Mods.KL.Buffs.ElementalAffliction_Freeze.Description
+	}
+
+	ElementalAffliction_Electrocuted: {
+		DisplayName: Elemental Affliction_ Electrocuted
+		Description: Mods.KL.Buffs.ElementalAffliction_Electrocuted.Description
+	}
+
+	ElementalAffliction_Wet: {
+		DisplayName: Elemental Affliction_ Wet
+		Description: Mods.KL.Buffs.ElementalAffliction_Wet.Description
+	}
+}

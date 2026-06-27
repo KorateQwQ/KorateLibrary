@@ -1,0 +1,6 @@
+displayName = Korate Library
+author = Korate
+version = 0.1
+sortAfter = Lights
+weakReferences = Lights
+modReferences = SilkyUIFramework

@@ -1,0 +1,50 @@
+DrawBG(); 1
+
+//此处清空并添加所有npc，projectile图层，触发projectile的drawbehind，随后绘制npc，墙壁，NonSolid物块，以及流水
+DoDraw_WallsTilesNPCs();
+
+//此时绘制为End，绘制在npc和tile图层下的弹幕。在DoDraw_WallsTilesNPCs的结尾中的DoDraw_DrawNPCsBehindTiles触发（此函数只且仅只DoDraw中调用一次，但不一定在DoDraw_Tiles_Solid的前面还是后面）
+DrawCachedProjs(DrawCacheProjsBehindNPCsAndTiles);
+DrawNPCs(behindTiles: true);
+DoDraw_Tiles_Solid();
+DrawPlayers_BehindNPCs();
+
+//此时绘制为End，绘制在npc图层下但是tile之上的弹幕。在DoDraw_WallsTilesNPCs的结尾中的DoDraw_DrawNPCsOverTiles触发（此函数只且仅只DoDraw中调用一次）
+DrawCachedProjs(DrawCacheProjsBehindNPCs);
+DrawNPCs();
+DrawCachedNPCs(DrawCacheNPCProjectiles, behindTiles: false);
+
+//此时绘制为End
+SystemLoader.PostDrawTiles(); 1
+
+//此时绘制为End, 我了个绘制第一分型
+DrawSuperSpecialProjectiles(DrawCacheFirstFractals);
+
+//此时绘制为End, 绘制正常弹幕图层下的弹幕
+DrawCachedProjs(DrawCacheProjsBehindProjectiles);
+
+//此时绘制为End, 绘制正常弹幕
+DrawProjectiles();
+
+//此时绘制为End, 绘制玩家
+DrawPlayers_AfterProjectiles();
+
+//此时绘制为End，绘制在玩家图层上的弹幕
+DrawCachedProjs(DrawCacheProjsOverPlayers);
+
+//此时绘制为begin，绘制在玩家图层上的npc
+DrawCachedNPCs(DrawCacheNPCsOverPlayers, behindTiles: false);
+
+//此时绘制为End
+DrawDust();
+//后续绘制液体，微光和机关线路
+
+//此时绘制为begin
+DrawCachedProjs(DrawCacheProjsOverWiresUI, startSpriteBatch: false); 1
+//此时绘制为begin
+DrawInfernoRings(); 1//1表示只出现一次的函数
+ScreenDarkness.DrawFront(spriteBatch); 1
+//月总的神秘白光嘻嘻
+MoonlordDeathDrama.DrawWhite(spriteBatch) 1;
+ScreenObstruction.Draw(spriteBatch); 1
+spriteBatch.End();

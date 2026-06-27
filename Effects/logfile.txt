@@ -1,0 +1,178 @@
+Message at 2026/5/16 20:44:35: Importing CapsuleRectangle.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 20:44:35: Processing CapsuleRectangle.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/5/16 20:44:35: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\BasicShape\CapsuleRectangle.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\BasicShape\CapsuleRectangle.fx(101,23): ID3DXEffectCompiler::CompileEffect: There was an error compiling expression
+ID3DXEffectCompiler: Compilation failed
+Message at 2026/5/16 20:45:35: Importing CapsuleRectangle.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 20:45:35: Processing CapsuleRectangle.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/16 20:45:35: Compiling CapsuleRectangle.xnb
+Message at 2026/5/16 20:46:10: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 20:46:10: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/16 20:46:10: Compiling BasicShapeDraw.xnb
+Message at 2026/5/16 20:46:49: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 20:46:50: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/16 20:46:50: Compiling BasicShapeDraw.xnb
+Message at 2026/5/16 20:50:35: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 20:50:35: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/16 20:50:35: Compiling BasicShapeDraw.xnb
+Message at 2026/5/16 21:20:05: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 21:20:05: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/16 21:20:05: Compiling BasicShapeDraw.xnb
+Message at 2026/5/16 21:24:46: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 21:24:46: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/16 21:24:46: Compiling BasicShapeDraw.xnb
+Message at 2026/5/16 21:50:44: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/16 21:50:44: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/16 21:50:44: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 20:30:48: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 20:30:48: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 20:30:48: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 22:04:00: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 22:04:00: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 22:04:00: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 22:07:53: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 22:07:53: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 22:07:53: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 22:24:57: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 22:24:57: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 22:24:57: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 22:41:30: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 22:41:30: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/5/18 22:41:30: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\BasicShape\BasicShapeDraw.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\BasicShape\BasicShapeDraw.fx(150,12): error X3000: syntax error: unexpected token 'point'
+Message at 2026/5/18 22:42:14: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 22:42:14: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 22:42:14: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 22:50:17: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 22:50:17: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 22:50:17: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 23:14:09: Importing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 23:14:09: Processing BasicShapeDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 23:14:09: Compiling BasicShapeDraw.xnb
+Message at 2026/5/18 23:55:18: Importing RoundedRectBorderSegment.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/5/18 23:55:18: Processing RoundedRectBorderSegment.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/5/18 23:55:18: Compiling RoundedRectBorderSegment.xnb
+Message at 2026/6/2 22:25:39: Importing IceCone.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/2 22:25:39: Processing IceCone.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/2 22:25:39: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceCone.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceCone.fx(136,86): error X3004: undeclared identifier 'iTime'
+Message at 2026/6/2 22:26:06: Importing IceCone.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/2 22:26:06: Processing IceCone.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/2 22:26:06: Compiling IceCone.xnb
+Message at 2026/6/3 0:16:40: Importing IceCone.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 0:16:40: Processing IceCone.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 0:16:40: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceCone.fx:
+Compiled shader code uses too many instruction slots (1480). Max. allowed by the target (ps_3_0) is 512.
+Message at 2026/6/3 0:20:31: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 0:20:31: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 0:20:31: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx(55,30): error X3000: syntax error: unexpected token 'point'
+Message at 2026/6/3 0:22:59: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 0:22:59: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 0:22:59: Compiling IceConeVertexDraw.xnb
+Message at 2026/6/3 0:39:24: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 0:39:24: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 0:39:24: Compiling IceConeVertexDraw.xnb
+Message at 2026/6/3 0:43:00: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 0:43:00: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 0:43:01: Compiling IceConeVertexDraw.xnb
+Message at 2026/6/3 1:03:38: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:03:38: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 1:03:38: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx(40,35): error X3000: syntax error: unexpected token 'point'
+Message at 2026/6/3 1:03:58: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:03:58: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 1:03:58: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx(62,30): error X3000: syntax error: unexpected token 'point'
+Message at 2026/6/3 1:04:21: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:04:21: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 1:04:21: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx:
+Compiled shader code uses too many instruction slots (878). Max. allowed by the target (ps_3_0) is 512.
+Message at 2026/6/3 1:07:40: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:07:40: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 1:07:40: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx(52,11): error X3000: syntax error: unexpected token 'line'
+Message at 2026/6/3 1:13:27: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:13:27: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 1:13:27: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx:
+Compiled shader code uses too many instruction slots (878). Max. allowed by the target (ps_3_0) is 512.
+Message at 2026/6/3 1:17:41: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:17:41: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 1:17:41: Compiling IceConeVertexDraw.xnb
+Message at 2026/6/3 1:24:59: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:24:59: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/3 1:24:59: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\IceConeVertexDraw.fx:
+Compiled shader code uses too many instruction slots (660). Max. allowed by the target (ps_3_0) is 512.
+Message at 2026/6/3 1:34:54: Importing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 1:34:54: Processing IceConeVertexDraw.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 1:34:54: Compiling IceConeVertexDraw.xnb
+Message at 2026/6/3 19:42:27: Importing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 19:42:27: Processing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 19:42:27: Compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Basic3D.xnb
+Message at 2026/6/3 19:44:38: Importing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 19:44:38: Processing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 19:44:38: Compiling Basic3D.xnb
+Message at 2026/6/3 22:01:57: Importing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 22:01:57: Processing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 22:01:57: Compiling Basic3D.xnb
+Message at 2026/6/3 22:59:35: Importing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 22:59:35: Processing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 22:59:35: Compiling Basic3D.xnb
+Message at 2026/6/3 23:24:49: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 23:24:49: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 23:24:49: Compiling IceCone3D.xnb
+Message at 2026/6/3 23:35:10: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 23:35:10: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 23:35:10: Compiling IceCone3D.xnb
+Message at 2026/6/3 23:37:58: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 23:37:58: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 23:37:58: Compiling IceCone3D.xnb
+Message at 2026/6/3 23:39:06: Importing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 23:39:06: Processing Basic3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 23:39:06: Compiling Basic3D.xnb
+Message at 2026/6/3 23:41:48: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 23:41:48: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 23:41:48: Compiling IceCone3D.xnb
+Message at 2026/6/3 23:54:19: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/3 23:54:19: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/3 23:54:19: Compiling IceCone3D.xnb
+Message at 2026/6/4 0:17:50: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/4 0:17:50: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/4 0:17:50: Compiling IceCone3D.xnb
+Message at 2026/6/4 20:51:43: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/4 20:51:43: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/4 20:51:43: Compiling IceCone3D.xnb
+Message at 2026/6/4 21:27:37: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/4 21:27:37: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/4 21:27:37: Compiling IceCone3D.xnb
+Message at 2026/6/4 21:36:06: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/4 21:36:06: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/4 21:36:06: Compiling IceCone3D.xnb
+Message at 2026/6/4 22:16:46: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/4 22:16:46: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/4 22:16:46: Compiling IceCone3D.xnb
+Message at 2026/6/4 22:41:15: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/4 22:41:15: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/4 22:41:15: Compiling IceCone3D.xnb
+Message at 2026/6/5 0:23:43: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/5 0:23:43: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/5 0:23:43: Compiling IceCone3D.xnb
+Message at 2026/6/5 1:32:12: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/5 1:32:12: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/5 1:32:12: Compiling IceCone3D.xnb
+Message at 2026/6/5 1:34:59: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/5 1:34:59: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/5 1:34:59: Compiling IceCone3D.xnb
+Message at 2026/6/5 1:39:26: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/5 1:39:26: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/5 1:39:26: Compiling IceCone3D.xnb
+Message at 2026/6/5 1:40:42: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/5 1:40:42: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/5 1:40:42: Compiling IceCone3D.xnb
+Message at 2026/6/6 16:18:16: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/6 16:18:16: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Error at 2026/6/6 16:18:16: Errors compiling D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\ThreeD\IceCone3D.fx:
+D:\Documents\My Games\Terraria\tModLoader\ModSources\KL\Effects\Content\ThreeD\IceCone3D.fx(138,107): error X3000: syntax error: unexpected token ')'
+Message at 2026/6/6 16:18:26: Importing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.EffectImporter
+Message at 2026/6/6 16:18:26: Processing IceCone3D.fx with Microsoft.Xna.Framework.Content.Pipeline.Processors.EffectProcessor
+Message at 2026/6/6 16:18:26: Compiling IceCone3D.xnb

@@ -1,0 +1,27 @@
+已知的情报：原版月总state为18，包括灾厄和旅人归途的大部分mod，boss阶段上限为26，
+对应旅人归途的圣子。灾厄最后一个boss成年幻海妖龙24.5，小毕业灾厄女巫23.
+
+
+    // Origin Bosses
+    public const float KingSlime = 1f;史莱姆王 推荐dps：50-70
+    public const float EyeOfCthulhu = 2f;克眼 推荐dps ：80-100
+    public const float EaterOfWorlds = 3f;世吞和克脑 推荐dps：90-120
+    public const float QueenBee = 4f;蜂王 推荐dps：100-130
+    public const float Skeletron = 5f;骷髅王 推荐dps：150-210
+    public const float DeerClops = 6f;鹿角怪 推荐dps：150-210
+    public const float WallOfFlesh = 7f;肉山 推荐dps：300-400（配合饰品加成实战dps约1000）
+    public const float QueenSlime = 8f;史莱姆王后 350-450
+    public const float TheTwins = 9f;双子魔眼 400-500
+    public const float TheDestroyer = 10f;毁灭者 450-550
+    public const float SkeletronPrime = 11f;机械骷髅王  500-600
+    public const float Plantera = 12f;世花 800-1000
+    public const float Golem = 13f;石巨人  1000-1200
+    public const float DukeFishron = 14f;猪鲨 1100-1300
+    public const float EmpressOfLight = 15f;//光女   1200-1400
+    public const float LunaticCultist = 17f;//拜月教徒17.0.1月亮事件，四柱 推荐dps：1600-2000
+    public const float Moonlord = 18f;//月总 2500-3500，如果你是天顶剑那么你可以闭着眼睛写5500（笑）
+
+1.异常条满溢后，造成一定时间的异常状态。异常状态会对多体节单位同时触发。
+2.异常状态持续时间内，异常条会用于显示异常状态的剩余时间，并拥有更醒目的绘制
+3.对于会造成伤害的异常，其伤害结算应该只针对多体节单位的本体。对于易伤的异常，其增伤适用于拥有异常状态（debuff）的所有目标。对于强制控制的异常，其主体会受到相同的控制效果。
+

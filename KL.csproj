@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- Import tModLoader mod properties -->
+	<Import Project="..\tModLoader.targets" />
+
+	<!-- General -->
+	<PropertyGroup>
+		<AssemblyName>KL</AssemblyName>
+		<LangVersion>latest</LangVersion>
+		<!-- 启用XML文档生成 -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Reference Include="BossChecklist">
+	    <HintPath>..\BossChecklist\bin\Debug\net8.0\BossChecklist.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Lights">
+	    <HintPath>..\Lights\bin\Debug\net8.0\Lights.dll</HintPath>
+	  </Reference>
+	  <Reference Include="SilkyUIFramework">
+	    <HintPath>..\SilkyUIFramework\bin\Debug\net8.0\SilkyUIFramework.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Projectiles\FireWind.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="ActionsSystem\TemplateActions\" />
+	</ItemGroup>
+	<!-- References -->
+
+</Project>
