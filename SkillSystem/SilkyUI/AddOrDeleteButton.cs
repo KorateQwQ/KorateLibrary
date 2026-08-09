@@ -130,7 +130,7 @@ public class AddOrDeleteButton(bool isAddButton) : SUIImage,IDraggableUI
                 List<FrameInfo> frameInfos = new List<FrameInfo>(2)
                 {
                     new (0.8f,1.2f,4),
-                    new (1.1f,1f,10)
+                    new (1.1f,1f,6)
                 };
                 scale = GetFrameValue(frameInfos, releaseAnimTime);
                 //PrintText(releaseAnimTime+" "+scale);

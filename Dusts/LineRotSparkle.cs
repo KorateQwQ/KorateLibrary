@@ -5,8 +5,8 @@ namespace KL.Dusts;
 /// </summary>
 public class LineRotSparkle : KLBasicDust
 {
-    private Texture2D MainTex;
-    private Texture2D light;
+    private static Texture2D MainTex;
+    private static Texture2D light;
     public override void OnSpawn(Dust dust)
     {
         MainTex ??= Mod.Assets.Request<Texture2D>("Effects/Tex/Sparkle/ShotLine", AssetRequestMode.ImmediateLoad).Value;
@@ -19,25 +19,24 @@ public class LineRotSparkle : KLBasicDust
     {
                 
         float length = MathHelper.Lerp(1, 0, dust.LifeProgress());
-        EndBeginDraw(1,1);
         DrawInWorld(MainTex,dust.position,dust.GetRealColor(dust.color), dust.Size()*new Vector2(0.2f* length,0.1f* length),dust.rotation);
         
         //float length = MathHelper.Lerp(1, 0, dust.LifeProgress());
-        EndBeginDraw(1,1);
-        ReColorEffect(new Vector4(1)*2f);
+        //EndBeginDraw(1,1);
+        //ReColorEffect(new Vector4(1)*2f);
         
         DrawInWorld(light,dust.position,dust.GetRealColor(dust.color)* length, dust.Size()*new Vector2(0.02f,0.02f) * length+ new Vector2(0.1f),dust.rotation+3.14f/2f);
         
-        EndBeginDraw(1,1);
-        ReColorEffect(new Vector4(1)*1.8f);
+        //EndBeginDraw(1,1);
+        //ReColorEffect(new Vector4(1)*1.8f);
         
         DrawInWorld(MainTex,dust.position,dust.GetRealColor(dust.color), dust.Size()*new Vector2(0.1f* length,0.03f),dust.rotation);
-        EndBeginDraw();
+        //EndBeginDraw();
 
         
-        EndBeginDraw();
+        //EndBeginDraw();
         
-        return base.PreDraw(dust);
+        return false;
     }
 
     public override void DrawBloom(Dust dust)

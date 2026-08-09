@@ -309,34 +309,91 @@ public partial class DrawHelper : ModSystem
 
     }
 
+    /// <summary>
+    /// Tween缓动类型。
+    /// Linear：匀速变化，适合持续移动、旋转。
+    /// SmoothStep / EaseInOut：两头慢中间快，适合自然出现/消失。
+    /// EaseIn：开始慢后面快，适合蓄力后收束。
+    /// EaseOut：开始快后面慢，适合冲击、扩散、弹幕生成。
+    /// ExpoOut：爆发感强，适合瞬间放大、闪光。
+    /// BackOut：会略微超过目标再回弹，适合UI按钮、法术弹出场。
+    /// </summary>
+    public enum TweenEase
+    {
+        Linear,
+        SmoothStep,
+        EaseInQuad,
+        EaseOutQuad,
+        EaseInOutQuad,
+        EaseInCubic,
+        EaseOutCubic,
+        EaseInOutCubic,
+        SineIn,
+        SineOut,
+        SineInOut,
+        ExpoOut,
+        BackOut
+    }
+
     public enum FrameType
     {
         Lerp,
         SmoothStep
     }
+
     /// <summary>
-    /// 用于连续帧动画，传入多个FrameInfo可以对应多个连续帧并返回对应值。
+    /// 连续帧动画的一个片段：在Duration帧内从MinValue过渡到MaxValue。
+    /// 用法示例：
+    /// List&lt;FrameInfo&gt; scaleFrames =
+    /// [
+    ///     new(0f, 1.2f, 8, TweenEase.BackOut), // 前8帧从0放大到1.2，并带一点回弹感
+    ///     new(1.2f, 1f, 6, TweenEase.SmoothStep), // 接下来6帧从1.2收回到1
+    ///     new(1f, 0f, 10, TweenEase.SineIn) // 最后10帧淡出/缩小到0
+    /// ];
+    /// float scale = DrawHelper.EvaluateTween(scaleFrames, time);
+    ///
+    /// 注意：Duration是“这一段持续多少帧”，不是绝对结束帧。
+    /// 上例总时长是8 + 6 + 10 = 24帧。
     /// </summary>
     public class FrameInfo
     {
         public float MinValue = 0;
         public float MaxValue = 1;
-        public int EndFrame = 10;
-        public FrameType Type = FrameType.Lerp;
+        public int Duration = 10;
+        public TweenEase Ease = TweenEase.Linear;
 
         /// <summary>
-        /// 动画帧节点，会从MinValue到MaxValue之间进行插值
+        /// 兼容旧代码：旧字段名EndFrame现在表示这一段的持续帧数。
         /// </summary>
-        /// <param name="minValue"></param>
-        /// <param name="maxValue"></param>
-        /// <param name="endFrame"></param>
-        /// <param name="type"></param>
-        public FrameInfo(float minValue, float maxValue, int endFrame, FrameType type = FrameType.Lerp)
+        public int EndFrame
+        {
+            get => Duration;
+            set => Duration = value;
+        }
+
+        /// <summary>
+        /// 兼容旧代码：Lerp/SmoothStep映射到新的TweenEase。
+        /// </summary>
+        public FrameType Type
+        {
+            get => Ease == TweenEase.SmoothStep ? FrameType.SmoothStep : FrameType.Lerp;
+            set => Ease = value == FrameType.SmoothStep ? TweenEase.SmoothStep : TweenEase.Linear;
+        }
+
+        public FrameInfo(float minValue, float maxValue, int duration, FrameType type = FrameType.Lerp)
         {
             MinValue = minValue;
             MaxValue = maxValue;
-            EndFrame = endFrame;
+            Duration = duration;
             Type = type;
+        }
+
+        public FrameInfo(float minValue, float maxValue, int duration, TweenEase ease)
+        {
+            MinValue = minValue;
+            MaxValue = maxValue;
+            Duration = duration;
+            Ease = ease;
         }
     }
     
@@ -398,45 +455,106 @@ public partial class DrawHelper : ModSystem
     }
 
     /// <summary>
-    /// 用于连续帧动画时取值
+    /// 旧接口：按帧求连续Tween值。新代码更推荐直接使用EvaluateTween。
+    /// 用法：
+    /// float alpha = DrawHelper.GetFrameValue(alphaFrames, time, clamp: true);
     /// </summary>
-    /// <param name="frameInfos">每多一个节点，就需要一个帧信息，记录一个区间的最小值和最大值，以及平滑方式。</param>
-    /// <param name="currentFrame">实际帧</param>
-    /// <param name="startFrame">起始帧</param>
-    /// <returns></returns>
-    public static float GetFrameValue(List<FrameInfo> frameInfos,int currentFrame, int startFrame = 0,bool clamp = false)
+    public static float GetFrameValue(List<FrameInfo> frameInfos, int currentFrame, int startFrame = 0, bool clamp = false)
     {
-        float result = 0;
-        int lastEndFrame = 0;
-        currentFrame-=startFrame;
-        if(currentFrame<0)currentFrame = 0;
-        foreach (var frameInfo in frameInfos)
+        return EvaluateTween(frameInfos, currentFrame, startFrame, clamp);
+    }
+
+    /// <summary>
+    /// 计算某一帧对应的Tween值。
+    /// frameInfos：按顺序填写多个动画片段。
+    /// currentFrame：当前计时帧，通常传Projectile.ai计时、time、timer等。
+    /// startFrame：延迟到第几帧开始播放；例如startFrame=20表示前20帧保持第一个MinValue。
+    /// clamp：为true时，动画结束后保持最后一段MaxValue；通常建议保持true。
+    /// 用法示例：
+    /// List&lt;FrameInfo&gt; alphaFrames =
+    /// [
+    ///     new(0f, 1f, 6, TweenEase.SineOut),
+    ///     new(1f, 1f, 12),
+    ///     new(1f, 0f, 10, TweenEase.SineIn)
+    /// ];
+    /// float alpha = DrawHelper.EvaluateTween(alphaFrames, time);
+    /// </summary>
+    public static float EvaluateTween(IReadOnlyList<FrameInfo> frameInfos, int currentFrame, int startFrame = 0, bool clamp = true)
+    {
+        if (frameInfos == null || frameInfos.Count == 0)
         {
-            int maxFrame = frameInfo.EndFrame-lastEndFrame;
-            float realFrame = currentFrame - lastEndFrame;
-            lastEndFrame = frameInfo.EndFrame+1;
-
-            if (currentFrame >= lastEndFrame)
-            {
-                continue;
-            }
-
-            if(clamp&&realFrame > maxFrame)realFrame = maxFrame;
-            
-            //Main.NewText("realFrame: " + realFrame + " maxFrame: " + maxFrame + " lastEndFrame " + lastEndFrame);
-
-            if (frameInfo.Type == FrameType.Lerp)
-            {
-                result = MathHelper.Lerp(frameInfo.MinValue, frameInfo.MaxValue, realFrame / maxFrame);
-                break;
-            }
-            else
-            {
-                result = MathHelper.SmoothStep(frameInfo.MinValue, frameInfo.MaxValue, realFrame / maxFrame);
-                break;
-            }
+            return 0f;
         }
-        return result;
+
+        int localFrame = currentFrame - startFrame;
+        if (localFrame <= 0)
+        {
+            return frameInfos[0].MinValue;
+        }
+
+        int frameCursor = 0;
+        FrameInfo lastValidFrameInfo = frameInfos[0];
+        foreach (FrameInfo frameInfo in frameInfos)
+        {
+            int duration = Math.Max(frameInfo.Duration, 1);
+            int nextFrame = frameCursor + duration;
+            lastValidFrameInfo = frameInfo;
+
+            if (localFrame <= nextFrame)
+            {
+                float t = (localFrame - frameCursor) / (float)duration;
+                if (clamp)
+                {
+                    t = MathHelper.Clamp(t, 0f, 1f);
+                }
+
+                return MathHelper.Lerp(frameInfo.MinValue, frameInfo.MaxValue, ApplyEase(t, frameInfo.Ease));
+            }
+
+            frameCursor = nextFrame;
+        }
+
+        return clamp ? lastValidFrameInfo.MaxValue : EvaluateTweenSegment(lastValidFrameInfo, localFrame - frameCursor);
+    }
+
+    /// <summary>
+    /// 只计算单个Tween片段的值，适合临时测试某一种Ease曲线。
+    /// 用法：float value = DrawHelper.EvaluateTweenSegment(new FrameInfo(0f, 1f, 20, TweenEase.ExpoOut), time);
+    /// </summary>
+    public static float EvaluateTweenSegment(FrameInfo frameInfo, int frame)
+    {
+        int duration = Math.Max(frameInfo.Duration, 1);
+        float t = MathHelper.Clamp(frame / (float)duration, 0f, 1f);
+        return MathHelper.Lerp(frameInfo.MinValue, frameInfo.MaxValue, ApplyEase(t, frameInfo.Ease));
+    }
+
+    /// <summary>
+    /// 将0到1的线性进度转换成指定缓动曲线的进度。
+    /// 一般不需要直接调用，EvaluateTween内部会自动使用。
+    /// 如果要手动插值，也可以这样用：
+    /// float t = DrawHelper.ApplyEase(rawProgress, TweenEase.EaseOutCubic);
+    /// float value = MathHelper.Lerp(start, end, t);
+    /// </summary>
+    public static float ApplyEase(float t, TweenEase ease)
+    {
+        t = MathHelper.Clamp(t, 0f, 1f);
+
+        return ease switch
+        {
+            TweenEase.SmoothStep => t * t * (3f - 2f * t),
+            TweenEase.EaseInQuad => t * t,
+            TweenEase.EaseOutQuad => 1f - (1f - t) * (1f - t),
+            TweenEase.EaseInOutQuad => t < 0.5f ? 2f * t * t : 1f - MathF.Pow(-2f * t + 2f, 2f) * 0.5f,
+            TweenEase.EaseInCubic => t * t * t,
+            TweenEase.EaseOutCubic => 1f - MathF.Pow(1f - t, 3f),
+            TweenEase.EaseInOutCubic => t < 0.5f ? 4f * t * t * t : 1f - MathF.Pow(-2f * t + 2f, 3f) * 0.5f,
+            TweenEase.SineIn => 1f - MathF.Cos(t * MathHelper.PiOver2),
+            TweenEase.SineOut => MathF.Sin(t * MathHelper.PiOver2),
+            TweenEase.SineInOut => -(MathF.Cos(MathHelper.Pi * t) - 1f) * 0.5f,
+            TweenEase.ExpoOut => t >= 1f ? 1f : 1f - MathF.Pow(2f, -10f * t),
+            TweenEase.BackOut => 1f + 2.70158f * MathF.Pow(t - 1f, 3f) + 1.70158f * MathF.Pow(t - 1f, 2f),
+            _ => t
+        };
     }
 
 }

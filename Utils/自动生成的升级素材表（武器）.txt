@@ -1,0 +1,136 @@
+[03:16:50.070] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 亵渎守卫 参照武器：渡魂圣物 稀有度：11
+[03:16:50.073] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空先兆 Rare:11
+[03:16:50.074] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:时空术士之镰 Rare:11
+[03:16:50.076] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:泡沫冲锋枪 Rare:11
+[03:16:50.080] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:源 Rare:11
+[03:16:50.081] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:炼金狂人的手套 Rare:11
+[03:16:50.082] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:原核之怒 Rare:11
+[03:16:50.088] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:聚核射线 Rare:11
+[03:16:50.089] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:殷红鞭笞 Rare:11
+[03:16:50.090] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:终结裂空戟 Rare:11
+[03:16:50.092] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 痴愚金龙 参照武器：镀金鸟喙 稀有度：11
+[03:16:50.095] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空先兆 Rare:11
+[03:16:50.096] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:时空术士之镰 Rare:11
+[03:16:50.098] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:泡沫冲锋枪 Rare:11
+[03:16:50.099] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:源 Rare:11
+[03:16:50.104] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:炼金狂人的手套 Rare:11
+[03:16:50.107] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:原核之怒 Rare:11
+[03:16:50.109] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:聚核射线 Rare:11
+[03:16:50.110] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:殷红鞭笞 Rare:11
+[03:16:50.116] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:终结裂空戟 Rare:11
+[03:16:50.117] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 亵渎天神，普罗维登斯 参照武器：圣火之刃 稀有度：20
+[03:16:50.119] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:20
+[03:16:50.123] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:20
+[03:16:50.126] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:20
+[03:16:50.129] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:20
+[03:16:50.133] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:20
+[03:16:50.134] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:20
+[03:16:50.135] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:20
+[03:16:50.141] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:20
+[03:16:50.142] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:20
+[03:16:50.143] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:20
+[03:16:50.145] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:20
+[03:16:50.146] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:特斯拉杖 Rare:20
+[03:16:50.147] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:王子 Rare:20
+[03:16:50.149] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:荆棘烁兰 Rare:20
+[03:16:50.151] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:心泵血杖 Rare:20
+[03:16:50.152] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:雷霆意志 Rare:20
+[03:16:50.153] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 无尽虚空 参照武器：镜之刃 稀有度：20
+[03:16:50.154] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:20
+[03:16:50.156] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:20
+[03:16:50.157] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:20
+[03:16:50.159] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:20
+[03:16:50.160] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:20
+[03:16:50.162] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:20
+[03:16:50.168] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:20
+[03:16:50.169] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:20
+[03:16:50.170] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:20
+[03:16:50.171] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:20
+[03:16:50.172] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:20
+[03:16:50.174] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:特斯拉杖 Rare:20
+[03:16:50.175] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:王子 Rare:20
+[03:16:50.176] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:荆棘烁兰 Rare:20
+[03:16:50.178] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:心泵血杖 Rare:20
+[03:16:50.179] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:雷霆意志 Rare:20
+[03:16:50.180] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 风暴编织者 参照武器：苍澜龙骑兵 稀有度：20
+[03:16:50.182] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:20
+[03:16:50.183] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:20
+[03:16:50.184] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:20
+[03:16:50.185] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:20
+[03:16:50.186] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:20
+[03:16:50.188] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:20
+[03:16:50.189] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:20
+[03:16:50.190] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:20
+[03:16:50.191] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:20
+[03:16:50.192] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:20
+[03:16:50.195] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:20
+[03:16:50.201] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:特斯拉杖 Rare:20
+[03:16:50.203] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:王子 Rare:20
+[03:16:50.204] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:荆棘烁兰 Rare:20
+[03:16:50.205] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:心泵血杖 Rare:20
+[03:16:50.206] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:雷霆意志 Rare:20
+[03:16:50.208] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 西格纳斯 参照武器：星体苦无 稀有度：20
+[03:16:50.210] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:20
+[03:16:50.216] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:20
+[03:16:50.217] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:20
+[03:16:50.218] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:20
+[03:16:50.220] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:20
+[03:16:50.221] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:20
+[03:16:50.222] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:20
+[03:16:50.223] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:20
+[03:16:50.225] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:20
+[03:16:50.230] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:20
+[03:16:50.233] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:20
+[03:16:50.234] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:特斯拉杖 Rare:20
+[03:16:50.235] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:王子 Rare:20
+[03:16:50.236] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:荆棘烁兰 Rare:20
+[03:16:50.238] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:心泵血杖 Rare:20
+[03:16:50.239] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:雷霆意志 Rare:20
+[03:16:50.240] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 噬魂幽花 参照武器：惊惧魂刃 稀有度：19
+[03:16:50.242] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:天龙座阿尔法 Rare:19
+[03:16:50.250] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:寂虚之光 Rare:19
+[03:16:50.254] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻妖龙吟 Rare:19
+[03:16:50.257] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:冰幻法杖 Rare:19
+[03:16:50.258] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:命运神启 Rare:19
+[03:16:50.259] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:鬼之形 Rare:19
+[03:16:50.261] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻象之怒 Rare:19
+[03:16:50.264] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:影流法杖 Rare:19
+[03:16:50.266] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:金星三叉戟 Rare:19
+[03:16:50.267] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:酸蚀毒蝰 Rare:19
+[03:16:50.272] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 硫海遗爵 参照武器：阴险穿刺者 稀有度：19
+[03:16:50.274] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:天龙座阿尔法 Rare:19
+[03:16:50.275] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:寂虚之光 Rare:19
+[03:16:50.280] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻妖龙吟 Rare:19
+[03:16:50.282] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:冰幻法杖 Rare:19
+[03:16:50.284] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:命运神启 Rare:19
+[03:16:50.287] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:鬼之形 Rare:19
+[03:16:50.291] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻象之怒 Rare:19
+[03:16:50.293] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:影流法杖 Rare:19
+[03:16:50.294] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:金星三叉戟 Rare:19
+[03:16:50.295] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:酸蚀毒蝰 Rare:19
+[03:16:50.298] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 神明吞噬者 参照武器：永噬之颚 稀有度：15
+[03:16:50.307] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:特斯拉巨炮 Rare:15
+[03:16:50.312] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:变脸熔炉 Rare:15
+[03:16:50.313] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:终灭裂隙权杖 Rare:15
+[03:16:50.315] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:寒冰弹幕 Rare:15
+[03:16:50.317] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:圣神光辉 Rare:15
+[03:16:50.321] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星云灾变 Rare:15
+[03:16:50.323] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:奥密克戎 Rare:15
+[03:16:50.324] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:始源之遗 Rare:15
+[03:16:50.325] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:灵魂穿透者 Rare:15
+[03:16:50.326] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:极点光伏 Rare:15
+[03:16:50.329] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 重生之龙，犽戎 参照武器：巨龙之怒 稀有度：13
+[03:16:50.331] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太流光炮 Rare:13
+[03:16:50.332] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:氦闪 Rare:13
+[03:16:50.334] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星火凤凰雨 Rare:13
+[03:16:50.337] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神杖·暴风灼炎 Rare:13
+[03:16:50.339] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空漩涡 Rare:13
+[03:16:50.341] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:亚利姆水晶 Rare:13
+[03:16:50.342] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 星流巨械 参照武器：塔纳托斯的脊柱 稀有度：17
+[03:16:50.343] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:归元漩涡 Rare:17
+[03:16:50.345] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:耀界之光 Rare:17
+[03:16:50.346] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 至尊女巫，灾厄 参照武器：恣睢 稀有度：14
+[03:16:50.347] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:异端僭越 Rare:14
+[03:16:50.349] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:异端 Rare:14
+[03:16:50.354] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:怨戾 Rare:14
+[03:16:50.358] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狞桀 Rare:14

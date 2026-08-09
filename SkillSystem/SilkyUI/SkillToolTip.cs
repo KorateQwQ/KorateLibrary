@@ -11,9 +11,10 @@ namespace KL.SkillSystem.SilkyUI;
 public class SkillToolTip : UIElementGroup
 {
     private UIElementGroup _header;
-    private UITextView _nameText;
-    private UITextView _levelText;
-    private UITextView _descText;
+    private KLTextView _nameText;
+    private KLTextView _levelText;
+    private KLTextView _descText;
+
     private SkillUnlockFooterUI _unlockFooter;
     private Skill _currentSkill;
     
@@ -50,7 +51,8 @@ public class SkillToolTip : UIElementGroup
             BackgroundColor = Color.Red * 0,
         }.Join(this);
 
-        _nameText = new UITextView
+        _nameText = new KLTextView
+
         {
             Width = new Dimension(percent: 0.7f),
             FitWidth = false,
@@ -65,7 +67,8 @@ public class SkillToolTip : UIElementGroup
             Font = FontManager.HarmonyOS_Sans_SC.Value,
         }.Join(_header);
 
-        _levelText = new UITextView
+        _levelText = new KLTextView
+
         {
             Width = new Dimension(percent: 0.3f),
             FitWidth = false,
@@ -80,7 +83,8 @@ public class SkillToolTip : UIElementGroup
             Font = FontManager.HarmonyOS_Sans_SC.Value,
         }.Join(_header);
 
-        _descText = new UITextView
+        _descText = new KLTextView
+
         {
             Width = new Dimension(percent: 1f),
             FitWidth = false,
@@ -151,6 +155,9 @@ public class SkillToolTip : UIElementGroup
 
     protected override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
+        /*_descText.TextScale = 0.3f;
+        _descText.Font = FontManager.HarmonyOS_Sans_SC.Value;//FontAssets.ItemStack.Value;//*/
+
         /*_descText.Text= $"Elaina: α 造成100 {ElementType.Fire.GetIcon(size:48,offsetY:2)} 火元素伤害火元素\n伤" +
                         $"害火元素伤害火元素伤害ElainaElainaElaina火" +
                         $"元素伤害火元素伤害火元素伤害火元素伤害ElainaElainaElaina";*/

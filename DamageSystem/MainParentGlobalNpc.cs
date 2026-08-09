@@ -53,7 +53,7 @@ public class MainParentGlobalNpc : GlobalNPC
                 // 注意：这里仅在生成来源是 EntitySource_Parent 且父级是 boss 时记录。
                 lifeMax = npc.GetRealMaxHP();
 
-                if (Math.Abs(KLGameStateManager.GetBossState(parent) - KLGameStateManager.GetBossState(npc)) < 0.001f)
+                if (Math.Abs(KLGameStateManager.GetBossState(parent) - KLGameStateManager.GetBossState(npc)) < 0.001f && KLGameStateManager.GetBossState(parent)>0 && KLGameStateManager.GetBossState(npc)>0)
                 {
                     ExpectedParent = parent;
                     //PrintText($"AddChild SelfName: {npc.FullName} childID {npc.whoAmI} + ParentName:  {parent.FullName} parentid: {parent.whoAmI}");

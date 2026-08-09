@@ -82,7 +82,7 @@ public class RenderHelper : ModSystem
     {
         if (Lighting.Mode is LightMode.Retro or LightMode.Trippy)
         {
-            Lighting.Mode = LightMode.Color;
+            //Lighting.Mode = LightMode.Color;
         }
 
         if (Main.WaveQuality < 1)
@@ -213,12 +213,12 @@ public class RenderHelper : ModSystem
 
             //保存不溢出的像素
             SwitchRender(SaveScreenRender);
-            EndBeginDraw(0,1,false);
+            EndBeginDraw(0,1,false,ss:SamplerState.LinearWrap);
             DrawUnderflowColorEffect();
             sb.Draw(LastTargetRender, new Vector2(0), Color.White);
 
             //保存溢出的像素
-            EndBeginDraw(0, 1, false);
+            EndBeginDraw(0, 1, false,ss:SamplerState.LinearWrap);
             DrawOverflowColorEffect();
             gd.SetRenderTarget(BloomRender);
             gd.Clear(Color.Transparent);

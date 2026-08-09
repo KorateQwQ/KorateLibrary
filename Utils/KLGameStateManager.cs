@@ -8,6 +8,18 @@ namespace KL.Utils;
 
 public class KLGameStateManager : KLModSystem
 {
+	/// <summary>
+	/// 物品的类型，分为不指定类型，武器类型，材料类型
+	/// </summary>
+	public enum StateItemType
+	{
+		None,
+		MeleeWeapon,
+		MagicWeapon,
+		RangedWeapon,
+		SummonWeapon,
+		Material
+	}
     //NPC死亡委托,给予参与击杀的玩家奖励
     public delegate void NpcLootEvent(NPC self,List<int> killers,int realMaxHp);
     public static event NpcLootEvent OnBossLoot;
@@ -223,6 +235,10 @@ public class KLGameStateManager : KLModSystem
 
     public override void PostUpdatePlayers()
     {
+	    /*if (Main.LocalPlayer.HeldItem != null &&!Main.LocalPlayer.HeldItem.IsAir)
+	    {
+		    Main.LocalPlayer.HeldItem.damage = 9999;
+	    }*/
 	    /*if (IsLeftClick())
 	    {
 		    foreach (var info in bossInfos)
@@ -233,6 +249,41 @@ public class KLGameStateManager : KLModSystem
 			    }
 		    }
 	    }*/
+
+	    if (IsLeftClick())
+	    {
+		    return;
+		    Main.mouseLeftRelease = false;
+		    float targetState = 18.6f;
+
+		    //豆包豆包，帮我总结月总后所有boss对应的可用材料
+		    foreach (var info in bossInfos)
+		    {
+			    if (info.Value.isBoss && info.Value.progression >18f)
+			    {
+				    int maxRare = 0;
+				    Item resultItem = null;
+				    foreach (var item in info.Value.loot)
+				    {
+					    if (ContentSamples.ItemsByType.TryGetValue(item, out Item itemSample))
+					    {
+						    if (itemSample.damage > 0&&maxRare<itemSample.rare)
+						    {
+							    maxRare = itemSample.rare;
+							    resultItem = itemSample;
+						    }
+					    }
+
+				    }
+
+				    if (maxRare > 0&&resultItem!=null)
+				    {
+					    Log(info.Value.displayName +" 参照武器：" + resultItem.Name + " 稀有度：" + resultItem.rare);
+					    FindItemsByRarity(maxRare, StateItemType.Material);
+				    }
+			    }
+		    }
+	    }
 	    base.PostUpdatePlayers();
     }
 
@@ -251,6 +302,63 @@ public class KLGameStateManager : KLModSystem
             }
             RPC("OnBossLoot", [self, killers,self.GetRealMaxHP()], KLNetModule.NetSendType.ServerToAll);
         }
+    }
+    
+    /// <summary>
+    /// 找到指定稀有度的物品
+    /// </summary>
+    /// <param name="targetRarity"></param>
+    /// <returns></returns>
+    public static List<int> FindItemsByRarity(int targetRarity,StateItemType itemType)
+    {
+	    List<int> result = new();
+
+	    foreach ((int type, Item item) in ContentSamples.ItemsByType)
+	    {
+		    if (!item.IsAir && item.rare == targetRarity)
+		    {
+			    bool success = false;
+			    if (itemType == StateItemType.None)
+			    {
+				    result.Add(type);
+				    success = true;
+			    }
+
+			    if (itemType == StateItemType.MeleeWeapon&&item.damage>0&&item.DamageType==DamageClass.Melee)
+			    {
+				    result.Add(type);
+				    success = true;
+			    }
+			    if (itemType == StateItemType.MagicWeapon&&item.damage>0&&item.DamageType==DamageClass.Magic)
+			    {
+				    result.Add(type);
+				    success = true;
+			    }
+			    if (itemType == StateItemType.RangedWeapon&&item.damage>0&&item.DamageType==DamageClass.Ranged)
+			    {
+				    result.Add(type);
+				    success = true;
+			    }
+			    if (itemType == StateItemType.SummonWeapon&&item.damage>0&&item.DamageType==DamageClass.Summon)
+			    {
+				    result.Add(type);
+				    success = true;
+			    }
+			    if (itemType == StateItemType.Material&&item.material&&item.damage<=0&&item.createTile<0&&!item.consumable&&!item.accessory&&item.ammo==AmmoID.None
+			        &&item.headSlot<0&&item.bodySlot<0&&item.legSlot<0&&item.dye<=0)
+			    {
+				    result.Add(type);
+				    success = true;
+			    }
+			    if(success)
+			    {
+				    PrintText($"Item:{item.Name} Rare:{item.rare}");
+				    Log($"Item:{item.Name} Rare:{item.rare}");
+			    }
+		    }
+	    }
+
+	    return result;
     }
     
     protected virtual void OnKillBoss(NPC self, List<int> killers, int realMaxHp)

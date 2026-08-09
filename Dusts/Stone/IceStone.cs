@@ -1,6 +1,6 @@
 using KL.Extensions;
 
-namespace KL.Dusts.Ice;
+namespace KL.Dusts.Stone;
 
 public class IceStone : KLBasicDust
 {

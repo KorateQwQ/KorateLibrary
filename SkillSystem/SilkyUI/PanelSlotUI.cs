@@ -151,7 +151,10 @@ public class PanelSlotUI : UIElementGroup,IDraggableUI
     public void TryShowToolTip()
     {
         Skill skill = SkillIcon?.Skill;
-        if (skill?.ModSkill?.TryGetToolTip(out string name, out string level, out string desc) is true)
+        string name = "技能名";
+        string desc = "技能描述";
+        string level = $"Lv. 0";
+        if (skill?.ModSkill?.TryGetToolTip(ref  name, ref level, ref  desc) is true)
         {
             SkillToolTip.Instance.SetTooltip(skill, name, level, desc, SkillIcon);
             SkillToolTip.IsShow = true;

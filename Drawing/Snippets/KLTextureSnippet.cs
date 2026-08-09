@@ -13,9 +13,13 @@ public sealed class KLTextureSnippet : TextSnippet
     private readonly Asset<Texture2D> _texture;
     private readonly float _baseSize;
     private readonly float _yOffset;
+    private float _fontScale = 1f;
+    private float _fontVerticalOffset;
 
-    private float lineSpacing = 0f;
+
     public KLTextureSnippet(Asset<Texture2D> texture, float baseSize, float yOffset, Color color)
+
+
         : base(" ", color)
     {
         _texture = texture;
@@ -23,15 +27,23 @@ public sealed class KLTextureSnippet : TextSnippet
         _yOffset = yOffset;
     }
 
-    public override float GetStringLength(DynamicSpriteFont font)
+    public void SetFontScale(float fontScale, float fontVerticalOffset)
     {
-        return _baseSize*Scale;
+        _fontScale = fontScale;
+        _fontVerticalOffset = fontVerticalOffset;
+    }
+
+    public override float GetStringLength(DynamicSpriteFont font)
+
+    {
+        return _baseSize * Scale * _fontScale;
     }
     
     public override bool UniqueDraw(bool justCheckingString, out Vector2 size, SpriteBatch spriteBatch,
         Vector2 position = default, Color color = default, float scale = 1f)
     {
-        size = new Vector2(_baseSize, _baseSize) * scale;
+        float snippetScale = scale * Scale * _fontScale;
+        size = new Vector2(_baseSize, _baseSize) * snippetScale;
 
         if (justCheckingString)
             return true;
@@ -42,8 +54,11 @@ public sealed class KLTextureSnippet : TextSnippet
         var tex = _texture.Value;
         var drawScale = new Vector2(size.X / tex.Width, size.Y / tex.Height);
 
-        spriteBatch.Draw(tex, position + new Vector2(0, _yOffset) * scale, null, color, 0f, Vector2.Zero, drawScale, SpriteEffects.None, 0f);
+        Vector2 drawPosition = position + new Vector2(0, _yOffset * snippetScale + _fontVerticalOffset * scale);
+        spriteBatch.Draw(tex, drawPosition, null, color, 0f, Vector2.Zero, drawScale, SpriteEffects.None, 0f);
+
         
         return true;
     }
+
 }

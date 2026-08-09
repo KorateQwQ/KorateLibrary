@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Build.Utilities;
 using Terraria.Enums;
 using Terraria.Graphics.CameraModifiers;
+using Terraria.DataStructures;
+using Terraria.ModLoader;
 
 namespace KL.Extensions
 {
@@ -133,8 +136,8 @@ namespace KL.Extensions
                 Main.NewText(message, GetLogColor(finalLevel));
             }
         }
-        
-        
+
+
         /// <summary>
         /// 判断鼠标左键是否刚刚被点击
         /// </summary>
@@ -159,12 +162,14 @@ namespace KL.Extensions
         /// <param name="endPosition">判定结束点</param>
         /// <param name="width">宽度</param>
         /// <returns></returns>
-        public static bool AABBvLineCollision(Rectangle targetRect,Vector2 startPosition,Vector2 endPosition,float width)
+        public static bool AABBvLineCollision(Rectangle targetRect, Vector2 startPosition, Vector2 endPosition,
+            float width)
         {
             float point = 0f;
-            return Collision.CheckAABBvLineCollision(targetRect.TopLeft(), targetRect.Size(), startPosition, endPosition, width, ref point); 
+            return Collision.CheckAABBvLineCollision(targetRect.TopLeft(), targetRect.Size(), startPosition,
+                endPosition, width, ref point);
         }
-        
+
         /// <summary>
         /// 计算从矩形中心发射的射线到矩形边界的距离，辅助aabb碰撞方法使得激光可以刚好在敌人碰撞箱的边缘
         /// </summary>
@@ -176,22 +181,22 @@ namespace KL.Extensions
         {
             // 确保方向向量是归一化的
             direction.Normalize();
-        
+
             float halfWidth = rectWidth / 2f;
             float halfHeight = rectHeight / 2f;
-        
+
             // 防止除零错误
             float cosTheta = Math.Abs(direction.X) < 1e-6f ? 1e-6f : Math.Abs(direction.X);
             float sinTheta = Math.Abs(direction.Y) < 1e-6f ? 1e-6f : Math.Abs(direction.Y);
-        
+
             // 计算到垂直边和水平边的距离
             float distanceToVertical = halfWidth / cosTheta;
             float distanceToHorizontal = halfHeight / sinTheta;
-        
+
             // 返回较小的距离（先碰到的边界）
             return Math.Min(distanceToVertical, distanceToHorizontal);
         }
-        
+
         /// <summary>
         /// 计算激光是否与目标发生碰撞，并返回如果碰撞时激光的长度。（这个长度会略微比计算的大一些，防止因为激光缩短立刻脱离碰撞。）
         /// </summary>
@@ -200,12 +205,13 @@ namespace KL.Extensions
         /// <param name="endPosition"></param>
         /// <param name="width"></param>
         /// <returns></returns>
-        public static bool GetAABBvLineCollisionPoint(Rectangle targetRect,Vector2 startPosition,Vector2 endPosition,float width,out float finalLength)
+        public static bool GetAABBvLineCollisionPoint(Rectangle targetRect, Vector2 startPosition, Vector2 endPosition,
+            float width, out float finalLength)
         {
             float point = 0f;
             float originLength = (endPosition - startPosition).Length();
             float hitLength = (targetRect.Center.ToVector2() - startPosition).Length();
-            
+
             float length = GetRayDistanceToBorder(targetRect.Width, targetRect.Height, startPosition - endPosition);
 
             if (Collision.CheckAABBvLineCollision(targetRect.TopLeft(), targetRect.Size(), startPosition, endPosition,
@@ -216,7 +222,7 @@ namespace KL.Extensions
             }
 
             finalLength = originLength;
-            return false; 
+            return false;
         }
 
         /// <summary>
@@ -250,7 +256,7 @@ namespace KL.Extensions
             //和微光有碰撞
             bool ShimmerCol = Collision.shimmer;
             if (!includeShimmer && ShimmerCol) return false;
-            
+
             return WetCol;
         }
 
@@ -263,13 +269,14 @@ namespace KL.Extensions
         /// <param name="length">此值会作为判定的参考，并且会被修改为一个无法碰撞墙体的长度</param>
         /// <param name="precisionNum">判定精度，默认为5</param>
         /// <returns></returns>
-        public static bool LaserCollision(Vector2 startPosition,Vector2 towards,float width, ref float length,int precisionNum = 5)
+        public static bool LaserCollision(Vector2 startPosition, Vector2 towards, float width, ref float length,
+            int precisionNum = 5)
         {
             towards = towards.SafeNormalize(towards);
             float[] samples = new float[precisionNum];
             Collision.LaserScan(startPosition, towards, width, length, samples);
             bool collide = false;
-            
+
             for (int i = 1; i < precisionNum; i++)
             {
                 if (length > samples[i])
@@ -287,19 +294,19 @@ namespace KL.Extensions
         /// </summary>
         /// <param name="targetPosition"></param>
         /// <param name="netUpdate"></param>
-        public static void CutTile(Vector2 targetPosition,bool netUpdate = false)
+        public static void CutTile(Vector2 targetPosition, bool netUpdate = false)
         {
             Tile tile = Framing.GetTileSafely(targetPosition);
             int tileX = (int)(targetPosition.X / 16f);
             int tileY = (int)(targetPosition.Y / 16f);
-            if (Main.tileCut[tile.TileType] && WorldGen.CanCutTile(tileX,tileY, TileCuttingContext.AttackProjectile))
+            if (Main.tileCut[tile.TileType] && WorldGen.CanCutTile(tileX, tileY, TileCuttingContext.AttackProjectile))
             {
                 WorldGen.KillTile(tileX, tileY);
-                if (Main.netMode != NetmodeID.SinglePlayer && netUpdate) 
+                if (Main.netMode != NetmodeID.SinglePlayer && netUpdate)
                     NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0, tileX, tileY);
             }
         }
-        
+
         /// <summary>
         /// 每帧更新，试图朝向目标位置追击
         /// </summary>
@@ -307,7 +314,8 @@ namespace KL.Extensions
         /// <param name="targetPos">锁定的追击位置</param>
         /// <param name="targetVelocity">目标速度，追击速度会朝着目标速度靠拢</param>
         /// <param name="strength"></param>
-        public static void TraceTargetPosition(this Entity entity,Vector2 targetPos,float targetVelocity,float strength)
+        public static void TraceTargetPosition(this Entity entity, Vector2 targetPos, float targetVelocity,
+            float strength)
         {
             strength = MathHelper.Clamp(strength, 0.1f, 1);
             Vector2 targetVec = targetPos - entity.Center;
@@ -315,11 +323,11 @@ namespace KL.Extensions
             // 目标向量是朝向目标的大小为20的向量
             targetVec *= targetVelocity;
             // 朝向npc的单位向量*20 + 3.33%偏移量
-            entity.velocity = (entity.velocity*(1-strength) + targetVec * strength) / targetVelocity;
+            entity.velocity = (entity.velocity * (1 - strength) + targetVec * strength) / targetVelocity;
             //entity.velocity.Normalize();
             //entity.velocity *= 20f;
         }
-        
+
         /// <summary>
         /// 每帧更新，试图朝向目标位置追击
         /// </summary>
@@ -327,7 +335,8 @@ namespace KL.Extensions
         /// <param name="targetPos">锁定的追击位置</param>
         /// <param name="targetVelocity">目标速度，追击速度会朝着目标速度靠拢</param>
         /// <param name="strength"></param>
-        public static void TraceTargetPosition(this Item entity,Vector2 targetPos,float targetVelocity,float strength)
+        public static void TraceTargetPosition(this Item entity, Vector2 targetPos, float targetVelocity,
+            float strength)
         {
             strength = MathHelper.Clamp(strength, 0.1f, 1);
             Vector2 targetVec = targetPos - entity.Center;
@@ -336,8 +345,8 @@ namespace KL.Extensions
             targetVec *= targetVelocity;
             // 朝向npc的单位向量*20 + 3.33%偏移量
             entity.velocity = Vector2.Lerp(entity.velocity, targetVec, strength);
-            
-            
+
+
             //entity.velocity.Normalize();
             //entity.velocity *= 20f;
         }
@@ -350,15 +359,141 @@ namespace KL.Extensions
         /// <param name="shakeStrength"></param>
         /// <param name="shakeFrequency">振动频率，越高则抖动的越快，最多取fps/2，也就是当60帧时，此值最高为30</param>
         /// <param name="shakeTotalFrames"></param>
-        public static void ShakeScreen(Vector2 shakeCenter,Vector2 shakeDirection,float shakeStrength = 10f,float shakeFrequency =10f,int shakeTotalFrames = 8)
+        public static void ShakeScreen(Vector2 shakeCenter, Vector2 shakeDirection, float shakeStrength = 10f,
+            float shakeFrequency = 10f, int shakeTotalFrames = 8)
         {
             shakeDirection = shakeDirection.SafeNormalize(shakeDirection);
             //if (shakeFrequency > shakeTotalFrames) shakeFrequency = shakeTotalFrames;
-            
+
             // 创建屏幕震动效果
-            PunchCameraModifier modifier = new PunchCameraModifier(shakeCenter, 
-                shakeDirection,shakeStrength, shakeFrequency, shakeTotalFrames);
+            PunchCameraModifier modifier = new PunchCameraModifier(shakeCenter,
+                shakeDirection, shakeStrength, shakeFrequency, shakeTotalFrames);
             Main.instance.CameraModifiers.Add(modifier);
         }
+
+
+        /// <summary>
+        /// 直接生成一个 ModProjectile，不调用 Projectile.NewProjectile。
+        /// </summary>
+        public static Projectile NewProjectile<T>(
+            IEntitySource spawnSource,
+            Vector2 center,
+            Vector2 velocity,
+            int damage,
+            float knockBack = 0f,
+            int owner = -1,
+            float ai0 = 0f,
+            float ai1 = 0f,
+            float ai2 = 0f,
+            bool netUpdate = true
+        ) where T : ModProjectile
+        {
+            if (owner == -1)
+                owner = Main.myPlayer;
+
+            int index = FindProjectileSlot();
+            int type = ModContent.ProjectileType<T>();
+            Projectile projectile = Main.projectile[index];
+
+            projectile.SetDefaults(type);
+            projectile.position.X = center.X - projectile.width * 0.5f;
+            projectile.position.Y = center.Y - projectile.height * 0.5f;
+            projectile.owner = owner;
+            projectile.velocity = velocity;
+            projectile.damage = damage;
+            projectile.knockBack = knockBack;
+            projectile.identity = index;
+            projectile.gfxOffY = 0f;
+            projectile.stepSpeed = 1f;
+            projectile.wet = Collision.WetCollision(projectile.position, projectile.width, projectile.height);
+            if (projectile.ignoreWater)
+                projectile.wet = false;
+
+            projectile.honeyWet = Collision.honey;
+            projectile.shimmerWet = Collision.shimmer;
+            Main.projectileIdentity[owner, index] = index;
+            InvokeFindBannerToAssociateTo(spawnSource, projectile);
+            
+
+            projectile.ai[0] = ai0;
+            projectile.ai[1] = ai1;
+            projectile.ai[2] = ai2;
+
+            if (owner == Main.myPlayer)
+                Main.player[owner].TryUpdateChannel(projectile);
+
+            projectile.ApplyStatsFromSource(spawnSource);
+            InvokeProjectileOnSpawn(projectile, spawnSource);
+
+            if (netUpdate && Main.netMode != NetmodeID.SinglePlayer && owner == Main.myPlayer)
+                NetMessage.SendData(MessageID.SyncProjectile, -1, -1, null, index);
+
+            return projectile;
+        }
+
+        #region Projectile生成helper
+
+        private static readonly MethodInfo ProjectileFindBannerToAssociateToMethod = typeof(Projectile).GetMethod(
+            "FindBannerToAssociateTo",
+            BindingFlags.Static | BindingFlags.NonPublic,
+            null,
+            new[] { typeof(IEntitySource), typeof(Projectile) },
+            null
+        );
+
+        private static readonly MethodInfo ProjectileLoaderOnSpawnMethod = typeof(ProjectileLoader).GetMethod(
+            "OnSpawn",
+            BindingFlags.Static | BindingFlags.NonPublic,
+            null,
+            new[] { typeof(Projectile), typeof(IEntitySource) },
+            null
+        );
+
+        private static void InvokeFindBannerToAssociateTo(IEntitySource spawnSource, Projectile projectile)
+        {
+            ProjectileFindBannerToAssociateToMethod?.Invoke(null, new object[] { spawnSource, projectile });
+        }
+
+        private static void InvokeProjectileOnSpawn(Projectile projectile, IEntitySource spawnSource)
+        {
+            if (ProjectileLoaderOnSpawnMethod != null)
+            {
+                ProjectileLoaderOnSpawnMethod.Invoke(null, new object[] { projectile, spawnSource });
+                return;
+            }
+
+            projectile.ModProjectile?.OnSpawn(spawnSource);
+        }
+
+        private static int FindProjectileSlot()
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                if (!Main.projectile[i].active)
+                    return i;
+            }
+
+            return FindOldestProjectileSlot();
+        }
+
+        private static int FindOldestProjectileSlot()
+        {
+            int result = Main.maxProjectiles;
+            int oldestTimeLeft = int.MaxValue;
+
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile projectile = Main.projectile[i];
+                if (!projectile.netImportant && projectile.timeLeft < oldestTimeLeft)
+                {
+                    result = i;
+                    oldestTimeLeft = projectile.timeLeft;
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }

@@ -172,7 +172,7 @@ public abstract class ModSkill : ILoadable
 
     public virtual void TryLevelDown()
     {
-        Level--;
+        if(Level>1) Level--;
     }
 
     /// <summary>
@@ -196,11 +196,11 @@ public abstract class ModSkill : ILoadable
         return UnlockCondition.GetDescription(skillPlayer, this);
     }
 
-    public virtual bool TryGetToolTip(out string name, out string level, out string desc)
+    public virtual bool TryGetToolTip(ref string name, ref  string level, ref string desc)
     {
-        name = GetType().Name;
+        //name = GetType().Name;
         level = $"Lv. {Level}";
-        desc = "造成100" +ElementType.Fire.GetIcon(offsetY:6,size:48) + "火元素伤害";
+        //desc = "造成100" +ElementType.Fire.GetIcon(offsetY:6,size:48) + "火元素伤害";
 
         /*if (BasicStatus == Skill.SKillBasicStatus.Lock)
         {

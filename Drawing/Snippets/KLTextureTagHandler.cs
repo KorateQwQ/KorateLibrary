@@ -11,8 +11,8 @@ public sealed class KLTextureTagHandler : ITagHandler
 {
     public TextSnippet Parse(string text, Color baseColor, string options)
     {
-        var size = 24f;
-        var yOffset = 2f;
+        var size = 16f;
+        var yOffset = 0f;
 
         if (!string.IsNullOrWhiteSpace(options))
         {

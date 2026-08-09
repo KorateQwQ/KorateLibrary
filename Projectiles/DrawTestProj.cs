@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using KL.Drawing.ThreeD;
 using KL.Dusts;
 using KL.Dusts.Fire;
-using KL.Dusts.Ice;
+using KL.Dusts.Stone;
 using KL.Dusts.Lightning;
 using KL.Dusts.Smoke;
 using KL.Dusts.Water;
@@ -52,7 +52,7 @@ namespace KL.Projectiles
 
         public override void Load()
         {
-            testModel = ObjModel.Load("Models.bing");
+            //testModel = ObjModel.Load("Models.bing");
             /*Circle ??= Mod.Assets.Request<Texture2D>("Projectiles/Circle", AssetRequestMode.ImmediateLoad).Value;
             testModel = ObjModel.Load(Mod, "Models/bing.obj");
             Sphere = ObjModel.Load(Mod, "Models/Sphere.obj");
@@ -142,8 +142,8 @@ namespace KL.Projectiles
             
             List<FrameInfo> widthInfos = new List<FrameInfo>();
             widthInfos.Add(new FrameInfo(5,1,5));
-            widthInfos.Add(new FrameInfo(1,1,10));
-            widthInfos.Add(new FrameInfo(1,0,15));
+            widthInfos.Add(new FrameInfo(1,1,5));
+            widthInfos.Add(new FrameInfo(1,0,5));
             time++;
             //GetFrameValue(widthInfos,time,clamp:true);
             base.AI();
@@ -217,99 +217,9 @@ namespace KL.Projectiles
             Lighting.AddLight(Main.MouseWorld,Color.White.ToVector3());
 
             float rotTime = ((float)Main.timeForVisualEffects % 12000f)/30f;
+            
 
             //Projectile.Center = Main.MouseWorld;
-            if (testModel != null)
-            {
-                VertexBuffer vertexBuffer = testModel.GetOrCreateVertexBuffer(gd);
-                int vertexCount = vertexBuffer.VertexCount;
-                Vector3 position = new(Main.MouseWorld, 1f);
-                Vector3 rotation3D = new Vector3(0,rotTime,1);
-                Vector3 scale3D = new(10);
-                Vector3 cameraPosition = GraphicsUtils.CameraPos(MathF.PI / 3f);
-                Vector3 sunPosition = new(new Vector2(Main.screenWidth, Main.screenHeight)/4f+Main.screenPosition, -1000);
-                Vector3 lightDirection = Vector3.Normalize(position - sunPosition);
-                Vector4 baseColor = new Color(50, 220, 255, 200).ToVector4()*0.50f;
-                Vector3 fresnelColor = (new Color(180, 220, 255)).ToVector3();
-                Vector4 outlineColor = new Color(0, 0, 0, 255).ToVector4();
-                bool enableToonShading = true;
-                //底光
-                float ambientStrength = 0.8f;
-                //光照影响强度
-                float diffuseStrength = 1f;
-                //描边厚度
-                float outlineThickness = 0f;
-                //菲涅尔强度
-                float fresnelStrength = 2f;
-                float normalStrength = 0f;
-                float specularStrength = 0.05f;
-                float specularPower = 24f;
-                Vector3 specularColor = Color.White.ToVector3();
-
-                Matrix modelMatrix = Matrix.CreateScale(scale3D) *
-                                     Matrix.CreateRotationX(rotation3D.X) *
-                                     Matrix.CreateRotationY(rotation3D.Y) *
-                                     Matrix.CreateRotationZ(rotation3D.Z) *
-                                     Matrix.CreateTranslation(position);
-                Matrix viewProjectionMatrix = GraphicsUtils.GetVPMatrix();
-
-                RasterizerState baseRasterizerState = new RasterizerState
-                {
-                    CullMode = CullMode.CullClockwiseFace
-                };
-                
-                Main.spriteBatch.End();
-
-                IceCone3D.Parameters["uWorld"].SetValue(modelMatrix);
-                IceCone3D.Parameters["uViewProjection"].SetValue(viewProjectionMatrix);
-                IceCone3D.Parameters["uLightDirection"].SetValue(lightDirection);
-                IceCone3D.Parameters["uLightColor"].SetValue(lightColor.ToVector3());
-                IceCone3D.Parameters["uCameraPosition"].SetValue(cameraPosition);
-                IceCone3D.Parameters["uBaseColor"].SetValue(baseColor);
-                IceCone3D.Parameters["uFresnelColor"].SetValue(fresnelColor);
-                IceCone3D.Parameters["uEnableToonShading"].SetValue(enableToonShading);
-                IceCone3D.Parameters["uAmbientStrength"].SetValue(ambientStrength);
-                IceCone3D.Parameters["uDiffuseStrength"].SetValue(diffuseStrength);
-                IceCone3D.Parameters["uOutlineThickness"].SetValue(outlineThickness);
-                IceCone3D.Parameters["uOutlineColor"].SetValue(outlineColor);
-                IceCone3D.Parameters["uFresnelStrength"].SetValue(fresnelStrength);
-                IceCone3D.Parameters["uUseNormalMap"].SetValue(useNormalMap);
-                IceCone3D.Parameters["uUseSpecularMap"].SetValue(useSpecularMap);
-                IceCone3D.Parameters["uNormalStrength"].SetValue(normalStrength);
-                IceCone3D.Parameters["uSpecularStrength"].SetValue(specularStrength);
-                IceCone3D.Parameters["uSpecularPower"].SetValue(specularPower);
-                IceCone3D.Parameters["uSpecularColor"].SetValue(specularColor);
-
-                gd.BlendState = BlendState.NonPremultiplied;
-                gd.DepthStencilState = DepthStencilState.Default;
-                gd.SamplerStates[0] = SamplerState.PointWrap;
-                gd.SamplerStates[1] = SamplerState.LinearWrap;
-                gd.SamplerStates[2] = SamplerState.LinearWrap;
-
-                gd.RasterizerState = baseRasterizerState;
-                gd.Textures[0] = testModelTex;
-                gd.Textures[1] = testModelNormalTex ?? testModelTex;
-                gd.Textures[2] = testModelSpecTex ?? testModelTex;
-                gd.SetVertexBuffer(vertexBuffer);
-                IceCone3D.CurrentTechnique.Passes[0].Apply();
-                gd.DrawPrimitives(PrimitiveType.TriangleList, 0,vertexCount);
-
-                gd.RasterizerState = baseRasterizerState;
-                gd.Textures[0] = testModelTex;
-                gd.Textures[1] = testModelNormalTex ?? testModelTex;
-                gd.Textures[2] = testModelSpecTex ?? testModelTex;
-                gd.SetVertexBuffer(vertexBuffer);
-                IceCone3D.CurrentTechnique.Passes[1].Apply();
-                gd.SetVertexBuffer(vertexBuffer);
-                gd.DrawPrimitives(PrimitiveType.TriangleList, 0, vertexCount);
-    
-                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone, null, Main.Transform);
-            }
-            else if (!string.IsNullOrEmpty(testModelLoadErrorMessage))
-            {
-                PrintText(testModelLoadErrorMessage);
-            }
-
             return false;
         }
         
@@ -380,7 +290,7 @@ namespace KL.Projectiles
                     
                     KLBasicDust.SpawnDustsCircle(Player.Center+ velocity*50f, ModContent.DustType<LineSparkle>(), 5, velocity*7.1f, 
                         0.6f,30, new Color(255, 120, 239,255),Vector2.One,10,new Vector2(0.8f,0f),10);*/
-                    //Projectile.NewProjectile(null,Main.MouseWorld,velocity, ModContent.ProjectileType<DrawTestProj>(), 0, 0, Main.myPlayer);
+                    Projectile.NewProjectile(null,Main.MouseWorld,velocity, ModContent.ProjectileType<DrawTestProj>(), 0, 0, Main.myPlayer);
 
                     //SpawnWindCircle(null,Main.MouseWorld,velocity,Color.Red,Color.Black,250,50);
                 }

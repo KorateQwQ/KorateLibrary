@@ -1,0 +1,54 @@
+[03:32:56.213] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 亵渎守卫 参照武器：渡魂圣物 稀有度：11
+[03:32:56.216] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:闪耀金羽 Rare:11
+[03:32:56.218] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:灵质 Rare:11
+[03:32:56.223] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:浊火精华 Rare:11
+[03:32:56.224] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 痴愚金龙 参照武器：镀金鸟喙 稀有度：11
+[03:32:56.227] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:闪耀金羽 Rare:11
+[03:32:56.229] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:灵质 Rare:11
+[03:32:56.231] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:浊火精华 Rare:11
+[03:32:56.232] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 亵渎天神，普罗维登斯 参照武器：圣火之刃 稀有度：20
+[03:32:56.239] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:20
+[03:32:56.240] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:20
+[03:32:56.243] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石核心 Rare:20
+[03:32:56.247] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:20
+[03:32:56.248] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:20
+[03:32:56.249] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:20
+[03:32:56.252] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 无尽虚空 参照武器：镜之刃 稀有度：20
+[03:32:56.254] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:20
+[03:32:56.256] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:20
+[03:32:56.257] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石核心 Rare:20
+[03:32:56.258] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:20
+[03:32:56.260] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:20
+[03:32:56.261] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:20
+[03:32:56.263] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 风暴编织者 参照武器：苍澜龙骑兵 稀有度：20
+[03:32:56.264] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:20
+[03:32:56.266] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:20
+[03:32:56.267] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石核心 Rare:20
+[03:32:56.268] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:20
+[03:32:56.269] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:20
+[03:32:56.271] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:20
+[03:32:56.273] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 西格纳斯 参照武器：星体苦无 稀有度：20
+[03:32:56.274] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:20
+[03:32:56.276] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:20
+[03:32:56.277] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石核心 Rare:20
+[03:32:56.278] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:20
+[03:32:56.279] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:20
+[03:32:56.282] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:20
+[03:32:56.286] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 噬魂幽花 参照武器：惊惧魂刃 稀有度：19
+[03:32:56.287] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猎魂鲨牙 Rare:19
+[03:32:56.288] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:毁灭之灵 Rare:19
+[03:32:56.294] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 硫海遗爵 参照武器：阴险穿刺者 稀有度：19
+[03:32:56.295] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猎魂鲨牙 Rare:19
+[03:32:56.297] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:毁灭之灵 Rare:19
+[03:32:56.302] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 神明吞噬者 参照武器：永噬之颚 稀有度：15
+[03:32:56.304] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:化神魂精 Rare:15
+[03:32:56.305] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:日蚀之阴碎片 Rare:15
+[03:32:56.308] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:恒温能量 Rare:15
+[03:32:56.311] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:梦魇魔能 Rare:15
+[03:32:56.313] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 重生之龙，犽戎 参照武器：巨龙之怒 稀有度：13
+[03:32:56.317] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:龙魂碎片 Rare:13
+[03:32:56.319] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 星流巨械 参照武器：塔纳托斯的脊柱 稀有度：17
+[03:32:56.321] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星流棱晶 Rare:17
+[03:32:56.322] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:奇迹物质 Rare:17
+[03:32:56.323] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 至尊女巫，灾厄 参照武器：恣睢 稀有度：14
+[03:32:56.324] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:湮灭余烬 Rare:14

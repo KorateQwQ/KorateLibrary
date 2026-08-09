@@ -21,6 +21,7 @@ namespace KL.Drawing.ThreeD
 
         public static ObjModel Load(string assetPath, Color? color = null)
         {
+            if(Main.netMode== NetmodeID.Server)return null;
             ObjModel model = ObjLoader.Load(assetPath, color);
             model.GetOrCreateVertexBufferOnMainThread();
             return model;
@@ -28,6 +29,7 @@ namespace KL.Drawing.ThreeD
 
         public static ObjModel Load(Mod mod, string assetPath, Color? color = null)
         {
+            if(Main.netMode== NetmodeID.Server)return null;
             ObjModel model = ObjLoader.Load(mod, assetPath, color);
             model.GetOrCreateVertexBufferOnMainThread();
             return model;

@@ -192,18 +192,16 @@ public partial class DrawHelper : ModSystem
     
     public static void EndBeginDraw(BlendState state, int defferred = 0, bool adjustToScreen = true, SamplerState ss = null,Effect shader = null) 
     {
-        BlendState blendState = BlendState.AlphaBlend;
-        
+        ss??=Main.DefaultSamplerState;
         Main.spriteBatch.End();
-        if (ss == null) ss = Main.DefaultSamplerState;
         if (!adjustToScreen)
         {
-            Main.spriteBatch.Begin((SpriteSortMode)defferred, blendState, ss,
+            Main.spriteBatch.Begin((SpriteSortMode)defferred, state, ss,
                 DepthStencilState.None, RasterizerState.CullNone, shader);
         }
         else
         {
-            Main.spriteBatch.Begin((SpriteSortMode)defferred, blendState, ss,
+            Main.spriteBatch.Begin((SpriteSortMode)defferred, state, ss,
                 DepthStencilState.None, RasterizerState.CullNone, shader, Main.GameViewMatrix.TransformationMatrix);
         }
     }

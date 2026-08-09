@@ -8,7 +8,7 @@ public class BurstPoint : KLBasicDust
         float scale = MathHelper.Lerp(1, 0, dust.LifeProgress());
 
         int frame = Math.Clamp((int)(dust.LifeProgress() * 4f), 0, 3);
-        DrawInWorld(new TextureInfo(MainTexture,frame, 2, 2), dust.position, dust.color,
+        DrawInWorld(new TextureInfo(MainTexture,frame, 2, 2), dust.position, dust.color*alpha,
             dust.Size(), dust.rotation + MathHelper.PiOver2);
         return false;
     }

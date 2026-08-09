@@ -21,6 +21,8 @@ public class BurstCircle : KLBasicDust
     }
     public override bool Update(Dust dust)
     {
+        float lightStrength = 0.8f * (1 - dust.LifeProgress());
+        Lighting.AddLight(dust.position, dust.color.ToVector3() * lightStrength);
         //dust.velocity *= 0.92f;
         return base.Update(dust);
     }

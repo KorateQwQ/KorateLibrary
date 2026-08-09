@@ -330,6 +330,7 @@ public abstract class KLProjectile : ModProjectile
     /// <returns></returns>
     public override bool PreDraw(ref Color lightColor)
     {
+        if (Main.gamePaused) return false;
         if (TrailLength > 0)
         {
             if (oldCenterTrailPositions.Length != TrailLength)
