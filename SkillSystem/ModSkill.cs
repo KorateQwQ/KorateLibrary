@@ -62,7 +62,8 @@ public abstract class ModSkill : ILoadable
     public int MaxStack = 1;
     public int Level = 0;
 
-    public virtual SkillUnlockCondition UnlockCondition => SkillUnlockCondition.ByItemsAndSkillPoint(10,new SkillUnlockItem(ItemID.Wood,10));
+    public virtual SkillUnlockCondition UnlockCondition { get; set; } =
+        SkillUnlockCondition.ByItemsAndSkillPoint(10, new SkillUnlockItem(ItemID.Wood, 10));
     
     #endregion
 

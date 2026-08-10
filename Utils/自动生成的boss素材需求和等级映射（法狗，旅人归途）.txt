@@ -1,0 +1,35 @@
+[21:11:25.930] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 厄里达诺斯，宇宙英灵 Boss阶段：18.5 Boss映射等级：93 参照素材：波江水晶 稀有度：11
+[21:11:25.932] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[21:11:25.933] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:波江水晶 Rare:11
+[21:11:25.934] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 暗影墙 Boss阶段：18.5 Boss映射等级：93 参照素材：剑圣徽章 稀有度：10
+[21:11:25.935] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[21:11:25.936] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:火花权杖 Rare:10
+[21:11:25.937] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:激光狙击步枪 Rare:10
+[21:11:25.938] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:辉光炮 Rare:10
+[21:11:25.939] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:牺牲权杖 Rare:10
+[21:11:25.940] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[21:11:25.941] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:鬼械狙击镜 Rare:10
+[21:11:25.942] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:高密度冰锥 Rare:10
+[21:11:25.943] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:圣洁碎片 Rare:10
+[21:11:25.944] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命精华 Rare:10
+[21:11:25.945] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:物质精华 Rare:10
+[21:11:25.946] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:时光精华 Rare:10
+[21:11:25.947] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:核势 Rare:10
+[21:11:25.948] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:日光凝胶 Rare:10
+[21:11:25.949] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:真丛林孢子 Rare:10
+[21:11:25.950] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:腐蚀意志 Rare:10
+[21:11:25.951] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:冠冕意志 Rare:10
+[21:11:25.952] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 史莱姆之神 Boss阶段：19.2 Boss映射等级：95 参照素材：耀斑熔渣 稀有度：9
+[21:11:25.953] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 憎恶 Boss阶段：20 Boss映射等级：100 参照素材：憎恶能量 稀有度：11
+[21:11:25.954] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[21:11:25.955] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:憎恶能量 Rare:11
+[21:11:25.956] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 极视终表 Boss阶段：20.2 Boss映射等级：100 参照素材：时光精华 稀有度：10
+[21:11:25.957] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 万籁携生 Boss阶段：21.2 Boss映射等级：105 参照素材：生命精华 稀有度：10
+[21:11:25.958] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 化物天匠 Boss阶段：22.2 Boss映射等级：110 参照素材：物质精华 稀有度：10
+[21:11:25.960] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 考验 Boss阶段：23 Boss映射等级：115 参照素材：古老圣地之罐 稀有度：5
+[21:11:25.961] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 突变体 Boss阶段：23 Boss映射等级：115 参照素材：永恒能量 稀有度：11
+[21:11:25.962] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[21:11:25.962] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:永恒能量 Rare:11
+[21:11:25.963] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 圣甲虫信仰 Boss阶段：24 Boss映射等级：120 参照素材：非有精华 稀有度：5
+[21:11:25.965] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 世末 · 永落鲸 Boss阶段：25 Boss映射等级：125 参照素材：薄冢精华 稀有度：5
+[21:11:25.965] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 圣子 Boss阶段：26 Boss映射等级：130 参照素材：大结局精华 稀有度：5
