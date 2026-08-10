@@ -42,7 +42,7 @@ namespace KL.Extensions
             {
                 return level;
             }
-
+            
             string trimText = text.TrimStart();
             if (trimText.StartsWith("Error", StringComparison.OrdinalIgnoreCase) ||
                 trimText.StartsWith("Exception", StringComparison.OrdinalIgnoreCase))

@@ -90,12 +90,14 @@ public class KLGameStateManager : KLModSystem
 
 
     private static Dictionary<string, BossChecklistBossInfo> bossInfos = new Dictionary<string, BossChecklistBossInfo>();
+    private static Dictionary<string, int> specialBossMaterialTypes = new Dictionary<string, int>();
     
     private static Dictionary<int, OrigBossChecklistBossInfo> origBossInfos = new Dictionary<int, OrigBossChecklistBossInfo>();
 
     public override void PostAddRecipes()
     {
         bossInfos.Clear();
+        specialBossMaterialTypes.Clear();
         origBossInfos.Clear();
         
         if (ModLoader.TryGetMod("BossChecklist", out Mod bossChecklist) && bossChecklist.Version >= BossChecklistAPIVersion)
@@ -146,6 +148,7 @@ public class KLGameStateManager : KLModSystem
 		        
 		        //计算所有boss而非事件的数量
 		        TotalBossAmount = bossInfos.Count(boss => boss.Value.isBoss);
+		        FillSpecialBossMaterialTypes();
 	        }
         }
         else
@@ -250,24 +253,31 @@ public class KLGameStateManager : KLModSystem
 		    }
 	    }*/
 
-	    if (IsLeftClick())
+	    if (Main.mouseMiddle&&Main.mouseMiddleRelease)
 	    {
-		    return;
-		    Main.mouseLeftRelease = false;
-		    float targetState = 18.6f;
-
+		    
 		    //豆包豆包，帮我总结月总后所有boss对应的可用材料
 		    foreach (var info in bossInfos)
 		    {
 			    if (info.Value.isBoss && info.Value.progression >18f)
 			    {
+				    if (TryGetSpecialBossMaterialType(info.Key, info.Value, out int specialMaterialType)
+				        && ContentSamples.ItemsByType.TryGetValue(specialMaterialType, out Item specialMaterial))
+				    {
+					    Log(info.Value.displayName+" Boss阶段：" +info.Value.progression + " Boss映射等级：" +GetLevelCap(info.Value.progression)+" 参照素材：" + specialMaterial.Name + " 稀有度：" + specialMaterial.rare);
+					    Log("相关材料：");
+					    PrintText($"Item:{specialMaterial.Name} Rare:{specialMaterial.rare}");
+					    Log($"Item:{specialMaterial.Name} Rare:{specialMaterial.rare}");
+					    continue;
+				    }
+				    
 				    int maxRare = 0;
 				    Item resultItem = null;
 				    foreach (var item in info.Value.loot)
 				    {
 					    if (ContentSamples.ItemsByType.TryGetValue(item, out Item itemSample))
 					    {
-						    if (itemSample.damage > 0&&maxRare<itemSample.rare)
+						    if ((itemSample.damage > 0||itemSample.accessory)&&maxRare<itemSample.rare)
 						    {
 							    maxRare = itemSample.rare;
 							    resultItem = itemSample;
@@ -278,15 +288,136 @@ public class KLGameStateManager : KLModSystem
 
 				    if (maxRare > 0&&resultItem!=null)
 				    {
-					    Log(info.Value.displayName +" 参照武器：" + resultItem.Name + " 稀有度：" + resultItem.rare);
-					    FindItemsByRarity(maxRare, StateItemType.Material);
+					    Log(info.Value.displayName+" Boss阶段：" +info.Value.progression + " Boss映射等级：" +GetLevelCap(info.Value.progression)+" 参照素材：" + resultItem.Name + " 稀有度：" + resultItem.rare);
+					    Log("相关武器：");
+					    FindItemsByRarity(maxRare, StateItemType.MagicWeapon, info.Value.modSource);
+					    Log("相关材料：");
+					    FindItemsByRarity(maxRare, StateItemType.Material, info.Value.modSource);
+				    }
+				    else
+				    {
+					    foreach (var item in info.Value.loot)
+					    {
+						    if (ContentSamples.ItemsByType.TryGetValue(item, out Item itemSample))
+						    {
+							    if (maxRare<itemSample.rare&&itemSample.material&&itemSample.damage<=0&&itemSample.createTile<0&&!itemSample.consumable&&!itemSample.accessory&&itemSample.ammo==AmmoID.None
+								    &&itemSample.headSlot<0&&itemSample.bodySlot<0&&itemSample.legSlot<0&&itemSample.dye<=0)
+							    {
+								    maxRare = itemSample.rare;
+								    resultItem = itemSample;
+							    }
+						    }
+					    }
+					    if (maxRare > 0&&resultItem!=null)
+					    {
+						    Log(info.Value.displayName+" Boss阶段：" +info.Value.progression + " Boss映射等级：" +GetLevelCap(info.Value.progression)+" 参照素材：" + resultItem.Name + " 稀有度：" + resultItem.rare);
+						    Log("相关武器：");
+						    FindItemsByRarity(maxRare, StateItemType.MagicWeapon, info.Value.modSource);
+						    Log("相关材料：");
+						    FindItemsByRarity(maxRare, StateItemType.Material, info.Value.modSource);
+					    }
 				    }
 			    }
 		    }
 	    }
 	    base.PostUpdatePlayers();
     }
+    public static int GetLevelCap(float bossState)
+    {
+	    bossState = MathF.Max(bossState, 0f);
+	    if (bossState <= 18) return (int)bossState * 5;
 
+	    float fullState = MathF.Floor(bossState);
+	    float fraction = bossState - fullState;
+	    int levelCap = (int)fullState * 5;
+
+	    if (fraction >= 0.5f)
+	    {
+		    levelCap += 3;
+	    }
+
+	    return Math.Max(levelCap, 1);
+    }
+    
+    private static void FillSpecialBossMaterialTypes()
+    {
+	    if (!ModLoader.TryGetMod("FargowiltasSouls", out Mod fargoSouls))
+	    {
+		    return;
+	    }
+
+	    TryAddSpecialBossMaterial(fargoSouls, "Eridanium", IsEridanusBoss);
+	    TryAddSpecialBossMaterial(fargoSouls, "AbomEnergy", IsAbominationnBoss);
+	    TryAddSpecialBossMaterial(fargoSouls, "EternalEnergy", IsMutantBoss);
+    }
+
+    private static void TryAddSpecialBossMaterial(Mod fargoSouls, string materialName, Func<BossChecklistBossInfo, bool> bossPredicate)
+    {
+	    if (!fargoSouls.TryFind(materialName, out ModItem materialItem))
+	    {
+		    return;
+	    }
+
+	    foreach (var info in bossInfos)
+	    {
+		    if (info.Value.isBoss && info.Value.modSource == "FargowiltasSouls" && bossPredicate(info.Value))
+		    {
+			    specialBossMaterialTypes[info.Key] = materialItem.Type;
+		    }
+	    }
+    }
+
+    private static bool TryGetSpecialBossMaterialType(string bossInfoKey, BossChecklistBossInfo bossInfo, out int materialType)
+    {
+	    if (specialBossMaterialTypes.TryGetValue(bossInfoKey, out materialType))
+	    {
+		    return true;
+	    }
+
+	    foreach (var info in specialBossMaterialTypes)
+	    {
+		    if (bossInfos.TryGetValue(info.Key, out BossChecklistBossInfo specialBossInfo) && ReferenceEquals(specialBossInfo, bossInfo))
+		    {
+			    materialType = info.Value;
+			    return true;
+		    }
+	    }
+
+	    materialType = 0;
+	    return false;
+    }
+
+    private static bool IsEridanusBoss(BossChecklistBossInfo bossInfo)
+    {
+	    return IsBossNameOrKeyMatch(bossInfo, "厄里达诺斯", "宇宙英灵", "Eridanus", "Cosmos");
+    }
+
+    private static bool IsAbominationnBoss(BossChecklistBossInfo bossInfo)
+    {
+	    return IsBossNameOrKeyMatch(bossInfo, "憎恶", "Abominationn", "Abomination", "Abom");
+    }
+
+    private static bool IsMutantBoss(BossChecklistBossInfo bossInfo)
+    {
+	    return IsBossNameOrKeyMatch(bossInfo, "突变体", "Mutant");
+    }
+
+    private static bool IsBossNameOrKeyMatch(BossChecklistBossInfo bossInfo, params string[] keywords)
+    {
+	    string displayName = bossInfo.displayName?.Value ?? bossInfo.displayName?.ToString() ?? "";
+	    string key = bossInfo.key ?? "";
+
+	    foreach (string keyword in keywords)
+	    {
+		    if (displayName.Contains(keyword, StringComparison.OrdinalIgnoreCase) || key.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+		    {
+			    return true;
+		    }
+	    }
+
+	    return false;
+    }
+    
     private void On_NPCOnNPCLoot_DropItems(On_NPC.orig_NPCLoot_DropItems orig, NPC self, Player closestPlayer)
     {
         orig(self, closestPlayer);
@@ -309,13 +440,13 @@ public class KLGameStateManager : KLModSystem
     /// </summary>
     /// <param name="targetRarity"></param>
     /// <returns></returns>
-    public static List<int> FindItemsByRarity(int targetRarity,StateItemType itemType)
+    public static List<int> FindItemsByRarity(int targetRarity,StateItemType itemType, string modSource = "")
     {
 	    List<int> result = new();
 
 	    foreach ((int type, Item item) in ContentSamples.ItemsByType)
 	    {
-		    if (!item.IsAir && item.rare == targetRarity)
+		    if (!item.IsAir && item.rare == targetRarity && IsItemFromMod(type, modSource))
 		    {
 			    bool success = false;
 			    if (itemType == StateItemType.None)
@@ -344,7 +475,7 @@ public class KLGameStateManager : KLModSystem
 				    result.Add(type);
 				    success = true;
 			    }
-			    if (itemType == StateItemType.Material&&item.material&&item.damage<=0&&item.createTile<0&&!item.consumable&&!item.accessory&&item.ammo==AmmoID.None
+			    if (itemType == StateItemType.Material&&item.material&&item.damage<=0&&item.createTile<0&&!item.consumable&&item.ammo==AmmoID.None
 			        &&item.headSlot<0&&item.bodySlot<0&&item.legSlot<0&&item.dye<=0)
 			    {
 				    result.Add(type);
@@ -355,10 +486,27 @@ public class KLGameStateManager : KLModSystem
 				    PrintText($"Item:{item.Name} Rare:{item.rare}");
 				    Log($"Item:{item.Name} Rare:{item.rare}");
 			    }
+			    if(result.Count>10)break;
 		    }
 	    }
 
 	    return result;
+    }
+
+    private static bool IsItemFromMod(int itemType, string modSource)
+    {
+	    if (string.IsNullOrEmpty(modSource))
+	    {
+		    return true;
+	    }
+
+	    if (modSource == "Terraria")
+	    {
+		    return itemType < ItemID.Count;
+	    }
+
+	    ModItem modItem = ItemLoader.GetItem(itemType);
+	    return modItem != null && modItem.Mod.Name == modSource;
     }
     
     protected virtual void OnKillBoss(NPC self, List<int> killers, int realMaxHp)

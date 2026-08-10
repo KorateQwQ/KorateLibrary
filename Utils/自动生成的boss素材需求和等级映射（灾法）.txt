@@ -1,0 +1,268 @@
+[11:14:56.410] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 厄里达诺斯，宇宙英灵 Boss阶段：18.5 Boss映射等级：93 参照素材：耀斑魔石 稀有度：11
+[11:14:56.412] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.414] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:反叛者 Rare:11
+[11:14:56.415] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:山崩 Rare:11
+[11:14:56.416] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:守卫者 Rare:11
+[11:14:56.417] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:衍射暗星炮 Rare:11
+[11:14:56.418] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.420] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星云魔石 Rare:11
+[11:14:56.421] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:耀斑魔石 Rare:11
+[11:14:56.422] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星尘魔石 Rare:11
+[11:14:56.423] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星旋魔石 Rare:11
+[11:14:56.425] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:宇宙之力 Rare:11
+[11:14:56.426] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:大地之力 Rare:11
+[11:14:56.427] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命之力 Rare:11
+[11:14:56.428] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:自然之力 Rare:11
+[11:14:56.429] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:死亡之力 Rare:11
+[11:14:56.430] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:心灵之力 Rare:11
+[11:14:56.431] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:泰拉之力 Rare:11
+
+
+[11:14:56.432] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 亵渎守卫 Boss阶段：18.5 Boss映射等级：93 参照素材：渡魂圣物 稀有度：11
+[11:14:56.433] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.434] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空先兆 Rare:11
+[11:14:56.436] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:时空术士之镰 Rare:11
+[11:14:56.437] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:宙虹 Rare:11
+[11:14:56.438] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:泡沫冲锋枪 Rare:11
+[11:14:56.439] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:源 Rare:11
+[11:14:56.440] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:炼金狂人的手套 Rare:11
+[11:14:56.441] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:原核之怒 Rare:11
+[11:14:56.443] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:聚核射线 Rare:11
+[11:14:56.444] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:殷红鞭笞 Rare:11
+[11:14:56.445] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:终结裂空戟 Rare:11
+[11:14:56.446] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:不稳定法师护手 Rare:11
+[11:14:56.447] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.448] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:斯塔提斯的忍者腰带 Rare:11
+[11:14:56.450] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:闪耀金羽 Rare:11
+[11:14:56.451] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:灵质 Rare:11
+[11:14:56.452] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:浊火精华 Rare:11
+
+
+[11:14:56.454] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 痴愚金龙 Boss阶段：18.6 Boss映射等级：93 参照素材：镀金鸟喙 稀有度：11
+[11:14:56.455] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.457] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空先兆 Rare:11
+[11:14:56.458] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:时空术士之镰 Rare:11
+[11:14:56.459] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:宙虹 Rare:11
+[11:14:56.460] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:泡沫冲锋枪 Rare:11
+[11:14:56.461] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:源 Rare:11
+[11:14:56.462] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:炼金狂人的手套 Rare:11
+[11:14:56.463] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:原核之怒 Rare:11
+[11:14:56.464] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:聚核射线 Rare:11
+[11:14:56.465] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:殷红鞭笞 Rare:11
+[11:14:56.466] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:终结裂空戟 Rare:11
+[11:14:56.467] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:不稳定法师护手 Rare:11
+[11:14:56.468] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.470] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:斯塔提斯的忍者腰带 Rare:11
+[11:14:56.472] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:闪耀金羽 Rare:11
+[11:14:56.473] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:灵质 Rare:11
+[11:14:56.474] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:浊火精华 Rare:11
+
+
+[11:14:56.475] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 亵渎天神，普罗维登斯 Boss阶段：19 Boss映射等级：95 参照素材：极乐之翼 稀有度：19
+[11:14:56.477] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.478] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:19
+[11:14:56.479] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:19
+[11:14:56.480] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:19
+[11:14:56.481] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:19
+[11:14:56.482] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:19
+[11:14:56.483] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:19
+[11:14:56.484] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:19
+[11:14:56.486] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:19
+[11:14:56.487] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:19
+[11:14:56.488] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:19
+[11:14:56.489] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:19
+[11:14:56.490] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.492] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:极乐之庇护 Rare:19
+[11:14:56.493] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:渎魂神物 Rare:19
+[11:14:56.494] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:19
+[11:14:56.495] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:19
+[11:14:56.496] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:19
+[11:14:56.497] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:19
+[11:14:56.498] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:19
+
+
+[11:14:56.499] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 无尽虚空 Boss阶段：19.6 Boss映射等级：98 参照素材：镜之刃 稀有度：19
+[11:14:56.500] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.503] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:19
+[11:14:56.504] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:19
+[11:14:56.506] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:19
+[11:14:56.507] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:19
+[11:14:56.508] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:19
+[11:14:56.509] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:19
+[11:14:56.510] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:19
+[11:14:56.511] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:19
+[11:14:56.512] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:19
+[11:14:56.513] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:19
+[11:14:56.514] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:19
+[11:14:56.515] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.518] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:极乐之庇护 Rare:19
+[11:14:56.519] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:渎魂神物 Rare:19
+[11:14:56.520] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:19
+[11:14:56.521] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:19
+[11:14:56.522] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:19
+[11:14:56.523] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:19
+[11:14:56.524] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:19
+
+
+[11:14:56.526] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 风暴编织者 Boss阶段：19.61 Boss映射等级：98 参照素材：苍澜龙骑兵 稀有度：19
+[11:14:56.527] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.528] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:19
+[11:14:56.529] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:19
+[11:14:56.530] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:19
+[11:14:56.531] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:19
+[11:14:56.533] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:19
+[11:14:56.534] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:19
+[11:14:56.536] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:19
+[11:14:56.537] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:19
+[11:14:56.539] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:19
+[11:14:56.540] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:19
+[11:14:56.541] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:19
+[11:14:56.542] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.543] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:极乐之庇护 Rare:19
+[11:14:56.544] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:渎魂神物 Rare:19
+[11:14:56.545] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:19
+[11:14:56.546] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:19
+[11:14:56.548] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:19
+[11:14:56.549] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:19
+[11:14:56.550] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:19
+
+
+[11:14:56.551] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 西格纳斯 Boss阶段：19.62 Boss映射等级：98 参照素材：星体苦无 稀有度：19
+[11:14:56.552] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.554] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:等离子液铸器 Rare:19
+[11:14:56.556] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太之低语 Rare:19
+[11:14:56.557] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命光流 Rare:19
+[11:14:56.558] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:黑洞边缘 Rare:19
+[11:14:56.559] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:磁场之融 Rare:19
+[11:14:56.560] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:槲叶暴风 Rare:19
+[11:14:56.561] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:纳米净化 Rare:19
+[11:14:56.562] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:净化激光炮 Rare:19
+[11:14:56.563] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狂野复诵 Rare:19
+[11:14:56.564] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猩红烈焰 Rare:19
+[11:14:56.565] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:战术家的王牌 Rare:19
+[11:14:56.566] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.568] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:极乐之庇护 Rare:19
+[11:14:56.569] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:渎魂神物 Rare:19
+[11:14:56.571] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:装甲外壳 Rare:19
+[11:14:56.572] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:血石 Rare:19
+[11:14:56.573] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:暗离子体 Rare:19
+[11:14:56.574] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神圣晶石 Rare:19
+[11:14:56.575] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:扭曲虚空 Rare:19
+
+
+[11:14:56.576] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 憎恶 Boss阶段：20 Boss映射等级：100 参照素材：憎恶手杖 稀有度：11
+[11:14:56.577] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.579] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:反叛者 Rare:11
+[11:14:56.581] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:山崩 Rare:11
+[11:14:56.582] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:守卫者 Rare:11
+[11:14:56.583] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:衍射暗星炮 Rare:11
+[11:14:56.584] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.587] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星云魔石 Rare:11
+[11:14:56.588] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:耀斑魔石 Rare:11
+[11:14:56.589] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星尘魔石 Rare:11
+[11:14:56.590] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星旋魔石 Rare:11
+[11:14:56.591] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:宇宙之力 Rare:11
+[11:14:56.592] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:大地之力 Rare:11
+[11:14:56.593] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命之力 Rare:11
+[11:14:56.595] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:自然之力 Rare:11
+[11:14:56.596] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:死亡之力 Rare:11
+[11:14:56.597] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:心灵之力 Rare:11
+[11:14:56.598] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:泰拉之力 Rare:11
+
+
+[11:14:56.599] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 噬魂幽花 Boss阶段：20 Boss映射等级：100 参照素材：惊惧魂刃 稀有度：18
+[11:14:56.600] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.603] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:天龙座阿尔法 Rare:18
+[11:14:56.604] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:寂虚之光 Rare:18
+[11:14:56.605] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻妖龙吟 Rare:18
+[11:14:56.607] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:冰幻法杖 Rare:18
+[11:14:56.608] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:命运神启 Rare:18
+[11:14:56.609] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:鬼之形 Rare:18
+[11:14:56.610] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻象之怒 Rare:18
+[11:14:56.611] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:影流法杖 Rare:18
+[11:14:56.612] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:金星三叉戟 Rare:18
+[11:14:56.613] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:酸蚀毒蝰 Rare:18
+[11:14:56.614] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.616] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空翼靴 Rare:18
+[11:14:56.617] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猎魂鲨牙 Rare:18
+[11:14:56.618] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:毁灭之灵 Rare:18
+
+
+[11:14:56.620] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 硫海遗爵 Boss阶段：20.5 Boss映射等级：103 参照素材：阴险穿刺者 稀有度：18
+[11:14:56.621] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.623] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:天龙座阿尔法 Rare:18
+[11:14:56.624] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:寂虚之光 Rare:18
+[11:14:56.625] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻妖龙吟 Rare:18
+[11:14:56.626] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:冰幻法杖 Rare:18
+[11:14:56.628] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:命运神启 Rare:18
+[11:14:56.629] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:鬼之形 Rare:18
+[11:14:56.630] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:幻象之怒 Rare:18
+[11:14:56.631] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:影流法杖 Rare:18
+[11:14:56.632] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:金星三叉戟 Rare:18
+[11:14:56.634] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:酸蚀毒蝰 Rare:18
+[11:14:56.635] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.637] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空翼靴 Rare:18
+[11:14:56.638] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:猎魂鲨牙 Rare:18
+[11:14:56.640] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:毁灭之灵 Rare:18
+[11:14:56.641] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 神明吞噬者 Boss阶段：21 Boss映射等级：105 参照素材：永噬之颚 稀有度：14
+[11:14:56.642] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.644] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:特斯拉巨炮 Rare:14
+[11:14:56.645] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:变脸熔炉 Rare:14
+[11:14:56.646] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:终灭裂隙权杖 Rare:14
+[11:14:56.647] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:寒冰弹幕 Rare:14
+[11:14:56.648] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:圣神光辉 Rare:14
+[11:14:56.649] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星云灾变 Rare:14
+[11:14:56.650] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:奥密克戎 Rare:14
+[11:14:56.651] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:始源之遗 Rare:14
+[11:14:56.653] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:灵魂穿透者 Rare:14
+[11:14:56.654] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:极点光伏 Rare:14
+[11:14:56.655] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.657] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:化神魂精 Rare:14
+[11:14:56.659] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:日蚀之阴碎片 Rare:14
+[11:14:56.660] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:恒温能量 Rare:14
+[11:14:56.661] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:梦魇魔能 Rare:14
+[11:14:56.662] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 重生之龙，犽戎 Boss阶段：22 Boss映射等级：110 参照素材：巨龙之怒 稀有度：12
+[11:14:56.663] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.665] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:以太流光炮 Rare:12
+[11:14:56.666] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:氦闪 Rare:12
+[11:14:56.667] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星火凤凰雨 Rare:12
+[11:14:56.668] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:神杖·暴风灼炎 Rare:12
+[11:14:56.670] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:虚空漩涡 Rare:12
+[11:14:56.671] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:亚利姆水晶 Rare:12
+[11:14:56.673] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.674] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:龙魂碎片 Rare:12
+[11:14:56.676] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 星流巨械 Boss阶段：22.99 Boss映射等级：113 参照素材：光子撕裂者 稀有度：16
+[11:14:56.677] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.678] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:归元漩涡 Rare:16
+[11:14:56.679] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:耀界之光 Rare:16
+[11:14:56.681] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.682] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星流棱晶 Rare:16
+[11:14:56.683] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:奇迹物质 Rare:16
+[11:14:56.684] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 至尊女巫，灾厄 Boss阶段：23 Boss映射等级：115 参照素材：恣睢 稀有度：13
+[11:14:56.685] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.687] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:异端僭越 Rare:13
+[11:14:56.689] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:异端 Rare:13
+[11:14:56.690] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:怨戾 Rare:13
+[11:14:56.692] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:狞桀 Rare:13
+[11:14:56.693] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.694] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:湮灭余烬 Rare:13
+
+
+[11:14:56.696] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 突变体 Boss阶段：23 Boss映射等级：115 参照素材：突变之眼 稀有度：11
+[11:14:56.697] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关武器：
+[11:14:56.699] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:反叛者 Rare:11
+[11:14:56.700] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:山崩 Rare:11
+[11:14:56.701] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:守卫者 Rare:11
+[11:14:56.702] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:衍射暗星炮 Rare:11
+[11:14:56.704] [Main Thread/INFO] [KL]: [Log][SinglePlayer] 相关材料：
+[11:14:56.706] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星云魔石 Rare:11
+[11:14:56.707] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:耀斑魔石 Rare:11
+[11:14:56.709] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星尘魔石 Rare:11
+[11:14:56.710] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:星旋魔石 Rare:11
+[11:14:56.711] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:宇宙之力 Rare:11
+[11:14:56.712] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:大地之力 Rare:11
+[11:14:56.714] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:生命之力 Rare:11
+[11:14:56.715] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:自然之力 Rare:11
+[11:14:56.716] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:死亡之力 Rare:11
+[11:14:56.718] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:心灵之力 Rare:11
+[11:14:56.720] [Main Thread/INFO] [KL]: [Log][SinglePlayer] Item:泰拉之力 Rare:11

@@ -12,21 +12,24 @@
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Reference Include="BossChecklist">
-	    <HintPath>..\BossChecklist\bin\Debug\net8.0\BossChecklist.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Lights">
-	    <HintPath>..\Lights\bin\Debug\net8.0\Lights.dll</HintPath>
-	  </Reference>
-	  <Reference Include="SilkyUIFramework">
-	    <HintPath>..\SilkyUIFramework\bin\Debug\net8.0\SilkyUIFramework.dll</HintPath>
-	  </Reference>
-	</ItemGroup>
-	<ItemGroup>
 	  <None Remove="Projectiles\FireWind.png" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="ActionsSystem\TemplateActions\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="BossChecklist">
+	    <HintPath>..\BossChecklist.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FargowiltasSouls">
+	    <HintPath>FargowiltasSouls.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Lights">
+	    <HintPath>..\Lights.dll</HintPath>
+	  </Reference>
+	  <Reference Include="SilkyUIFramework">
+	    <HintPath>..\SilkyUIFramework.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 	<!-- References -->
 
