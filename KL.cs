@@ -46,7 +46,13 @@ namespace KL
 			
 			base.Load();
 		}
-		
+
+		public override void Unload()
+		{
+			KLInstance = null;
+			base.Unload();
+		}
+
 		private static string BuildMethodCacheKey(Type type, string methodName, object[] parameters)
 		{
 			IEnumerable<string> parameterTypes = (parameters ?? []).Select(p => p?.GetType().FullName ?? "<null>");

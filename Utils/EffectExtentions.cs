@@ -98,4 +98,9 @@ public static class EffectExtentions
         effect.Parameters[name].SetValue(value);
     }
 
+    public static void SetValue(this Effect effect, string name, Matrix value)
+    {
+        effect.Parameters[name].SetValue(value);
+    }
+
 }
