@@ -259,14 +259,14 @@ public class KLGameStateManager : KLModSystem
 	    if (Main.mouseMiddle&&Main.mouseMiddleRelease)
 	    {
 
-		    foreach (var npc in Main.ActiveNPCs)
+		    /*foreach (var npc in Main.ActiveNPCs)
 		    {
 			    if (npc.boss)
 			    {
 				    Log($"{npc.FullName} state: {GetBossState(npc)}");
 				    FindMaterialsByBoss(npc);
 			    }
-		    }
+		    }*/
 	    }
 	    base.PostUpdatePlayers();
     }
