@@ -16,6 +16,11 @@ public class NpcHPGlobalNpc : GlobalNPC
 
     public int RealMaxHP;
     public int RealHP;
+
+    public override void AI(NPC npc)
+    {
+        base.AI(npc);
+    }
 }
 
 public static class NpcHPHelper

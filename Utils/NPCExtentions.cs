@@ -32,6 +32,15 @@ public static class NPCExtentions
     }
 
     /// <summary>
+    /// 获取npc的唯一名称,为模组名+npc类名
+    /// </summary>
+    /// <param name="npc"></param>
+    /// <returns></returns>
+    public static string GetUniqueName(this NPC npc)
+    {
+        return NPCID.Search.GetName(npc.type);
+    }
+    /// <summary>
     /// 对于特殊多体节npc，返回逻辑npc，控制效果会同时作用于逻辑npc
     /// </summary>
     /// <param name="npc"></param>
