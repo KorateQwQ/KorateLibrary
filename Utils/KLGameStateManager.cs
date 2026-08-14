@@ -645,45 +645,6 @@ public class KLGameStateManager : KLModSystem
     {
 	    return bossInfos;
     }
-
-    public static float GetStateDps(float state)
-    {
-        float[] stateDps =
-        [
-            30f,
-            50f,   // 史莱姆王
-            80f,   // 克苏鲁之眼
-            110f,  // 世界吞噬者 / 克苏鲁之脑
-            150f,  // 蜂王
-            200f,  // 骷髅王
-            250f,  // 独眼巨鹿
-            350f,  // 血肉墙
-            400f,  // 史莱姆皇后
-            450f,  // 双子魔眼
-            500f,  // 毁灭者
-            650f,  // 机械骷髅王
-            900f,  // 世纪之花
-            1100f, // 石巨人
-            1200f, // 猪龙鱼公爵
-            1300f, // 光之女皇
-            1550f, // 光之女皇与拜月教邪教徒之间的阶段16
-            1800f, // 拜月教邪教徒 / 月亮事件 / 四柱
-            3500f  // 月亮领主
-        ];
-
-        state = Math.Clamp(state, 0f, stateDps.Length - 1);
-        int lowerState = (int)MathF.Floor(state);
-        int upperState = Math.Min(lowerState + 1, stateDps.Length - 1);
-        float progress = state - lowerState;
-
-        return stateDps[lowerState] + (stateDps[upperState] - stateDps[lowerState]) * progress;
-    }
-
-    public static float GetLevelDps(int level)
-    {
-        float state = Math.Max(level, 0) / 5f;
-        return GetStateDps(state);
-    }
     
 
     class GameStateNPC : GlobalNPC
