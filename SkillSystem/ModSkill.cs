@@ -54,6 +54,16 @@ public abstract class ModSkill : ILoadable
     public Skill.SKillBasicStatus BasicStatus = Skill.SKillBasicStatus.Lock;
 
     public virtual bool IsPassiveSkill => false;
+
+    /// <summary>
+    /// 是否允许玩家在技能提示中开关此技能。
+    /// </summary>
+    public virtual bool IsToggleable => false;
+
+    /// <summary>
+    /// 当前是否启用。此运行时状态不会存档。
+    /// </summary>
+    public bool IsEnabled { get; set; } = true;
     
     public float CurrentCD = 0;
     public float MaxCD = 60;

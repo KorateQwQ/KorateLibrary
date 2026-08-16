@@ -308,24 +308,80 @@ namespace KL.Extensions
         }
 
         /// <summary>
+        /// 搜索范围内距离最近的可追踪敌人。
+        /// </summary>
+        /// <param name="entity">搜索起点实体</param>
+        /// <param name="maxRange">最大搜索距离</param>
+        /// <param name="canTargetThroughWalls">是否可以搜索墙体后的敌人</param>
+        /// <param name="searchAngle">搜索扇形的总夹角（角度制），默认为 360 度</param>
+        /// <param name="searchDirection">搜索朝向；为空时使用实体速度方向</param>
+        /// <returns>最近敌人的 NPC 索引，未找到时返回 -1</returns>
+        public static int FindTarget(this Entity entity, float maxRange = 800f,
+            bool canTargetThroughWalls = false, float searchAngle = 360f, Vector2? searchDirection = null)
+        {
+            if (maxRange <= 0f)
+                return -1;
+
+            searchAngle = MathHelper.Clamp(searchAngle, 0f, 360f);
+            bool limitAngle = searchAngle < 360f;
+            Vector2 direction = searchDirection ?? entity.velocity;
+            if (limitAngle && direction.LengthSquared() < 0.0001f)
+                return -1;
+
+            if (limitAngle)
+                direction.Normalize();
+
+            float maxRangeSquared = maxRange * maxRange;
+            float minDirectionDot = (float)Math.Cos(MathHelper.ToRadians(searchAngle * 0.5f));
+            int result = -1;
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.CanBeChasedBy(entity))
+                    continue;
+
+                Vector2 offset = npc.Center - entity.Center;
+                float distanceSquared = offset.LengthSquared();
+                if (distanceSquared >= maxRangeSquared)
+                    continue;
+
+                if (limitAngle && distanceSquared > 0.0001f &&
+                    Vector2.Dot(offset / (float)Math.Sqrt(distanceSquared), direction) < minDirectionDot)
+                    continue;
+
+                if (!canTargetThroughWalls &&
+                    !Collision.CanHit(entity.position, entity.width, entity.height,
+                        npc.position, npc.width, npc.height))
+                    continue;
+
+                maxRangeSquared = distanceSquared;
+                result = i;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// 每帧更新，试图朝向目标位置追击
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="targetPos">锁定的追击位置</param>
         /// <param name="targetVelocity">目标速度，追击速度会朝着目标速度靠拢</param>
-        /// <param name="strength"></param>
-        public static void TraceTargetPosition(this Entity entity, Vector2 targetPos, float targetVelocity,
-            float strength)
+        /// <param name="maxTurnRadians">每帧最大转向角度</param>
+        public static void TraceTargetPosition(this Entity entity, Vector2 targetPos,
+            float targetVelocity, float maxTurnRadians = 0.1f)
+
         {
-            strength = MathHelper.Clamp(strength, 0.1f, 1);
-            Vector2 targetVec = targetPos - entity.Center;
-            targetVec.Normalize();
-            // 目标向量是朝向目标的大小为20的向量
-            targetVec *= targetVelocity;
-            // 朝向npc的单位向量*20 + 3.33%偏移量
-            entity.velocity = (entity.velocity * (1 - strength) + targetVec * strength) / targetVelocity;
-            //entity.velocity.Normalize();
-            //entity.velocity *= 20f;
+            Vector2 offset = targetPos - entity.Center;
+            if (offset.LengthSquared() < 0.0001f || targetVelocity <= 0f)
+                return;
+
+            float currentRotation = entity.velocity.ToRotation();
+            float targetRotation = offset.ToRotation();
+            float rotation = currentRotation.AngleTowards(targetRotation, maxTurnRadians);
+
+            entity.velocity = rotation.ToRotationVector2() * targetVelocity;
         }
 
         /// <summary>

@@ -187,11 +187,19 @@ public abstract class SkillPanelUI : BaseBody, IDraggableUI
             OverflowHidden = false,
         }.Join(MainContainer);
 
-        SkillToolTip = new SkillToolTip().Join(ContentPanel);
+        SkillToolTip = CreateSkillToolTip().Join(ContentPanel);
 
         //PanelSlotUI panelSlot = new PanelSlotUI().Join(this);
         RegisterAllSkill();
         base.OnInitialize();
+    }
+
+    /// <summary>
+    /// 创建技能提示控件。具体 Mod 可覆写以提供自己的绘制样式。
+    /// </summary>
+    protected virtual SkillToolTip CreateSkillToolTip()
+    {
+        return new SkillToolTip();
     }
 
     /// <summary>

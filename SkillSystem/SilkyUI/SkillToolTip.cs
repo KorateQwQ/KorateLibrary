@@ -1,5 +1,6 @@
-using KL.DamageSystem;
 using KL.Drawing.Snippets;
+using KL.SkillSystem.AbstractClass;
+using KL.UI;
 using SilkyUIFramework;
 using SilkyUIFramework.Attributes;
 using SilkyUIFramework.Elements;
@@ -13,6 +14,10 @@ public class SkillToolTip : UIElementGroup
     private UIElementGroup _header;
     private KLTextView _nameText;
     private KLTextView _levelText;
+    private UIElementGroup _toggleRow;
+    private ToggleButton _toggleButton;
+    private KLTextView _toggleStateText;
+    private DragScrollView _descScrollView;
     private KLTextView _descText;
 
     private SkillUnlockFooterUI _unlockFooter;
@@ -83,25 +88,88 @@ public class SkillToolTip : UIElementGroup
             Font = FontManager.HarmonyOS_Sans_SC.Value,
         }.Join(_header);
 
-        _descText = new KLTextView
-
+        _toggleRow = new UIElementGroup
         {
+            FlexDirection = FlexDirection.Row,
+            CrossAlignment = CrossAlignment.Center,
+            CrossContentAlignment = CrossContentAlignment.Center,
             Width = new Dimension(percent: 1f),
+            Height = new Dimension(0f),
             FitWidth = false,
             FitHeight = false,
-            Height = new Dimension(480f),
+            Gap = new Size(10f, 0f),
+            Padding = new Margin(0f),
+            BackgroundColor = Color.Black*1,
+            OverflowHidden = true,
+            IgnoreMouseInteraction = true,
+        }.Join(this);
+
+        _toggleButton = CreateToggleButton().Join(_toggleRow);
+        _toggleButton.ValueChanged += SetCurrentSkillEnabled;
+
+        _toggleStateText = new KLTextView
+        {
+            Width = new Dimension(188f),
+            Height = new Dimension(14f),
+            FitWidth = false,
+            FitHeight = false,
+            FlexShrink = 1f,
+            TextAlign = new Vector2(1f, 0.5f),
+            TextScale = 0.3f,
+            TextColor = Color.White,
+            TextBorder = 0f,
+            TextBorderColor = Color.Transparent,
+            BackgroundColor = Color.Green,
+            WordWrap = false,
+            Font = FontManager.HarmonyOS_Sans_SC.Value,
+            IgnoreMouseInteraction = true,
+        }.Join(_toggleRow);
+
+        _descScrollView = new DragScrollView(Direction.Vertical)
+        {
+            Width = new Dimension(percent: 1f),
+            Height = new Dimension(0f),
+            FitWidth = false,
+            FitHeight = false,
+            FlexGrow = 1f,
+            FlexShrink = 1f,
+            Padding = new Margin(0f),
+            BackgroundColor = Color.Transparent,
+            Border = 0f,
+            Gap = new Size(0f),
+        }.Join(this);
+        _descScrollView.Mask.OverflowHidden = true;
+        _descScrollView.Container.FlexDirection = FlexDirection.Column;
+        _descScrollView.Container.FlexWrap = false;
+        _descScrollView.Container.MainAlignment = MainAlignment.Start;
+        _descScrollView.Container.Width = new Dimension(percent: 1f);
+        _descScrollView.Container.Height = new Dimension(0f);
+        _descScrollView.Container.FitWidth = false;
+        _descScrollView.Container.FitHeight = true;
+        _descScrollView.Container.Gap = new Size(0f);
+
+        _descText = new KLTextView
+        {
+            Width = new Dimension(percent: 1f),
+            Height = new Dimension(0f),
+            FitWidth = false,
+            FitHeight = true,
+            FlexShrink = 0f,
             WordWrap = true,
             TextScale = 0.3f,
             TextColor = Color.White,
             TextBorder = 0f,
-            TextBorderColor = Color.White * 0,
-            BackgroundColor = Color.Green * 0,
+            TextBorderColor = Color.Transparent,
+            BackgroundColor = Color.Transparent,
             Font = FontManager.HarmonyOS_Sans_SC.Value,
-            Top = new(10,0)
+        }.Join(_descScrollView.Container);
 
+        _unlockFooter = new SkillUnlockFooterUI
+        {
+            FlexShrink = 0f,
+            Margin = new Margin(0f, 10f, 0f, 0f),
         }.Join(this);
-
-        _unlockFooter = new SkillUnlockFooterUI().Join(this);
+        _unlockFooter.SetTop(0f, 0f);
     
         base.OnInitialize();
         Instance = this;
@@ -120,7 +188,38 @@ public class SkillToolTip : UIElementGroup
     }
 
     protected override void Update(GameTime gameTime)
-    {
+    { 
+        _toggleRow.Margin = new Margin(0f, 12f, 0f, 0f);
+        _toggleRow.Padding = new Margin(0f);
+        _toggleRow.Gap = new Size(8f, 0f);
+        _toggleRow.Height = new Dimension(20f);
+        _toggleRow.BackgroundColor = Color.Transparent;
+
+        _toggleStateText.Width = new Dimension(0f);
+        _toggleStateText.Height = new Dimension(0f);
+        _toggleStateText.FlexGrow = 1f;
+        _toggleStateText.FlexShrink = 1f;
+        _toggleStateText.TextAlign = new Vector2(1f, 0.5f);
+        _toggleStateText.BackgroundColor = Color.Green*0;
+        
+        _descScrollView.BackgroundColor = Color.Transparent;
+        _descScrollView.Margin = new Margin(0f, 8f, 0f, 0f);
+        _descScrollView.Top = new Anchor(0,0);
+        _descText.Margin = new Margin(0f);
+
+        Padding = new Margin(8f,0,8,8);
+
+        _header.Margin = new Margin(0, 8, 0, 0);
+
+        Gap = new Size(0f, 0f);
+        //Padding = new Margin(0f);
+        ModSkill modSkill = _currentSkill?.ModSkill;
+        if (modSkill?.IsToggleable == true && _toggleButton.IsOn != modSkill.IsEnabled)
+        {
+            _toggleButton.SetValue(modSkill.IsEnabled, notify: false);
+            _toggleStateText.Text = GetToggleStateText(modSkill.IsEnabled);
+        }
+
         base.Update(gameTime);
     }
 
@@ -130,7 +229,55 @@ public class SkillToolTip : UIElementGroup
         _nameText.Text = name;
         _levelText.Text = level;
         _descText.Text = desc;
+        _descScrollView.ScrollBar.SetScrollPosition(Vector2.Zero);
+        RefreshToggleRow();
         _unlockFooter.SetSkill(skill, skillIcon);
+    }
+
+    protected virtual ToggleButton CreateToggleButton()
+    {
+        return new ToggleButton
+        {
+            ToggleSize = new Vector2(42f, 24f),
+            ThumbDiameter = 18f,
+            ThumbInset = 3f,
+        };
+    }
+
+    protected virtual string GetToggleStateText(bool isEnabled)
+    {
+        return isEnabled ? "已开启" : "未开启";
+    }
+
+    private void RefreshToggleRow()
+    {
+        ModSkill modSkill = _currentSkill?.ModSkill;
+        bool isToggleable = modSkill?.IsToggleable == true;
+        
+        _toggleRow.Height = new Dimension(isToggleable ? 32f : 0f);
+        _toggleRow.Invalid = !isToggleable;
+        _toggleRow.DisableMouseInteraction = !isToggleable;
+
+        if (!isToggleable)
+        {
+            _toggleStateText.Text = string.Empty;
+            return;
+        }
+
+        _toggleButton.SetValue(modSkill.IsEnabled, notify: false, animate: false);
+        _toggleStateText.Text = GetToggleStateText(modSkill.IsEnabled);
+    }
+
+    private void SetCurrentSkillEnabled(bool isEnabled)
+    {
+        ModSkill modSkill = _currentSkill?.ModSkill;
+        if (modSkill?.IsToggleable != true)
+        {
+            return;
+        }
+
+        modSkill.IsEnabled = isEnabled;
+        _toggleStateText.Text = GetToggleStateText(isEnabled);
     }
 
     public void RefreshUnlockFooter()
@@ -153,25 +300,5 @@ public class SkillToolTip : UIElementGroup
         return Skill.IsSameSkillType(skill, _currentSkill);
     }
 
-    protected override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
-    {
-        /*_descText.TextScale = 0.3f;
-        _descText.Font = FontManager.HarmonyOS_Sans_SC.Value;//FontAssets.ItemStack.Value;//*/
 
-        /*_descText.Text= $"Elaina: α 造成100 {ElementType.Fire.GetIcon(size:48,offsetY:2)} 火元素伤害火元素\n伤" +
-                        $"害火元素伤害火元素伤害ElainaElainaElaina火" +
-                        $"元素伤害火元素伤害火元素伤害火元素伤害ElainaElainaElaina";*/
-        var position = Bounds.Position;
-
-        Texture2D tex = ModContent.Request<Texture2D>("KL/Effects/Tex/Sparkle/ShotLineSPA", AssetRequestMode.ImmediateLoad).Value;
-        Texture2D cross = ModContent.Request<Texture2D>("KL/Effects/Tex/Sparkle/Cross", AssetRequestMode.ImmediateLoad).Value;
-
-        Vector2 center = position + new Vector2(135, 35);
-        
-        DrawInScreen(tex, center-new Vector2(-70,0), scale: new Vector2(0.6f,0.1f), color: new Color(255,255,255,0));
-        DrawInScreen(tex, center-new Vector2(70,0), scale: new Vector2(0.6f,0.1f), color: new Color(255,255,255,0));
-        DrawInScreen(cross, center-new Vector2(0,0), scale: new Vector2(0.04f,0.02f), color: new Color(255,255,255,0));
-
-        base.Draw(gameTime, spriteBatch);
-    }
 }

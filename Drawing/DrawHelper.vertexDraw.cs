@@ -188,6 +188,7 @@ public partial class DrawHelper : ModSystem
                 var factor = i / (float)topPoints.Length; //(float)坐标组.Length;
                 //var color = new Color(255, 123, 35, 255);//Color.Lerp(Color.White,Color.Red , factor);//Projectile.GetFairyQueenWeaponsColor(0f)//从头部到尾部渐变颜色
                 var lerpAlpha = MathHelper.Lerp(startAlpha, endAlpha, factor); //从头部到尾部越来越透明
+                if(lerpAlpha<0) lerpAlpha = 0;
                 var color = Color.Lerp(startColor, endColor, factor);
 
                 var trans = Main.GameViewMatrix != null ? Main.GameViewMatrix.TransformationMatrix : Matrix.Identity;
