@@ -56,9 +56,45 @@ public static class KLNetModule
         return genericMethod.Invoke(npc, null) as GlobalNPC;
     }
 
+    private static Projectile GetProjectileByIdentity(int owner, int identity, string typeName = null)
+    {
+        if (owner < 0 || owner >= Main.player.Length)
+        {
+            Log($"GetProjectileByIdentity: Invalid owner {owner}, identity {identity}");
+            return null;
+        }
 
+        for (int i = 0; i < Main.projectile.Length; i++)
+        {
+            Projectile projectile = Main.projectile[i];
+            if (!projectile.active || projectile.owner != owner || projectile.identity != identity)
+            {
+                continue;
+            }
 
-    public static object GetNetInstance(string typeName, int instanceID = 0)
+            if (typeName != null)
+            {
+                if (projectile.ModProjectile == null)
+                {
+                    Log($"GetProjectileByIdentity: Projectile owner {owner}, identity {identity} missing ModProjectile for {typeName}");
+                    return null;
+                }
+
+                if (projectile.ModProjectile.GetType().FullName != typeName)
+                {
+                    Log($"GetProjectileByIdentity: Projectile type mismatch, expect {typeName}, actual {projectile.ModProjectile.GetType().FullName}");
+                    return null;
+                }
+            }
+
+            return projectile;
+        }
+
+        Log($"GetProjectileByIdentity: Projectile not found, owner {owner}, identity {identity}, type {typeName ?? "Any"}");
+        return null;
+    }
+
+    public static object GetNetInstance(string typeName, int instanceID = 0, int instanceOwner = -1)
     {
         KL.NetInstance.TryGetValue(typeName, out object instance);
         if (instance == null)
@@ -147,31 +183,20 @@ public static class KLNetModule
         }
         else if(instance is ModProjectile modProjectile)
         {
-            if (instanceID < 0 || instanceID >= Main.projectile.Length)
+            Projectile result = GetProjectileByIdentity(instanceOwner, instanceID, typeName);
+            if (result == null)
             {
-                Log($"GetNetInstance: Invalid projectile instance id {instanceID} for {typeName}");
-                return null;
-            }
-            Projectile result = Main.projectile[instanceID];
-            if (!result.active || result.ModProjectile == null)
-            {
-                Log($"GetNetInstance: Projectile instance {instanceID} is inactive or missing ModProjectile for {typeName}");
-                return null;
-            }
-            if(result.ModProjectile.GetType().FullName!=typeName)
-            {
-                Log($"GetNetInstance: Projectile type mismatch, expect {typeName}, actual {result.ModProjectile.GetType().FullName}");
                 return null;
             }
             return result.ModProjectile;
         }
         return instance;
     }
-    public static void RPC(string typeName,int instanceID,string methodName, object[] parameters = null,NetSendType netSendType = NetSendType.ClientToAll,int ignoreClient=-1)
+    public static void RPC(string typeName,int instanceID,string methodName, object[] parameters = null,NetSendType netSendType = NetSendType.ClientToAll,int ignoreClient=-1,int instanceOwner = -1)
     {
         parameters ??= [];
 
-        object instance = GetNetInstance(typeName,instanceID);
+        object instance = GetNetInstance(typeName,instanceID,instanceOwner);
         if(instance==null)
         {
             Log("Error: KLNetModule.GetNetInstance() return null");
@@ -190,6 +215,7 @@ public static class KLNetModule
         packet.Write((byte)netSendType);
         packet.Write(typeName);
         packet.Write(instanceID);
+        packet.Write(instanceOwner);
         packet.Write(methodName);
         packet.Write(parameters.Length);
 
@@ -274,7 +300,8 @@ public static class KLNetModule
                 break;
             case Projectile projectileValue:
                 packet.Write((byte)12);
-                packet.Write(projectileValue.whoAmI);
+                packet.Write(projectileValue.owner);
+                packet.Write(projectileValue.identity);
                 break;
             case List<int> intListValue:
                 packet.Write((byte)20);
@@ -294,6 +321,7 @@ public static class KLNetModule
         NetSendType netSendType = (NetSendType)reader.ReadByte();
         string typeName = reader.ReadString();
         int instanceID = reader.ReadInt32();
+        int instanceOwner = reader.ReadInt32();
         string methodName = reader.ReadString();
         int parameterCount = reader.ReadInt32();
         object[] parameters = new object[parameterCount];
@@ -356,13 +384,9 @@ public static class KLNetModule
                     parameter = player;
                     break;
                 case 12:
-                    int projectileID = reader.ReadInt32();
-                    Projectile projectile = null;
-                    if (projectileID >= 0 && projectileID < Main.projectile.Length)
-                    {
-                        projectile = Main.projectile[projectileID];
-                    }
-                    parameter = projectile;
+                    int projectileOwner = reader.ReadInt32();
+                    int projectileIdentity = reader.ReadInt32();
+                    parameter = GetProjectileByIdentity(projectileOwner, projectileIdentity);
                     break;
                 case 20:
                     int listCount = reader.ReadInt32();
@@ -379,14 +403,14 @@ public static class KLNetModule
             parameters[i] = parameter;
         }
 
-        object instance = GetNetInstance(typeName, instanceID);
+        object instance = GetNetInstance(typeName, instanceID, instanceOwner);
         
         if (instance != null)
         {
             KL.InvokeMethodByTypeName(instance,methodName, parameters);
             if (netSendType == NetSendType.ClientToAll)
             {
-                RPC(typeName,instanceID,methodName,parameters,NetSendType.ServerToClients,messageSender);
+                RPC(typeName,instanceID,methodName,parameters,NetSendType.ServerToClients,messageSender,instanceOwner);
             }
         }
         else Log("RPC Failed Instance Not Found");

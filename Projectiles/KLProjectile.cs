@@ -141,11 +141,11 @@ public abstract class KLProjectile : ModProjectile
 
     protected void RPC(string methodName, object[] parameters = null,KLNetModule.NetSendType netSendType = KLNetModule.NetSendType.ClientToAll)
     {
-        KLNetModule.RPC(GetType().FullName,Projectile.whoAmI, methodName, parameters,netSendType);
+        KLNetModule.RPC(GetType().FullName,Projectile.identity, methodName, parameters,netSendType, instanceOwner: Projectile.owner);
     }
     protected void RPC(string methodName,KLNetModule.NetSendType netSendType = KLNetModule.NetSendType.ClientToAll)
     {
-        KLNetModule.RPC(GetType().FullName,Projectile.whoAmI, methodName,[],netSendType);
+        KLNetModule.RPC(GetType().FullName,Projectile.identity, methodName,[],netSendType, instanceOwner: Projectile.owner);
     }
 
     #endregion

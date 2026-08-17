@@ -78,6 +78,10 @@ public class DrawSystem : ModSystem
         ShouldBloom2 = shouldBloom;
     }
 
+    /// <summary>
+    /// 是否开启了bloom后处理效果
+    /// </summary>
+    /// <returns></returns>
     public static bool GetShouldBloom()
     {
         return ShouldBloom2;
