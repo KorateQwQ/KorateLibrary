@@ -271,12 +271,7 @@ public class KLGameStateManager : KLModSystem
 	    base.PostUpdatePlayers();
     }
     
-    private static bool IsMaterial(Item itemSample)
-    {
-	    return itemSample.material && itemSample.damage <= 0 && itemSample.createTile < 0 && !itemSample.consumable &&
-	           !itemSample.accessory && itemSample.ammo == AmmoID.None
-	           && itemSample.headSlot < 0 && itemSample.bodySlot < 0 && itemSample.legSlot < 0 && itemSample.dye <= 0;
-    }
+
     public static int GetLevelCap(float bossState)
     {
 	    bossState = MathF.Max(bossState, 0f);
@@ -463,7 +458,7 @@ public class KLGameStateManager : KLModSystem
         int maxRare = int.MinValue;
         foreach (int itemType in bossInfo.loot)
         {
-            if (ContentSamples.ItemsByType.TryGetValue(itemType, out Item item) && IsMaterial(item))
+            if (ContentSamples.ItemsByType.TryGetValue(itemType, out Item item) && item.IsMaterial())
             {
                 maxRare = Math.Max(maxRare, item.rare);
             }
@@ -477,7 +472,7 @@ public class KLGameStateManager : KLModSystem
         foreach (int itemType in bossInfo.loot)
         {
             if (ContentSamples.ItemsByType.TryGetValue(itemType, out Item item)
-                && IsMaterial(item) && item.rare == maxRare && !result.Contains(itemType))
+                && item.IsMaterial() && item.rare == maxRare && !result.Contains(itemType))
             {
                 result.Add(itemType);
                 Log($"Item:{item.Name} Rare:{item.rare}");

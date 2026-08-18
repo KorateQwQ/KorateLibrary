@@ -43,4 +43,26 @@ public static class ItemExtentions
     {
         NetMessage.SendData(MessageID.SyncItem, -1, -1, null, item.whoAmI);
     }
+
+    /// <summary>
+    /// 判断是否是武器，镐子，斧头，锤子等工具不会被视为武器
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public static bool IsWeapon(this Item item)
+    {
+        return item.damage > 0 && item.axe<=0 && item.hammer<=0 && item.pick<=0;
+    }
+    
+    /// <summary>
+    /// 判断是否是“纯”材料,物块,武器，消耗品，饰品，弹药，装备，染料不会被视为纯材料
+    /// </summary>
+    /// <param name="itemSample"></param>
+    /// <returns></returns>
+    public static bool IsMaterial(this Item itemSample)
+    {
+        return itemSample.material && !itemSample.IsWeapon() && itemSample.createTile < 0 && !itemSample.consumable &&
+               !itemSample.accessory && itemSample.ammo == AmmoID.None
+               && itemSample.headSlot < 0 && itemSample.bodySlot < 0 && itemSample.legSlot < 0 && itemSample.dye <= 0;
+    }
 }
