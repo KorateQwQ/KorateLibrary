@@ -8,7 +8,11 @@ namespace KL.SkillSystem;
 
 public abstract class  KLSkillModPlayer : ModPlayer
 {
-    public int MaxSkillSlot = 6;
+    /// <summary>
+    /// 技能栏最大槽位数，由具体 SkillPlayer 决定。
+    /// </summary>
+    public virtual int MaxSkillSlot => 6;
+
     public int SkillPoint { get; set; }
 
     /// <summary>
@@ -147,7 +151,6 @@ public abstract class  KLSkillModPlayer : ModPlayer
     
     public override void SaveData(TagCompound tag)
     {
-        tag["MaxSkillSlot"] = MaxSkillSlot;
         tag["SkillPoint"] = SkillPoint;
 
         if (UnlockedSkill is { Count: > 0 })
@@ -186,8 +189,6 @@ public abstract class  KLSkillModPlayer : ModPlayer
 
     public override void LoadData(TagCompound tag)
     {
-        var name = Player.name;
-        tag.TryGet("MaxSkillSlot", out MaxSkillSlot);
         tag.TryGet("SkillPoint", out int skillPoint);
         SkillPoint = skillPoint;
 

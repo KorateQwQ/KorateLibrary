@@ -264,9 +264,10 @@ public abstract class SkillPanelUI : BaseBody, IDraggableUI
             .ToList(); // 转换为列表存储
 
         int currentState = -1;
-        float totalWidthOfLine = 0;
-        UIElementGroup currentSkillLine = new UIElementGroup();
-        
+        // 当前行里下一个技能槽在 flex 流中的起始位置（已排入槽的宽度累计）
+        float lineFlowCursor = 0;
+        UIElementGroup currentSkillLine = null;
+
         foreach (var skill in sortedSkills)
         {
             Skill panelSkill = GetPanelSkillInstance(skill.Value);
@@ -279,19 +280,20 @@ public abstract class SkillPanelUI : BaseBody, IDraggableUI
             int state = infoAttribute.State;
             float pixcels = infoAttribute.Pixels;
             //新开一行技能栏
-            if (state != currentState)
+            if (currentSkillLine is null || state != currentState)
             {
                 currentState = state;
-                totalWidthOfLine = 0;
-                currentSkillLine.Gap = new Size(20,0);
+                lineFlowCursor = 0;
                 currentSkillLine = new UIElementGroup().Join(MainPanel);
+                //横向位置完全由 Pixels 决定，行内不留额外间距，否则会累积偏移
+                currentSkillLine.Gap = Size.Zero;
                 currentSkillLine.BackgroundColor = Color.White*0;
                 currentSkillLine.FitHeight = true;
                 currentSkillLine.Width = MainPanel.Width;
                 currentSkillLine.OverflowHidden = false;
                 currentSkillLine.IgnoreMouseInteraction = true;
             }
-            
+
             PanelSlotUI panelSlot = new PanelSlotUI(new PanelSkillIcon(panelSkill)
             {
                 SkillPanelUI = this,
@@ -299,11 +301,13 @@ public abstract class SkillPanelUI : BaseBody, IDraggableUI
                 BackgroundColor = SkillSlotBackgroundColor,
             },this)
             {
-                
+
             }.Join(currentSkillLine);
-            
-            panelSlot.SetLeft(pixcels-totalWidthOfLine);
-            totalWidthOfLine += panelSlot.Bounds.Width; //panelSlot.Width.Pixels+panelSlot.Border;
+
+            //Relative 定位下最终 X = flex 流位置 + Left，所以要减掉流内已占宽度才能得到绝对像素位置。
+            //这里不能读 Bounds.Width：此时布局还没跑过，Bounds 全是 0，必须用声明宽度。
+            panelSlot.SetLeft(pixcels - lineFlowCursor);
+            lineFlowCursor += panelSlot.Width.Pixels + panelSlot.Margin.Horizontal;
 
         }
     }

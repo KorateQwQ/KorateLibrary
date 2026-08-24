@@ -20,6 +20,16 @@ public abstract class AnimAction
     public IReadOnlyList<ActionNode> Nodes => nodes;
 
     /// <summary>
+    /// 动作每帧更新前触发的本地监听。
+    /// </summary>
+    public Action<ActionModPlayer, int, float> FrameUpdateListener { get; set; }
+
+    /// <summary>
+    /// 动作节点执行前触发的本地监听。返回 false 可阻止该节点在本帧执行。
+    /// </summary>
+    public Func<ActionModPlayer, ActionNode, int, float, bool> PreNodeUpdateListener { get; set; }
+
+    /// <summary>
     /// 动作类型 id。
     /// </summary>
     public int TypeId => AnimActionRegistry.GetId(GetType());
@@ -132,6 +142,8 @@ public abstract class AnimAction
     /// <param name="actionProgress">动作整体播放进度。</param>
     public virtual void Update(ActionModPlayer actionPlayer, int actionFrame, float actionProgress)
     {
+        FrameUpdateListener?.Invoke(actionPlayer, actionFrame, actionProgress);
+
         foreach (ActionNode node in nodes)
         {
             if (!node.IsActive(actionFrame))
@@ -139,7 +151,13 @@ public abstract class AnimAction
                 continue;
             }
 
-            node.Update(actionPlayer, actionFrame, node.GetProgress(actionFrame));
+            float nodeProgress = node.GetProgress(actionFrame);
+            if (PreNodeUpdateListener?.Invoke(actionPlayer, node, actionFrame, nodeProgress) == false)
+            {
+                continue;
+            }
+
+            node.Update(actionPlayer, actionFrame, nodeProgress);
         }
     }
 
