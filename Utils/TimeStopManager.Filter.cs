@@ -161,6 +161,12 @@ public class TimeStopManager_Filter : ModSystem
         if (GreyEffect && Main.graphics.GraphicsDevice.GetRenderTargets().Length > 0 &&
             Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget != null)
         {
+            // 在绘制玩家之前，先开始 SpriteBatch
+            SpriteBatch sb = Main.spriteBatch;
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, 
+                DepthStencilState.None, RasterizerState.CullCounterClockwise, null, 
+                Main.GameViewMatrix.TransformationMatrix);
+            
             foreach (Player player in _playersThatDrawAfterProjectiles)
             {
                 if (!player.GetModPlayer<TimeStopPlayer>().CanMoveInTimeStop)
@@ -172,16 +178,15 @@ public class TimeStopManager_Filter : ModSystem
                     _playersThatDrawAfterProjectiles2.Add(player);
                 }
             }
+            
+            // 绘制完成后结束 SpriteBatch
+            sb.End();
 
             RenderTarget2D currentTarget =
                 Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget as RenderTarget2D;
 
             Main.LocalPlayer.gravDir = 1;
             GraphicsDevice gd = Main.instance.GraphicsDevice;
-            SpriteBatch sb = Main.spriteBatch;
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None,
-                RasterizerState.CullNone, null);
-            sb.End();
 
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None,
                 RasterizerState.CullNone, null);
@@ -198,13 +203,21 @@ public class TimeStopManager_Filter : ModSystem
             //保存可动人物绘制
             gd.SetRenderTarget(player);
             gd.Clear(Color.Transparent);
-            foreach (Player player in _playersThatDrawAfterProjectiles2)
+            TimeStopManager.IsRenderingPlayerTarget = true;
+            try
             {
-                if (player.GetModPlayer<TimeStopPlayer>().CanMoveInTimeStop)
+                foreach (Player player in _playersThatDrawAfterProjectiles2)
                 {
-                    Main.PlayerRenderer.DrawPlayer(Main.Camera, player, player.position, player.fullRotation,
-                        player.fullRotationOrigin);
+                    if (player.GetModPlayer<TimeStopPlayer>().CanMoveInTimeStop)
+                    {
+                        Main.PlayerRenderer.DrawPlayer(Main.Camera, player, player.position, player.fullRotation,
+                            player.fullRotationOrigin);
+                    }
                 }
+            }
+            finally
+            {
+                TimeStopManager.IsRenderingPlayerTarget = false;
             }
 
 

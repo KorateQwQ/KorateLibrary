@@ -55,12 +55,12 @@ public partial class TimeStopManager : ModSystem
 
         public bool CanMoveInTimeStop()
         {
-            return (time < MaxMoveTime || HeldProj || ImmuneTimeStop);
+            return (!timeStop||time < MaxMoveTime || HeldProj || ImmuneTimeStop);
         }
 
         public override void OnSpawn(Projectile projectile, IEntitySource source)
         {
-            MaxMoveTime = Main.rand.Next(20, 41);
+            MaxMoveTime = Main.rand.Next(20, 40);
             base.OnSpawn(projectile, source);
         }
 

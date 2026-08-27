@@ -131,6 +131,8 @@ public abstract class KLProjectile : ModProjectile
     protected bool NeedGreyEffect =>
         !CanMoveInTimeStop && GreyEffect;
 
+    public int VisualTime => (int)(Main.timeForVisualEffects-Projectile.whoAmI);
+
     public override void Load()
     {
         if(GetType().FullName!=null) KL.NetInstance.Add(GetType().FullName, this);
@@ -330,8 +332,9 @@ public abstract class KLProjectile : ModProjectile
     /// <returns></returns>
     public override bool PreDraw(ref Color lightColor)
     {
-        if (Main.gamePaused) return false;
-        if (TrailLength > 0)
+        // A time-stopped projectile is still drawn, but its trail must retain
+        // the last sampled positions until it can move again.
+        if (TrailLength > 0 && CanMoveInTimeStop&&!Main.gamePaused)
         {
             if (oldCenterTrailPositions.Length != TrailLength)
             {

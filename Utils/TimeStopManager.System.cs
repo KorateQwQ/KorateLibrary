@@ -6,6 +6,8 @@ namespace KL.Utils;
 
 public partial class TimeStopManager : ModSystem
 {
+    public static bool IsRenderingPlayerTarget { get; internal set; }
+
     public static bool timeStop
     {
         get => _timeStopRequests.Count > 0;

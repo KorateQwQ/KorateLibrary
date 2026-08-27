@@ -1,4 +1,5 @@
 using SilkyUIFramework.Graphics2D;
+using KL.Utils;
 
 namespace KL.Drawing;
 
@@ -178,7 +179,7 @@ public partial class DrawHelper : ModSystem
         if (state == 4) blendState = AlphaBlendNormal;
         Main.spriteBatch.End();
         if (ss == null) ss = Main.DefaultSamplerState;
-        if (!adjustToScreen)
+        if (!adjustToScreen || TimeStopManager.IsRenderingPlayerTarget)
         {
             Main.spriteBatch.Begin((SpriteSortMode)defferred, blendState, ss,
                 DepthStencilState.None, RasterizerState.CullNone, shader);
@@ -194,7 +195,7 @@ public partial class DrawHelper : ModSystem
     {
         ss??=Main.DefaultSamplerState;
         Main.spriteBatch.End();
-        if (!adjustToScreen)
+        if (!adjustToScreen || TimeStopManager.IsRenderingPlayerTarget)
         {
             Main.spriteBatch.Begin((SpriteSortMode)defferred, state, ss,
                 DepthStencilState.None, RasterizerState.CullNone, shader);
