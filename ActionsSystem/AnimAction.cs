@@ -219,9 +219,20 @@ public abstract class AnimAction
     
     public static void ShootFromAction(Player player,int projToShoot,Vector2 position,Vector2 velocity,int damage,float knockback)
     {
-        Item item = player.HeldItem;
+        // 动作可能跨帧执行；执行时玩家或手持物品状态可能已经失效。
+        if (player == null || !player.active || player.dead)
+        {
+            return;
+        }
 
         if (player.whoAmI != Main.myPlayer)
+        {
+            return;
+        }
+
+        Item item = player.HeldItem;
+
+        if (item == null || item.IsAir)
         {
             return;
         }
@@ -257,6 +268,12 @@ public abstract class AnimAction
         }
 
         CombinedHooks.ModifyShootStats(player, item, ref position, ref velocity, ref projToShoot, ref damage, ref knockback);
+
+        // Mod hooks may replace the projectile type; retain the same lower-bound guard after mutation.
+        if (projToShoot <= ProjectileID.None)
+        {
+            return;
+        }
 
         if (!CombinedHooks.Shoot(player, item, source, position, velocity, projToShoot, damage, knockback))
         {

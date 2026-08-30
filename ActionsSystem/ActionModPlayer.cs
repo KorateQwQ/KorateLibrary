@@ -139,8 +139,12 @@ public class ActionModPlayer : KLModPlayer
         {
             Player.itemAnimation = animAction.TotalFrame;
             Player.itemTime = animAction.TotalFrame;
-            Player.HeldItem.useTime = animAction.TotalFrame;
-            Player.HeldItem.useAnimation = animAction.TotalFrame;
+            Item heldItem = Player.HeldItem;
+            if (heldItem != null && !heldItem.IsAir)
+            {
+                heldItem.useTime = animAction.TotalFrame;
+                heldItem.useAnimation = animAction.TotalFrame;
+            }
         }
 
         CurrentAnimAction.OnStart(this);

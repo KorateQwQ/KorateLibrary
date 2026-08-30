@@ -579,5 +579,116 @@ public partial class DrawHelper : ModSystem
         else noWhite.CurrentTechnique.Passes[1].Apply();
 
     }
-    
+
+    /// <summary>
+    /// 材质圆环效果。将指定贴图作为材质绘制成一个圆环。
+    /// </summary>
+    /// <param name="ringWidth">圆环宽度（纹理空间，建议范围 0.01 ~ 0.5）。</param>
+    /// <param name="outerRadius">圆环外半径（默认 0.4）。</param>
+    /// <param name="borderWidth">描边大小（默认为 0 表示无描边）。</param>
+    /// <param name="borderColor">描边颜色（RGBA，0~1）。传 null 使用默认值。</param>
+    /// <param name="ringColor">圆环整体颜色（与贴图相乘）。传 null 使用默认值。</param>
+    /// <param name="texScale">贴图缩放倍率（控制贴图在圆环上的重复次数）。传 null 使用默认值。</param>
+    /// <param name="texRotation">贴图旋转角度（弧度制）。</param>
+    /// <param name="texOffset">贴图偏移。传 null 使用默认值。</param>
+    /// <param name="usePolarMapping">是否使用极坐标映射（true = 贴图沿圆环环绕，false = 径向映射）。</param>
+    /// <param name="swapUV">极坐标映射时，是否交换UV（true = 贴图从上到下沿圆环环绕，false = 贴图从左到右沿圆环环绕）。</param>
+    /// <param name="noiseTex">毛边噪声贴图。传 null 使用默认噪声。</param>
+    /// <param name="edgeNoiseStrength">毛边强度（0 = 无毛边效果，值越大毛边越明显）。噪声越大的地方圆环宽度越小。</param>
+    /// <param name="edgeNoiseScale">噪声贴图缩放。传 null 使用默认值。</param>
+    /// <param name="edgeNoiseOffset">噪声贴图偏移（用于动画）。传 null 使用默认值。</param>
+    public static void CircleRingEffect(
+        float ringWidth = 0.1f,
+        float outerRadius = 0.4f,
+        float borderWidth = 0.0f,
+        Vector4? borderColor = null,
+        Vector4? ringColor = null,
+        Vector2? texScale = null,
+        float texRotation = 0.0f,
+        Vector2? texOffset = null,
+        bool usePolarMapping = true,
+        bool swapUV = false,
+        Texture2D noiseTex = null,
+        float edgeNoiseStrength = 0.0f,
+        Vector2? edgeNoiseScale = null,
+        Vector2? edgeNoiseOffset = null)
+    {
+        noiseTex ??= PerLinNoiseX;
+        borderColor ??= Vector4.One;
+        ringColor ??= Vector4.One;
+        texScale ??= Vector2.One;
+        texOffset ??= Vector2.Zero;
+        edgeNoiseScale ??= Vector2.One;
+        edgeNoiseOffset ??= Vector2.Zero;
+
+        texturedRing.SetValue("RingWidth", ringWidth);
+        texturedRing.SetValue("OuterRadius", outerRadius);
+        texturedRing.SetValue("BorderWidth", borderWidth);
+        texturedRing.SetValue("BorderColor", borderColor.Value);
+        texturedRing.SetValue("RingColor", ringColor.Value);
+        texturedRing.SetValue("TexScale", texScale.Value);
+        texturedRing.SetValue("TexRotation", texRotation);
+        texturedRing.SetValue("TexOffset", texOffset.Value);
+        texturedRing.SetValue("UsePolarMapping", usePolarMapping);
+        texturedRing.SetValue("SwapUV", swapUV);
+
+        texturedRing.SetValue("EdgeNoiseStrength", edgeNoiseStrength);
+        texturedRing.SetValue("EdgeNoiseScale", edgeNoiseScale.Value);
+        texturedRing.SetValue("EdgeNoiseOffset", edgeNoiseOffset.Value);
+
+        texturedRing.SetTexture(1, noiseTex);
+        texturedRing.Apply();
+    }
+
+    /// <summary>
+    /// 毛边方向
+    /// </summary>
+    public enum FuzzyEdgeDirection
+    {
+        /// <summary>
+        /// 横向毛边（左右收缩）
+        /// </summary>
+        Horizontal = 0,
+        /// <summary>
+        /// 纵向毛边（上下收缩）
+        /// </summary>
+        Vertical = 1,
+        /// <summary>
+        /// 全方向毛边
+        /// </summary>
+        All = 2
+    }
+
+    /// <summary>
+    /// 通用毛边效果。为任意图形添加噪声毛边效果。
+    /// </summary>
+    /// <param name="imageColor">整体颜色（与贴图相乘）。传 null 使用默认值。</param>
+    /// <param name="noiseTex">毛边噪声贴图。传 null 使用默认噪声。</param>
+    /// <param name="edgeNoiseStrength">毛边强度（0 = 无毛边效果，建议范围 0.1 ~ 0.5）。噪声越大的地方边缘收缩越多。</param>
+    /// <param name="edgeNoiseScale">噪声贴图缩放。传 null 使用默认值。</param>
+    /// <param name="edgeNoiseOffset">噪声贴图偏移（用于动画）。传 null 使用默认值。</param>
+    /// <param name="edgeDirection">毛边方向：横向（左右收缩）、纵向（上下收缩）、全方向。</param>
+    public static void FuzzyEdgeEffect(
+        Vector4? imageColor = null,
+        Texture2D noiseTex = null,
+        float edgeNoiseStrength = 0.0f,
+        Vector2? edgeNoiseScale = null,
+        Vector2? edgeNoiseOffset = null,
+        FuzzyEdgeDirection edgeDirection = FuzzyEdgeDirection.All)
+    {
+        noiseTex ??= PerLinNoiseX;
+        imageColor ??= Vector4.One;
+        edgeNoiseScale ??= Vector2.One;
+        edgeNoiseOffset ??= Vector2.Zero;
+
+        fuzzyEdge.SetValue("ImageColor", imageColor.Value);
+        fuzzyEdge.SetValue("EdgeNoiseStrength", edgeNoiseStrength);
+        fuzzyEdge.SetValue("EdgeNoiseScale", edgeNoiseScale.Value);
+        fuzzyEdge.SetValue("EdgeNoiseOffset", edgeNoiseOffset.Value);
+        fuzzyEdge.SetValue("EdgeDirection", (int)edgeDirection);
+
+        fuzzyEdge.SetTexture(1, noiseTex);
+        fuzzyEdge.Apply();
+    }
+
 }

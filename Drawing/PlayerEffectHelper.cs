@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
@@ -251,8 +252,49 @@ public class PlayerEffectHelper : ModSystem
 
     class DrawTestPlayer : ModPlayer
     {
+        public override void ResetEffects()
+        {
+            base.ResetEffects();
+        }
+
+        public override void FrameEffects()
+        {
+            //Player.armorEffectDrawShadow = true;
+
+            base.FrameEffects();
+        }
+
         public override void DrawPlayer(Camera camera)
         {
+             /*int ghostCount = 5;
+             float ghostSpacing = 56f;
+             var ghostBelowMouse = 40f;
+             var ghostStartAlpha = 1f;
+             var ghostAlphaStep = 0.18f;
+            
+            Player drawPlayer = Main.LocalPlayer;
+            Vector2 firstPosition = Main.MouseWorld + new Vector2(
+                -drawPlayer.width * 0.5f - (ghostCount - 1) * ghostSpacing * 0.5f,
+                ghostBelowMouse);
+
+            for (int i = 0; i < ghostCount; i++)
+            {
+                float alpha = MathHelper.Clamp(ghostStartAlpha - i * ghostAlphaStep, 0f, 1f);
+                float shadow = 1f - alpha;
+                Vector2 position = firstPosition + new Vector2(i * ghostSpacing, 0f);
+
+                Main.PlayerRenderer.DrawPlayerHead(camera, drawPlayer, position,  1,1,Color.White);
+
+                Main.PlayerRenderer.DrawPlayer(
+                    camera,
+                    drawPlayer,
+                    position,
+                    drawPlayer.fullRotation,
+                    drawPlayer.fullRotationOrigin,
+                    shadow,
+                    1f);
+            }*/
+
             //PlayerEffectHelper.FaultEffect.Value.SetValue("iTime", Main.GameUpdateCount % 1200 * 0.02f);
             //PlayerEffectHelper.ApplyEffect(Main.LocalPlayer, PlayerEffectHelper.FaultEffect);
             base.DrawPlayer(camera);

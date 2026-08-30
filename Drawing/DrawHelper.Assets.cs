@@ -71,7 +71,13 @@ public partial class DrawHelper : ModSystem
     
     //黑白shader,很简单的shader无参数shader所以直接用。
     public static Effect grey = null!;
-    
+
+    //材质圆环effect
+    static Effect texturedRing = null!;
+
+    //通用毛边effect
+    static Effect fuzzyEdge = null!;
+
     
     //更好的柏林噪声
     public static Texture2D PerLinNoiseX = null!;

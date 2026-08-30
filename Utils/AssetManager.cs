@@ -48,4 +48,9 @@ public static class AssetManager
     {
         return Request<Texture2D>(path, requestMode)?.Value;
     }
+
+    public static Effect GetEffect(string path, AssetRequestMode requestMode = AssetRequestMode.ImmediateLoad)
+    {
+        return Request<Effect>(path, requestMode)?.Value;
+    }
 }
