@@ -88,7 +88,7 @@ public class ActionModPlayer : KLModPlayer
             return false;
         }
 
-        RPC("StartActionById", [animActionId, interruptCurrentAction, rotation], KLNetModule.NetSendType.ClientToAll);
+        RPC("StartActionById", [animActionId, animAction.TotalFrame, interruptCurrentAction, rotation], KLNetModule.NetSendType.ClientToAll);
         return true;
     }
 
@@ -96,9 +96,10 @@ public class ActionModPlayer : KLModPlayer
     /// 通过动画动作类型 id 开始播放动作。
     /// </summary>
     /// <param name="animActionId">动画动作类型 id。</param>
+    /// <param name="totalFrame">动作总时长，单位为帧。</param>
     /// <param name="interruptCurrentAction">是否中断当前动作。</param>
     /// <param name="rotation">动作开始时同步的方向角。</param>
-    public void StartActionById(int animActionId, bool interruptCurrentAction = true, float rotation = 0f)
+    public void StartActionById(int animActionId, int totalFrame, bool interruptCurrentAction = true, float rotation = 0f)
     {
         if (CurrentAnimAction != null &&
             CurrentAnimAction.TypeId == animActionId &&
@@ -108,6 +109,15 @@ public class ActionModPlayer : KLModPlayer
         }
 
         if (!AnimActionRegistry.TryCreate(animActionId, out AnimAction animAction))
+        {
+            return;
+        }
+
+        try
+        {
+            animAction.SetTotalFrame(totalFrame);
+        }
+        catch (ArgumentOutOfRangeException)
         {
             return;
         }

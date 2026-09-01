@@ -4,7 +4,7 @@ using KL.Extensions;
 namespace KL.ActionsSystem;
 
 /// <summary>
-/// 表示一个拥有固定总时长、可并行执行多个节点的动作。
+/// 表示一个在启动时确定总时长、可并行执行多个节点的动作。
 /// </summary>
 public abstract class AnimAction
 {
@@ -38,7 +38,7 @@ public abstract class AnimAction
     /// <summary>
     /// 动作总时长，单位为帧。
     /// </summary>
-    public int TotalFrame { get; }
+    public int TotalFrame { get; private set; }
 
     /// <summary>
     /// 动作开始时同步的方向角。
@@ -59,6 +59,20 @@ public abstract class AnimAction
     /// </summary>
     /// <param name="totalFrame">动作总时长，单位为帧。</param>
     protected AnimAction(int totalFrame)
+    {
+        if (totalFrame <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(totalFrame), "动作总时长必须大于0。");
+        }
+
+        TotalFrame = totalFrame;
+    }
+
+    /// <summary>
+    /// 在动作正式启动前应用网络同步的总时长。
+    /// </summary>
+    /// <param name="totalFrame">动作总时长，单位为帧。</param>
+    internal void SetTotalFrame(int totalFrame)
     {
         if (totalFrame <= 0)
         {

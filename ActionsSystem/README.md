@@ -1,6 +1,6 @@
 # KL Action 动作系统
 
-`ActionsSystem` 是一个基于固定帧时间轴的玩家动作框架。一个 `AnimAction` 持有总帧数和多个可并行执行的 `ActionNode`；`ActionModPlayer` 为每个玩家保存当前动作并逐帧推进；`AnimActionRegistry` 将动作类型映射为网络可传输的整数 ID；`ActionPlayerDrawLayer` 把动作的自定义绘制接入 Terraria 的玩家绘制层。
+`ActionsSystem` 是一个基于帧时间轴的玩家动作框架。一个 `AnimAction` 持有启动时确定的总帧数和多个可并行执行的 `ActionNode`；`ActionModPlayer` 为每个玩家保存当前动作并逐帧推进；`AnimActionRegistry` 将动作类型映射为网络可传输的整数 ID；`ActionPlayerDrawLayer` 把动作的自定义绘制接入 Terraria 的玩家绘制层。
 
 ## 目录与职责
 
@@ -30,5 +30,6 @@ actionPlayer.StartAction(new FocusCast(), interruptCurrentAction: true, rotation
 - 当前动作只有一个；开始新动作时可选择中断旧动作。自然结束调用 `OnFinish`，被替换或显式中断调用 `OnInterrupt`。
 - `UseItemTime` 默认是 `true`。开始动作时会把 `Player.itemAnimation`、`Player.itemTime` 以及当前物品的 `useTime`、`useAnimation` 改为动作总帧数；框架没有自动恢复物品原值，需在动作回调中自行处理。
 - `StartRotation` 会随启动 RPC 保存到动作实例，但基类不会自动使用它。需要固定起始朝向的自定义节点或动作逻辑必须主动读取它。
+- 动作可以通过带 `totalFrame` 的构造函数在启动前选择时长；`StartAction` 会把该时长加入 RPC，接收端在启动前应用相同的时长。动作开始后不应再修改总时长。
 
 更详细的执行顺序见 [`生命周期与设计.md`](./生命周期与设计.md)，联机行为见 [`网络同步.md`](./网络同步.md)，扩展方式见 [`扩展指南.md`](./扩展指南.md)。
