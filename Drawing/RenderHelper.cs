@@ -80,15 +80,15 @@ public class RenderHelper : ModSystem
 
     private void On_MainOnDraw(On_Main.orig_Draw orig, Main self, GameTime gameTime)
     {
-        if (Lighting.Mode is LightMode.Retro or LightMode.Trippy)
+        /*if (Lighting.Mode is LightMode.Retro or LightMode.Trippy)
         {
-            //Lighting.Mode = LightMode.Color;
+            Lighting.Mode = LightMode.Color;
         }
 
         if (Main.WaveQuality < 1)
         {
             Main.WaveQuality = 1;
-        }
+        }*/
 
         orig.Invoke(self, gameTime);
     }

@@ -1,4 +1,5 @@
 using Terraria.DataStructures;
+using KL.Extensions;
 
 namespace KL.ActionsSystem;
 
@@ -217,7 +218,25 @@ public abstract class AnimAction
     {
     }
     
-    public static void ShootFromAction(Player player,int projToShoot,Vector2 position,Vector2 velocity,int damage,float knockback)
+    public static void ShootFromAction(
+        Player player,
+        int projToShoot,
+        Vector2 position,
+        Vector2 velocity,
+        int damage,
+        float knockback)
+    {
+        ShootFromAction(player, projToShoot, position, velocity, damage, knockback, null);
+    }
+
+    public static void ShootFromAction(
+        Player player,
+        int projToShoot,
+        Vector2 position,
+        Vector2 velocity,
+        int damage,
+        float knockback,
+        Action<Projectile> configureProjectile)
     {
         // 动作可能跨帧执行；执行时玩家或手持物品状态可能已经失效。
         if (player == null || !player.active || player.dead)
@@ -280,7 +299,15 @@ public abstract class AnimAction
             return;
         }
 
-        Projectile.NewProjectile(source, position, velocity, projToShoot, damage, knockback, player.whoAmI);
+        GamePlayStatic.NewProjectile(
+            source,
+            position,
+            velocity,
+            projToShoot,
+            damage,
+            knockback,
+            player.whoAmI,
+            configureProjectile: configureProjectile);
     }
 
 }

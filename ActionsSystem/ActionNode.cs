@@ -358,8 +358,8 @@ public class ShootActionNode : ActionNode
     private readonly Func<Player, Vector2> getPosition;
     private readonly int damage;
     private readonly float knockback;
-    
     private readonly Func<Player, Vector2> getVelocity;
+    private readonly Action<Projectile> configureProjectile;
 
     /// <summary>
     /// 创建指定动作帧触发的射击节点。
@@ -370,14 +370,22 @@ public class ShootActionNode : ActionNode
     /// <param name="damage">伤害</param>
     /// <param name="knockback">击退</param>
     /// <param name="getVelocity">获取发射速度的函数。</param>
-    public ShootActionNode(int triggerFrame, int projToShoot,Func<Player, Vector2> getPosition, int damage,float knockback, Func<Player, Vector2> getVelocity ) : base(triggerFrame, triggerFrame + 1)
+    /// <param name="configureProjectile">弹幕初始化后、首个网络同步包发送前调用的配置函数。</param>
+    public ShootActionNode(
+        int triggerFrame,
+        int projToShoot,
+        Func<Player, Vector2> getPosition,
+        int damage,
+        float knockback,
+        Func<Player, Vector2> getVelocity,
+        Action<Projectile> configureProjectile = null) : base(triggerFrame, triggerFrame + 1)
     {
-
         this.projToShoot = projToShoot;
         this.getPosition = getPosition;
         this.getVelocity = getVelocity;
         this.damage = damage;
         this.knockback = knockback;
+        this.configureProjectile = configureProjectile;
     }
 
     /// <summary>
@@ -390,6 +398,13 @@ public class ShootActionNode : ActionNode
     {
         Player player = actionPlayer.Player;
         if(player!=Main.LocalPlayer)return;
-        AnimAction.ShootFromAction(player, projToShoot, getPosition(player),getVelocity(player), damage,knockback);
+        AnimAction.ShootFromAction(
+            player,
+            projToShoot,
+            getPosition(player),
+            getVelocity(player),
+            damage,
+            knockback,
+            configureProjectile);
     }
 }

@@ -429,7 +429,7 @@ namespace KL.Extensions
 
 
         /// <summary>
-        /// 直接生成一个 ModProjectile，不调用 Projectile.NewProjectile。
+        /// 直接生成一个弹幕，不调用 Projectile.NewProjectile。
         /// </summary>
         public static Projectile NewProjectile<T>(
             IEntitySource spawnSource,
@@ -441,14 +441,50 @@ namespace KL.Extensions
             float ai0 = 0f,
             float ai1 = 0f,
             float ai2 = 0f,
-            bool netUpdate = true
+            bool netUpdate = true,
+            Action<Projectile> configureProjectile = null
         ) where T : ModProjectile
+        {
+            return NewProjectile(
+                spawnSource,
+                center,
+                velocity,
+                ModContent.ProjectileType<T>(),
+                damage,
+                knockBack,
+                owner,
+                ai0,
+                ai1,
+                ai2,
+                netUpdate,
+                configureProjectile);
+        }
+
+        /// <summary>
+        /// 直接生成一个弹幕，不调用 Projectile.NewProjectile。
+        /// <para>
+        /// <paramref name="configureProjectile"/> 会在弹幕完成初始化、但网络同步包发送前调用，
+        /// 适合设置需要随首个同步包发送的自定义参数。
+        /// </para>
+        /// </summary>
+        public static Projectile NewProjectile(
+            IEntitySource spawnSource,
+            Vector2 center,
+            Vector2 velocity,
+            int type,
+            int damage,
+            float knockBack = 0f,
+            int owner = -1,
+            float ai0 = 0f,
+            float ai1 = 0f,
+            float ai2 = 0f,
+            bool netUpdate = true,
+            Action<Projectile> configureProjectile = null)
         {
             if (owner == -1)
                 owner = Main.myPlayer;
 
             int index = FindProjectileSlot();
-            int type = ModContent.ProjectileType<T>();
             Projectile projectile = Main.projectile[index];
 
             projectile.SetDefaults(type);
@@ -480,6 +516,7 @@ namespace KL.Extensions
 
             projectile.ApplyStatsFromSource(spawnSource);
             InvokeProjectileOnSpawn(projectile, spawnSource);
+            configureProjectile?.Invoke(projectile);
 
             if (netUpdate && Main.netMode != NetmodeID.SinglePlayer && owner == Main.myPlayer)
                 NetMessage.SendData(MessageID.SyncProjectile, -1, -1, null, index);
