@@ -142,6 +142,10 @@ public abstract class ModSkill : ILoadable
         return true;
     }
 
+    public virtual bool CanUseSkill()
+    {
+        return  true;
+    }
     public virtual bool PreUseSkill(IEntitySource source = null)
     {
         return true;
