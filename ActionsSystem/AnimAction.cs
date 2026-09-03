@@ -157,7 +157,21 @@ public abstract class AnimAction
     /// <param name="actionProgress">动作整体播放进度。</param>
     public virtual void Update(ActionModPlayer actionPlayer, int actionFrame, float actionProgress)
     {
-        FrameUpdateListener?.Invoke(actionPlayer, actionFrame, actionProgress);
+        try
+        {
+            FrameUpdateListener?.Invoke(actionPlayer, actionFrame, actionProgress);
+        }
+        catch (Exception ex)
+        {
+            // 捕获委托调用中的异常，防止整个动作系统崩溃
+            // 记录异常但继续执行
+            if (Main.netMode != NetmodeID.Server)
+            {
+                Main.NewText($"[AnimAction] FrameUpdateListener 异常: {ex.GetType().Name}", Color.Orange);
+            }
+            // 清除有问题的监听器，防止后续帧继续崩溃
+            FrameUpdateListener = null;
+        }
 
         foreach (ActionNode node in nodes)
         {

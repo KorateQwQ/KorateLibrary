@@ -74,7 +74,12 @@ public abstract class ModSkill : ILoadable
 
     public virtual SkillUnlockCondition UnlockCondition { get; set; } =
         SkillUnlockCondition.ByItemsAndSkillPoint(10, new SkillUnlockItem(ItemID.Wood, 10));
-    
+
+    /// <summary>
+    /// 前置技能列表。返回需要的前置技能类型数组。
+    /// </summary>
+    public virtual Type[] PrerequisiteSkills => Array.Empty<Type>();
+
     #endregion
 
 
@@ -145,6 +150,79 @@ public abstract class ModSkill : ILoadable
     public virtual bool CanUseSkill()
     {
         return  true;
+    }
+
+    /// <summary>
+    /// 检查指定的前置技能是否已生效。
+    /// "生效"的定义：必须解锁该技能，并且如果是可开关类型的技能，也必须开启。
+    /// </summary>
+    /// <param name="prerequisiteSkillType">前置技能的类型</param>
+    /// <param name="skillPlayer">技能玩家实例，如果为 null 则尝试从当前玩家获取</param>
+    /// <returns>如果前置技能已生效返回 true，否则返回 false</returns>
+    public bool IsPrerequisiteSkillActive(Type prerequisiteSkillType, KLSkillModPlayer skillPlayer = null)
+    {
+        if (prerequisiteSkillType == null || !prerequisiteSkillType.IsSubclassOf(typeof(ModSkill)))
+        {
+            return false;
+        }
+
+        skillPlayer ??= Player.GetModPlayer<KLSkillModPlayer>();
+        if (skillPlayer == null)
+        {
+            return false;
+        }
+
+        // 检查技能是否已解锁
+        if (!skillPlayer.UnlockedSkill.ContainsKey(prerequisiteSkillType.Name))
+        {
+            return false;
+        }
+
+        // 获取技能实例
+        var prerequisiteSkill = skillPlayer.UnlockedSkill[prerequisiteSkillType.Name];
+        if (prerequisiteSkill == null)
+        {
+            return false;
+        }
+
+        // 检查技能基本状态是否为已解锁
+        if (prerequisiteSkill.BasicStatus != Skill.SKillBasicStatus.UnLock)
+        {
+            return false;
+        }
+
+        // 如果是可开关的技能，还需要检查是否开启
+        if (prerequisiteSkill.ModSkill != null && prerequisiteSkill.ModSkill.IsToggleable && !prerequisiteSkill.ModSkill.IsEnabled)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 检查所有前置技能是否都已生效。
+    /// </summary>
+    /// <param name="skillPlayer">技能玩家实例，如果为 null 则尝试从当前玩家获取</param>
+    /// <returns>如果所有前置技能都已生效返回 true，否则返回 false</returns>
+    public bool AreAllPrerequisitesActive(KLSkillModPlayer skillPlayer = null)
+    {
+        if (PrerequisiteSkills == null || PrerequisiteSkills.Length == 0)
+        {
+            return true;
+        }
+
+        skillPlayer ??= Player.GetModPlayer<KLSkillModPlayer>();
+
+        foreach (var prerequisiteType in PrerequisiteSkills)
+        {
+            if (!IsPrerequisiteSkillActive(prerequisiteType, skillPlayer))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
     public virtual bool PreUseSkill(IEntitySource source = null)
     {
