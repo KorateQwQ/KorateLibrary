@@ -1,13 +1,20 @@
 using KL.Configs;
 using KL.DamageSystem;
+using KL.AttributeSystem;
 using KL.SkillSystem.SilkyUI;
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 
 namespace KL.SkillSystem;
 
-public abstract class  KLSkillModPlayer : ModPlayer
+public abstract class  KLSkillModPlayer : ModPlayer, IAttributeProvider
 {
+    /// <summary>
+    /// Optional character attributes used by this skill player. Returning null preserves
+    /// the existing skill behavior and allows attributes to live on another ModPlayer.
+    /// </summary>
+    public virtual AttributeComponent Attributes => null;
+
     /// <summary>
     /// 技能栏最大槽位数，由具体 SkillPlayer 决定。
     /// </summary>
@@ -49,14 +56,17 @@ public abstract class  KLSkillModPlayer : ModPlayer
     {
         foreach (var skill in ActiveSkill)
         {
-            skill?.UpdateCD(1/60f);
+            skill?.UpdateCD(1f / 60f, Attributes);
         }
+
+        Attributes?.Commit();
         base.PostUpdate();
     }
 
     public override void ResetEffects()
     {
         //SkillPoint = 30;
+        Attributes?.ResetForTick();
         if (UnlockedSkill != null)
         {
             foreach (var skillpair in UnlockedSkill)

@@ -1,6 +1,7 @@
 
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
+using KL.AttributeSystem;
 
 namespace KL.SkillSystem;
 
@@ -293,6 +294,14 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
     /// </summary>
     public void UpdateCD(float deltaTime)
     {
+        UpdateCD(deltaTime, null);
+    }
+
+    /// <summary>
+    /// Updates the skill cooldown, optionally applying the owner's ability haste.
+    /// </summary>
+    public void UpdateCD(float deltaTime, AttributeComponent attributes)
+    {
         if(UnloadSkill)return;
         bool? shouldUpdate = ModSkill?.PreUpdateCD();
         if (shouldUpdate.HasValue && shouldUpdate.Value)
@@ -301,7 +310,7 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
             {
                 return;
             }
-            CurrentCD -= deltaTime;
+            CurrentCD -= deltaTime * CharacterAttributes.GetCooldownSpeedMultiplier(attributes);
             if (CurrentCD < 0) CurrentCD = 0;
             //当前冷却时间小于等于0时，重置冷却时间，并且技能层数加1
             if (CurrentCD > 0) return;
