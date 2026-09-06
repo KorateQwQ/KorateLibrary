@@ -1,3 +1,4 @@
+//毛边消融圆环，首次使用在五重魔法飞弹的光圈特效中
 sampler2D uImage0 : register(s0);  // 主贴图（要绘制的圆环材质）
 sampler2D uImage1 : register(s1);  // 噪声贴图（用于毛边消融效果）
 

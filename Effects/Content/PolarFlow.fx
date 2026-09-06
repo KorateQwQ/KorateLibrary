@@ -11,7 +11,7 @@ float TextureRotation = 0.0;
 float FlowOffset = 0.0;
 float EdgeFade = 0.02;
 //只能选择0或者1，0表示不裁剪，1表示裁剪为圆形
-float ClipOutside = 1.0;
+bool ClipOutside = true;
 float4 EffectColor = float4(1.0, 1.0, 1.0, 1.0);
 
 static const float TwoPi = 6.28318530718;
@@ -41,7 +41,7 @@ float4 PolarFlowPS(float2 uv : TEXCOORD0, float4 inputColor : COLOR0) : COLOR0
 
     float fadeWidth = max(EdgeFade, 0.0001);
     float circleAlpha = 1.0 - smoothstep(1.0 - fadeWidth, 1.0, radius);
-    color *= lerp(1.0, circleAlpha, saturate(ClipOutside));
+    color *= lerp(1.0, circleAlpha, saturate(ClipOutside?1:0));
 
     return color * inputColor * EffectColor;
 }

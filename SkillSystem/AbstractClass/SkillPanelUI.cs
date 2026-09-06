@@ -259,24 +259,30 @@ public abstract class SkillPanelUI : BaseBody, IDraggableUI
     protected void RegisterAllSkill()
     {
         var sortedSkills = GetAllSkill()
-            .OrderBy(skill => GetUIPositionAttribute(skill.Value).State)
-            .ThenBy(skill => GetUIPositionAttribute(skill.Value).Pixels)
-            .ToList(); // 转换为列表存储
+            .Select(skill => new
+            {
+                Skill = skill,
+                UIInfo = GetUIPositionAttribute(skill.Value)
+            })
+            .Where(entry => entry.UIInfo != null)
+            .OrderBy(entry => entry.UIInfo.State)
+            .ThenBy(entry => entry.UIInfo.Pixels)
+            .ToList(); // 没有 SkillUIInfo 的技能不会进入技能面板
 
         int currentState = -1;
         // 当前行里下一个技能槽在 flex 流中的起始位置（已排入槽的宽度累计）
         float lineFlowCursor = 0;
         UIElementGroup currentSkillLine = null;
 
-        foreach (var skill in sortedSkills)
+        foreach (var entry in sortedSkills)
         {
-            Skill panelSkill = GetPanelSkillInstance(skill.Value);
+            Skill panelSkill = GetPanelSkillInstance(entry.Skill.Value);
             if (panelSkill?.ModSkill == null)
             {
                 continue;
             }
 
-            SkillUIInfoAttribute infoAttribute = GetUIPositionAttribute(skill.Value);
+            SkillUIInfoAttribute infoAttribute = entry.UIInfo;
             int state = infoAttribute.State;
             float pixcels = infoAttribute.Pixels;
             //新开一行技能栏
