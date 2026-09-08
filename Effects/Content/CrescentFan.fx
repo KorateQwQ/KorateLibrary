@@ -76,7 +76,7 @@ float4 MainPS(float2 texCoord : TEXCOORD0, float4 inputColor : COLOR0) : COLOR0
     materialUV = (materialUV - 0.5) * TextureScale + 0.5 + TextureFlow;
     float4 material = tex2D(uImage0, materialUV);
     float alpha = (useRGBforApha?material.r:material.a) * mask * inputColor.a * EffectColor.a;
-    float3 rgb = material.rgb * inputColor.rgb * EffectColor.rgb * alpha;
+    float3 rgb = material.rgb * inputColor.rgb * EffectColor.rgb;
 
     return float4(rgb, alpha);
 }

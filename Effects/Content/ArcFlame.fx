@@ -81,7 +81,7 @@ float4 MainPS(float2 uv : TEXCOORD0, float4 inputColor : COLOR0) : COLOR0
 
     float alpha = (useRGBforApha ? material.r : material.a)
         * capMask * visible * inputColor.a * EffectColor.a;
-    float3 rgb = material.rgb * inputColor.rgb * EffectColor.rgb * alpha;
+    float3 rgb = material.rgb * inputColor.rgb * EffectColor.rgb;
     return float4(rgb, alpha);
 }
 
