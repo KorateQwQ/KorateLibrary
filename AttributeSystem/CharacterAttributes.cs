@@ -1,10 +1,11 @@
 namespace KL.AttributeSystem;
 
+/// <summary>通用 RPG 属性定义及换算规则；每个角色的实际数值存放在其 AttributeComponent 中。</summary>
 public static class CharacterAttributes
 {
     /// <summary>
-    /// League-style ability haste. 100 haste gives 50% cooldown reduction;
-    /// the final value is capped at 500.
+    /// 技能急速，100时对应50%冷却时间减少
+    /// 最大值为500
     /// </summary>
     public static readonly AttributeDefinition CooldownHaste =
         new("KL.CooldownHaste", 0f, 0f, 500f);
@@ -25,6 +26,6 @@ public static class CharacterAttributes
     {
         return attributes == null
             ? 1f
-            : GetCooldownSpeedMultiplier(attributes.GetFinalValue(CooldownHaste));
+            : GetCooldownSpeedMultiplier(attributes.GetPublishedFinalValue(CooldownHaste));
     }
 }

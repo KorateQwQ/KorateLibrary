@@ -298,7 +298,7 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
     }
 
     /// <summary>
-    /// Updates the skill cooldown, optionally applying the owner's ability haste.
+    /// 更新技能冷却，并按需应用所属角色最近一次已发布的技能急速。
     /// </summary>
     public void UpdateCD(float deltaTime, AttributeComponent attributes)
     {

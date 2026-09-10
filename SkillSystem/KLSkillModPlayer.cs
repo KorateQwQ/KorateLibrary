@@ -1,17 +1,15 @@
-using KL.Configs;
-using KL.DamageSystem;
 using KL.AttributeSystem;
-using KL.SkillSystem.SilkyUI;
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 
 namespace KL.SkillSystem;
 
-public abstract class  KLSkillModPlayer : ModPlayer, IAttributeProvider
+public abstract class KLSkillModPlayer : ModPlayer, IAttributeProvider
 {
     /// <summary>
-    /// Optional character attributes used by this skill player. Returning null preserves
-    /// the existing skill behavior and allows attributes to live on another ModPlayer.
+    /// 此技能玩家使用的可选角色属性组件。返回空值时保留原有技能行为，
+    /// 覆写此属性以绑定具体 RPGAttributeModPlayer 派生类的 Attributes。
+    /// 只消费组件已发布的结果；重置和提交由组件持有者负责。
     /// </summary>
     public virtual AttributeComponent Attributes => null;
 
@@ -50,23 +48,37 @@ public abstract class  KLSkillModPlayer : ModPlayer, IAttributeProvider
     }
 
     /// <summary>
-    /// 默认以60fps的帧率更新技能cd
+    /// 登记本帧冷却更新；所有玩家完成 PostUpdate 后，由 KLSkillManager 统一消费属性。
     /// </summary>
     public override void PostUpdate()
     {
+        KLSkillManager.QueueCooldownUpdate(this);
+        base.PostUpdate();
+    }
+
+    internal void UpdateCooldownsAfterAttributes()
+    {
+        UpdateSkillCooldowns(1f / 60f);
+    }
+
+    /// <summary>
+    /// 在 PostUpdatePlayers 阶段更新技能冷却。需要依赖本帧完整属性的技能更新可覆写此方法。
+    /// 组件应由其持有者在 PostUpdate 返回前完成发布和资源联动。
+    /// </summary>
+    protected virtual void UpdateSkillCooldowns(float deltaTime)
+    {
+        if (ActiveSkill == null)
+            return;
+
+        AttributeComponent attributes = Attributes;
         foreach (var skill in ActiveSkill)
         {
-            skill?.UpdateCD(1f / 60f, Attributes);
+            skill?.UpdateCD(deltaTime, attributes);
         }
-
-        Attributes?.Commit();
-        base.PostUpdate();
     }
 
     public override void ResetEffects()
     {
-        //SkillPoint = 30;
-        Attributes?.ResetForTick();
         if (UnlockedSkill != null)
         {
             foreach (var skillpair in UnlockedSkill)

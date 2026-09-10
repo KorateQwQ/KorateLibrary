@@ -1,5 +1,3 @@
-using KL.SkillSystem.SilkyUI;
-
 namespace KL.SkillSystem;
 
 public class KLSkillManager : ModSystem
@@ -16,6 +14,8 @@ public class KLSkillManager : ModSystem
     public static event Action OnSkillsUIUpdated;
     
     private static KLSkillManager klSkillManager;
+    private readonly Queue<KLSkillModPlayer> _cooldownUpdates = new();
+    private readonly HashSet<KLSkillModPlayer> _queuedPlayers = new();
 
     public override void Load()
     {
@@ -26,7 +26,55 @@ public class KLSkillManager : ModSystem
     /// <inheritdoc />
     public override void PreUpdatePlayers()
     {
+        ClearCooldownUpdates();
         base.PreUpdatePlayers();
+    }
+
+    internal static void QueueCooldownUpdate(KLSkillModPlayer skillPlayer)
+    {
+        if (klSkillManager._queuedPlayers.Add(skillPlayer))
+            klSkillManager._cooldownUpdates.Enqueue(skillPlayer);
+    }
+
+    /// <summary>等待所有玩家的属性提交和后置联动结束，再结算本帧已登记的技能冷却。</summary>
+    public override void PostUpdatePlayers()
+    {
+        while (_cooldownUpdates.Count > 0)
+        {
+            KLSkillModPlayer skillPlayer = _cooldownUpdates.Dequeue();
+            if (!skillPlayer.Player.active || skillPlayer.Player.dead)
+                continue;
+
+            try
+            {
+                skillPlayer.UpdateCooldownsAfterAttributes();
+            }
+            catch (Exception exception)
+            {
+                // 一个业务玩家的技能失败不应打断其他玩家的冷却更新。
+                Mod.Logger.Error($"{skillPlayer.GetType().FullName} 技能冷却更新失败。", exception);
+            }
+        }
+        base.PostUpdatePlayers();
+    }
+
+    public override void OnWorldUnload()
+    {
+        ClearCooldownUpdates();
+        base.OnWorldUnload();
+    }
+
+    public override void Unload()
+    {
+        ClearCooldownUpdates();
+        klSkillManager = null;
+        base.Unload();
+    }
+
+    private void ClearCooldownUpdates()
+    {
+        _cooldownUpdates.Clear();
+        _queuedPlayers.Clear();
     }
     
     public static void SwitchSkill(List<Skill>activeSkillList,int index1, int index2)
