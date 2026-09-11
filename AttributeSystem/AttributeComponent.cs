@@ -182,7 +182,7 @@ public sealed class AttributeComponent
         }
 
         if (!_writingResources.Add(definition))
-            throw new InvalidOperationException($"不能在同一调用链中重复写入资源 '{definition.Id}'。");
+            throw new InvalidOperationException($"不能在同一调用链中重复写入资源 '{definition.DiagnosticName}'。");
         bool isOutermost = _publicationErrors == null;
         if (isOutermost)
             _publicationErrors = new();
@@ -305,7 +305,7 @@ public sealed class AttributeComponent
         catch (Exception exception)
         {
             _publicationErrors.Add(new InvalidOperationException(
-                $"属性 '{args.Definition.Id}' 前置修正失败，本次写入未发布。", exception));
+                $"属性 '{args.Definition.DiagnosticName}' 前置修正失败，本次写入未发布。", exception));
             current = default;
             return false;
         }
@@ -331,7 +331,7 @@ public sealed class AttributeComponent
             catch (Exception exception)
             {
                 _publicationErrors.Add(new InvalidOperationException(
-                    $"属性 '{definition.Id}' 的 {eventName} 处理器 " +
+                    $"属性 '{definition.DiagnosticName}' 的 {eventName} 处理器 " +
                     $"'{handler.Method.DeclaringType?.FullName}.{handler.Method.Name}' 失败。", exception));
             }
         }
@@ -413,7 +413,7 @@ public sealed class AttributeComponent
     {
         ArgumentNullException.ThrowIfNull(definition);
         if (definition.Kind != kind)
-            throw new InvalidOperationException($"Attribute '{definition.Id}' is not a {kind} attribute.");
+            throw new InvalidOperationException($"Attribute '{definition.DiagnosticName}' is not a {kind} attribute.");
     }
 
     private static AttributeSnapshot CalculateResource(PreAttributeChangeEventArgs args)

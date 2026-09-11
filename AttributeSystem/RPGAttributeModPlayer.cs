@@ -18,6 +18,6 @@ public abstract class RPGAttributeModPlayer : AttributeModPlayer
     /// <summary>急速对应的冷却缩减比例，以小数表示；100 急速对应 0.5。</summary>
     public float CooldownReductionPercent => CharacterAttributes.GetCooldownReductionPercent(CooldownHaste);
 
-    /// <summary>急速对应的冷却速度倍率；100 急速对应 2 倍速度。</summary>
-    public float CooldownSpeedMultiplier => CharacterAttributes.GetCooldownSpeedMultiplier(CooldownHaste);
+    /// <summary>急速对应的冷却时长倍率；100 急速对应 0.5 倍时长。</summary>
+    public float CooldownDurationMultiplier => CharacterAttributes.GetCooldownDurationMultiplier(CooldownHaste);
 }

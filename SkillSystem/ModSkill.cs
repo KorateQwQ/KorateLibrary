@@ -23,6 +23,7 @@ public abstract class ModSkill : ILoadable
     {
         tag.Add("BasicStatus",(byte)BasicStatus);
         tag.Add("CurrentCD",CurrentCD);
+        tag.Add("CooldownDuration",CooldownDuration);
         tag.Add("MaxCD",MaxCD);
         tag.Add("Stack",Stack);
         tag.Add("MaxStack",MaxStack);
@@ -37,6 +38,7 @@ public abstract class ModSkill : ILoadable
         }
         tag.TryGet("CurrentCD",out CurrentCD);
         tag.TryGet("MaxCD",out MaxCD);
+        CooldownDuration = tag.ContainsKey("CooldownDuration") ? tag.GetFloat("CooldownDuration") : MaxCD;
         tag.TryGet("Stack",out Stack);
         tag.TryGet("MaxStack",out MaxStack);
         tag.TryGet("SkillSlot",out SkillSlot);
@@ -65,8 +67,12 @@ public abstract class ModSkill : ILoadable
     /// </summary>
     public bool IsEnabled { get; set; } = true;
     
+    /// <summary>本轮剩余的实际冷却秒数，每秒减少 1 秒。</summary>
     public float CurrentCD = 0;
+    /// <summary>未经过急速缩减的基础冷却秒数。</summary>
     public float MaxCD = 60;
+    /// <summary>本轮开始时确定的实际冷却时长，用于进度显示与存档。</summary>
+    public float CooldownDuration;
 
     public int Stack = 1;
     public int MaxStack = 1;

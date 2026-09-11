@@ -44,7 +44,7 @@ public abstract class KLSkillModPlayer : ModPlayer, IAttributeProvider
     /// </summary>
     public virtual void OnSkillsUpdated()
     {
-        PrintText("KL技能信息更新");
+        //PrintText("KL技能信息更新");
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ public abstract class KLSkillModPlayer : ModPlayer, IAttributeProvider
     {
         if (index >= 0 && index < ActiveSkill.Count)
         {
-            ActiveSkill[index].UseSkill(source);
+            ActiveSkill[index]?.UseSkill(source, Attributes);
         }
     }
     /// <summary>

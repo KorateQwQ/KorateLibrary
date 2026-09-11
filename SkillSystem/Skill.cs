@@ -149,6 +149,19 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
 
     public ModSkill ModSkill { get; internal set; }
 
+    /// <summary>本轮实际冷却时长，开始后不随急速变化。</summary>
+    public float CooldownDuration => ModSkill.CooldownDuration;
+
+    /// <summary>本轮剩余冷却比例；兼容尚未记录本轮时长的技能。</summary>
+    public float CooldownRemainingFraction
+    {
+        get
+        {
+            float duration = CooldownDuration > 0 ? CooldownDuration : MaxCD;
+            return duration > 0 ? Math.Clamp(CurrentCD / duration, 0f, 1f) : 0f;
+        }
+    }
+
     /// <summary>
     /// 技能基本状态,默认为Lock
     /// </summary>
@@ -188,7 +201,7 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
     }
 
     /// <summary>
-    /// 最大冷却时间
+    /// 未经过急速缩减的基础冷却秒数
     /// </summary>
     public float MaxCD
     {
@@ -279,14 +292,32 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
     /// <param name="source">技能来源实体</param>
     public void UseSkill(IEntitySource source = null)
     {
+        UseSkill(source, null);
+    }
+
+    /// <summary>使用技能，并按最近一次已发布的急速确定新冷却的实际时长。</summary>
+    public void UseSkill(IEntitySource source, AttributeComponent attributes)
+    {
         if(UnloadSkill)return;
         if (ModSkill.IsPassiveSkill) return;
+        float previousCD = CurrentCD;
+        bool wasInCD = InCD;
         if(!ModSkill.PreUseSkill(source))return;
         if (Stack > 0)
         {
-            if(CurrentCD<=0)CurrentCD = MaxCD;
+            if (CurrentCD <= 0)
+                StartCooldown(MaxCD, attributes);
+            else if (!wasInCD || CurrentCD != previousCD)
+                StartCooldown(CurrentCD, attributes);
             Stack--;
         }
+    }
+
+    /// <summary>从基础秒数开始新一轮冷却；急速只在此刻读取，之后正常倒计时。</summary>
+    public void StartCooldown(float baseDuration, AttributeComponent attributes = null)
+    {
+        ModSkill.CooldownDuration = baseDuration * CharacterAttributes.GetCooldownDurationMultiplier(attributes);
+        CurrentCD = ModSkill.CooldownDuration;
     }
 
     /// <summary>
@@ -298,7 +329,7 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
     }
 
     /// <summary>
-    /// 更新技能冷却，并按需应用所属角色最近一次已发布的技能急速。
+    /// 按实际秒数更新冷却；只有开始恢复下一层时才读取已发布的急速。
     /// </summary>
     public void UpdateCD(float deltaTime, AttributeComponent attributes)
     {
@@ -306,17 +337,17 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
         bool? shouldUpdate = ModSkill?.PreUpdateCD();
         if (shouldUpdate.HasValue && shouldUpdate.Value)
         {
-            if (CurrentCD <= 0)
+            if (CurrentCD <= 0 && !InCD)
             {
                 return;
             }
-            CurrentCD -= deltaTime * CharacterAttributes.GetCooldownSpeedMultiplier(attributes);
+            CurrentCD -= deltaTime;
             if (CurrentCD < 0) CurrentCD = 0;
             //当前冷却时间小于等于0时，重置冷却时间，并且技能层数加1
             if (CurrentCD > 0) return;
             if (++Stack < MaxStack)
             {
-                CurrentCD = MaxCD;
+                StartCooldown(MaxCD, attributes);
             }
         }
     }

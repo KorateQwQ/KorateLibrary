@@ -118,7 +118,7 @@ public abstract class SkillIcon(Skill skill) : SUIImage,IDraggableUI
         
         var finalPosition = GetDrawCenter();
         
-        CDEffect.Parameters["time"].SetValue(1-(Skill.CurrentCD/Skill.MaxCD));
+        CDEffect.Parameters["time"].SetValue(1 - Skill.CooldownRemainingFraction);
         CDEffect.Parameters["flashTime"].SetValue(FlashTime/30f);
 
         EndBeginDrawUI(0,1,true,null,CDEffect);

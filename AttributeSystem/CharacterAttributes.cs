@@ -8,7 +8,7 @@ public static class CharacterAttributes
     /// 最大值为500
     /// </summary>
     public static readonly AttributeDefinition CooldownHaste =
-        new("KL.CooldownHaste", 0f, 0f, 500f);
+        new(defaultBaseValue: 0f, minValue: 0f, maxValue: 500f);
 
     public static float GetCooldownReductionPercent(float cooldownHaste)
     {
@@ -16,16 +16,16 @@ public static class CharacterAttributes
         return cooldownHaste / (100f + cooldownHaste);
     }
 
-    public static float GetCooldownSpeedMultiplier(float cooldownHaste)
+    public static float GetCooldownDurationMultiplier(float cooldownHaste)
     {
         cooldownHaste = CooldownHaste.ClampFinalValue(cooldownHaste);
-        return 1f + cooldownHaste / 100f;
+        return 1f / (1f + cooldownHaste / 100f);
     }
 
-    public static float GetCooldownSpeedMultiplier(AttributeComponent attributes)
+    public static float GetCooldownDurationMultiplier(AttributeComponent attributes)
     {
         return attributes == null
             ? 1f
-            : GetCooldownSpeedMultiplier(attributes.GetPublishedFinalValue(CooldownHaste));
+            : GetCooldownDurationMultiplier(attributes.GetPublishedFinalValue(CooldownHaste));
     }
 }
