@@ -3,6 +3,214 @@ namespace KL.Drawing;
 public partial class DrawHelper : ModSystem
 {
     /// <summary>
+    /// 在 UI 坐标系中绘制一个带可选内描边的环形扇区。
+    /// </summary>
+    /// <remarks>
+    /// 顶点位置使用 SilkyUI 的逻辑坐标；调用结束后会恢复 SilkyUI 的标准
+    /// SpriteBatch 状态，便于后续 UI 元素继续绘制。
+    /// </remarks>
+    public static void DrawAnnularSectorUI(
+        Vector2 center,
+        float innerRadius,
+        float outerRadius,
+        float startAngle,
+        float endAngle,
+        Color fillColor,
+        float borderWidth = 0f,
+        Color? borderColor = null,
+        Matrix? transformMatrix = null)
+    {
+        innerRadius = Math.Max(0f, innerRadius);
+        outerRadius = Math.Max(innerRadius, outerRadius);
+        float angleSpan = endAngle - startAngle;
+        if (outerRadius <= innerRadius || angleSpan <= 0f)
+        {
+            return;
+        }
+
+        int arcSegments = Math.Max(2, (int)MathF.Ceiling(angleSpan / (MathHelper.Pi / 32f)));
+        var triangles = new List<CustomVertexInfo>(arcSegments * 6 * (borderWidth > 0f ? 3 : 1) + 12);
+        AddAnnularBandTriangles(
+            triangles,
+            center,
+            innerRadius,
+            outerRadius,
+            startAngle,
+            endAngle,
+            fillColor,
+            arcSegments);
+
+        float actualBorderWidth = Math.Clamp(borderWidth, 0f, (outerRadius - innerRadius) * 0.5f);
+        if (actualBorderWidth > 0f)
+        {
+            Color actualBorderColor = borderColor ?? Color.White;
+            if (innerRadius > 0f)
+            {
+                AddAnnularBandTriangles(
+                    triangles,
+                    center,
+                    innerRadius,
+                    innerRadius + actualBorderWidth,
+                    startAngle,
+                    endAngle,
+                    actualBorderColor,
+                    arcSegments);
+            }
+            AddAnnularBandTriangles(
+                triangles,
+                center,
+                outerRadius - actualBorderWidth,
+                outerRadius,
+                startAngle,
+                endAngle,
+                actualBorderColor,
+                arcSegments);
+            if (angleSpan < MathHelper.TwoPi - 0.0001f)
+            {
+                AddRadialBorderTriangles(
+                    triangles,
+                    center,
+                    innerRadius,
+                    outerRadius,
+                    startAngle,
+                    actualBorderWidth,
+                    actualBorderColor,
+                    inwardDirection: 1f);
+                AddRadialBorderTriangles(
+                    triangles,
+                    center,
+                    innerRadius,
+                    outerRadius,
+                    endAngle,
+                    actualBorderWidth,
+                    actualBorderColor,
+                    inwardDirection: -1f);
+            }
+        }
+
+        DrawColoredTrianglesUI(triangles, transformMatrix ?? Main.UIScaleMatrix);
+    }
+
+    private static void AddAnnularBandTriangles(
+        List<CustomVertexInfo> triangles,
+        Vector2 center,
+        float innerRadius,
+        float outerRadius,
+        float startAngle,
+        float endAngle,
+        Color color,
+        int arcSegments)
+    {
+        for (int segment = 0; segment < arcSegments; segment++)
+        {
+            float factor0 = segment / (float)arcSegments;
+            float factor1 = (segment + 1) / (float)arcSegments;
+            float angle0 = MathHelper.Lerp(startAngle, endAngle, factor0);
+            float angle1 = MathHelper.Lerp(startAngle, endAngle, factor1);
+
+            Vector2 direction0 = new(MathF.Cos(angle0), MathF.Sin(angle0));
+            Vector2 direction1 = new(MathF.Cos(angle1), MathF.Sin(angle1));
+            Vector2 inner0 = center + direction0 * innerRadius;
+            Vector2 inner1 = center + direction1 * innerRadius;
+            Vector2 outer0 = center + direction0 * outerRadius;
+            Vector2 outer1 = center + direction1 * outerRadius;
+
+            AddTriangle(triangles, outer0, outer1, inner0, color);
+            AddTriangle(triangles, inner0, outer1, inner1, color);
+        }
+    }
+
+    private static void AddRadialBorderTriangles(
+        List<CustomVertexInfo> triangles,
+        Vector2 center,
+        float innerRadius,
+        float outerRadius,
+        float angle,
+        float width,
+        Color color,
+        float inwardDirection)
+    {
+        Vector2 direction = new(MathF.Cos(angle), MathF.Sin(angle));
+        Vector2 tangent = new(-direction.Y, direction.X);
+        Vector2 offset = tangent * width * inwardDirection;
+        Vector2 inner = center + direction * innerRadius;
+        Vector2 outer = center + direction * outerRadius;
+
+        AddTriangle(triangles, inner, outer, inner + offset, color);
+        AddTriangle(triangles, inner + offset, outer, outer + offset, color);
+    }
+
+    private static void AddTriangle(
+        List<CustomVertexInfo> triangles,
+        Vector2 first,
+        Vector2 second,
+        Vector2 third,
+        Color color)
+    {
+        Vector3 textureCoordinate = new(0.5f, 0.5f, 1f);
+        triangles.Add(new CustomVertexInfo(first, color, textureCoordinate));
+        triangles.Add(new CustomVertexInfo(second, color, textureCoordinate));
+        triangles.Add(new CustomVertexInfo(third, color, textureCoordinate));
+    }
+
+    private static void DrawColoredTrianglesUI(
+        List<CustomVertexInfo> triangles,
+        Matrix transformMatrix)
+    {
+        if (triangles.Count < 3)
+        {
+            return;
+        }
+
+        SpriteBatch spriteBatch = Main.spriteBatch;
+        GraphicsDevice graphicsDevice = Main.graphics.GraphicsDevice;
+        RasterizerState originalRasterizerState = graphicsDevice.RasterizerState;
+
+        spriteBatch.End();
+        try
+        {
+            graphicsDevice.BlendState = BlendState.AlphaBlend;
+            graphicsDevice.DepthStencilState = DepthStencilState.None;
+            graphicsDevice.RasterizerState = RasterizerState.CullNone;
+            graphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            graphicsDevice.Textures[0] = TextureAssets.MagicPixel.Value;
+
+            Viewport viewport = graphicsDevice.Viewport;
+            Matrix projection = Matrix.CreateOrthographicOffCenter(
+                0f,
+                viewport.Width,
+                viewport.Height,
+                0f,
+                0f,
+                1f);
+            vertexDraw.Parameters["uTransform"].SetValue(transformMatrix * projection);
+            vertexDraw.Parameters["ImageScale"].SetValue(Vector2.One);
+            vertexDraw.Parameters["useTime"].SetValue(false);
+            vertexDraw.Parameters["shouldClip"].SetValue(false);
+            vertexDraw.Parameters["useRforAlpha"].SetValue(false);
+            vertexDraw.CurrentTechnique.Passes[0].Apply();
+
+            graphicsDevice.DrawUserPrimitives(
+                PrimitiveType.TriangleList,
+                triangles.ToArray(),
+                0,
+                triangles.Count / 3);
+        }
+        finally
+        {
+            graphicsDevice.RasterizerState = originalRasterizerState;
+            spriteBatch.Begin(
+                SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                Main.DefaultSamplerState,
+                DepthStencilState.None,
+                SilkyUIFramework.SilkyUI.ScissorRasterizerState,
+                null,
+                transformMatrix);
+        }
+    }
+
+    /// <summary>
     /// 贝塞尔曲线
     /// </summary>
     /// <param name="progress">起始点到终点的进度</param>
