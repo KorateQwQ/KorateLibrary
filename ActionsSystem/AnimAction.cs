@@ -150,6 +150,51 @@ public abstract class AnimAction
     }
 
     /// <summary>
+    /// 判断当前动作帧是否是由动作自身定义的自动保持点。
+    /// 此方法会在所有端调用，返回值必须只依赖已同步的确定性状态，不能读取本地输入。
+    /// </summary>
+    /// <param name="actionPlayer">播放动作的玩家组件。</param>
+    /// <param name="actionFrame">刚刚执行完毕的动作帧。</param>
+    /// <returns>是否应在当前帧进入保持状态。</returns>
+    public virtual bool IsAutomaticHoldPoint(ActionModPlayer actionPlayer, int actionFrame)
+    {
+        return false;
+    }
+
+    /// <summary>
+    /// 由动作拥有者判断当前保持状态是否应继续。
+    /// 可以在此读取拥有者的本地输入；其他端等待拥有者发来的保持状态 RPC。
+    /// </summary>
+    /// <param name="actionPlayer">播放动作的玩家组件。</param>
+    /// <param name="actionFrame">当前保持的动作帧。</param>
+    /// <returns>是否继续保持。</returns>
+    public virtual bool ShouldContinueHolding(ActionModPlayer actionPlayer, int actionFrame)
+    {
+        return true;
+    }
+
+    /// <summary>
+    /// 进入动作保持状态时调用。
+    /// </summary>
+    public virtual void OnHoldEnter(ActionModPlayer actionPlayer, int actionFrame)
+    {
+    }
+
+    /// <summary>
+    /// 动作处于保持状态时每个游戏帧调用。普通时间轴节点不会在保持期间重复执行。
+    /// </summary>
+    public virtual void OnHoldUpdate(ActionModPlayer actionPlayer, int actionFrame, int holdTime)
+    {
+    }
+
+    /// <summary>
+    /// 离开动作保持状态时调用。解除后时间轴从保持帧的下一帧继续。
+    /// </summary>
+    public virtual void OnHoldExit(ActionModPlayer actionPlayer, int actionFrame)
+    {
+    }
+
+    /// <summary>
     /// 更新当前帧内所有激活节点的逻辑。
     /// </summary>
     /// <param name="actionPlayer">播放动作的玩家组件。</param>
