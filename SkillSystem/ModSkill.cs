@@ -78,6 +78,12 @@ public abstract class ModSkill : ILoadable
     public int MaxStack = 1;
     public int Level = 0;
 
+    /// <summary>
+    /// 当前最大等级，默认 5。技能可覆写为固定值或根据玩家/世界进度动态计算，返回值应至少为 1。
+    /// 此规则不写入存档；上限降低时保留已有等级，只禁止继续升级。
+    /// </summary>
+    public virtual int MaxLevel => 5;
+
     public virtual SkillUnlockCondition UnlockCondition { get; set; } =
         SkillUnlockCondition.ByItemsAndSkillPoint(10, new SkillUnlockItem(ItemID.Wood, 10));
 
@@ -266,7 +272,7 @@ public abstract class ModSkill : ILoadable
 
     public virtual void TryLevelUp()
     {
-        Level++;
+        if (Level < Math.Max(1, MaxLevel)) Level++;
     }
 
     public virtual void TryLevelDown()
@@ -298,7 +304,7 @@ public abstract class ModSkill : ILoadable
     public virtual bool TryGetToolTip(ref string name, ref  string level, ref string desc)
     {
         //name = GetType().Name;
-        level = $"Lv. {Level}";
+        level = $"Lv. {Level} / {Math.Max(1, MaxLevel)}";
         //desc = "造成100" +ElementType.Fire.GetIcon(offsetY:6,size:48) + "火元素伤害";
 
         /*if (BasicStatus == Skill.SKillBasicStatus.Lock)

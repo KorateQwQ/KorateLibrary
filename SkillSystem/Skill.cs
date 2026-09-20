@@ -254,6 +254,9 @@ public class Skill : TagSerializable, ILoadable//ICustomSerializable
         get => ModSkill.Level;
         set => ModSkill.Level = Math.Max(value, 1);
     }
+
+    /// <summary>实时读取技能定义的最大等级，至少为 1；不会裁剪存档中已有的等级。</summary>
+    public int MaxLevel => Math.Max(1, ModSkill.MaxLevel);
     
     /// <summary>
     /// 创建新的技能实例
