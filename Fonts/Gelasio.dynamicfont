@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:Graphics="ReLogic.Content.Pipeline">
+  <Asset Type="Graphics:DynamicFontDescription">
+    <FontName>KL Gelasio</FontName>
+    <Size>36</Size>
+    <Spacing>0</Spacing>
+    <UseKerning>true</UseKerning>
+    <Style>Regular</Style>
+    <DefaultCharacter>?</DefaultCharacter>
+    <VerticalOffset>DefaultFontAscent</VerticalOffset>
+    <CharacterRegions>
+      <CharacterRegion><Start>&#x20;</Start><End>&#x7E;</End></CharacterRegion>
+    </CharacterRegions>
+  </Asset>
+</XnaContent>

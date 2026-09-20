@@ -22,6 +22,7 @@ public class SkillToolTip : UIElementGroup
 
     private SkillUnlockFooterUI _unlockFooter;
     private Skill _currentSkill;
+    public virtual ReLogic.Graphics.DynamicSpriteFont NameFont => FontManager.HarmonyOS_Sans_SC.Value;
     
     public static SkillToolTip Instance { get; private set; }
 
@@ -69,7 +70,7 @@ public class SkillToolTip : UIElementGroup
             TextBorderColor = Color.White * 0,
             BackgroundColor = Color.Red * 0,
             WordWrap = false,
-            Font = FontManager.HarmonyOS_Sans_SC.Value,
+            Font = NameFont,
         }.Join(_header);
 
         _levelText = new KLTextView

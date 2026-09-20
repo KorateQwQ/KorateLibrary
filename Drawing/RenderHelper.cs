@@ -75,11 +75,17 @@ public class RenderHelper : ModSystem
     private void On_MainOnInitTargets_int_int(On_Main.orig_InitTargets_int_int orig, Main self, int width, int height)
     {
         orig(self, width, height);
+        // Vanilla has just allocated fresh targets; no capture should retain these yet.
         ChangeOrigRender();
     }
 
     private void On_MainOnDraw(On_Main.orig_Draw orig, Main self, GameTime gameTime)
     {
+        // Main's targets may predate mod loading, so InitTargets is not guaranteed to
+        // run again on world entry. Convert before the frame captures their references.
+        if (!Main.dedServ && !Main.gameMenu)
+            ChangeOrigRender();
+
         /*if (Lighting.Mode is LightMode.Retro or LightMode.Trippy)
         {
             Lighting.Mode = LightMode.Color;
@@ -136,32 +142,46 @@ public class RenderHelper : ModSystem
             height /= 2;
         }
 
-        ChangeOrigRender();
+        // Allocate only KL-owned targets here. This method also runs inside EndCapture:
+        // disposing Main.screenTarget/Swap would invalidate screenTarget1/2 before orig.
+        // HDR replacement runs before world drawing or just after vanilla target allocation.
     }
 
     static void ChangeOrigRender()
     {
-        if(!DrawSystem.GetShouldBloom())return;
-        if (lightsMod != null)
+        if (Main.dedServ || !DrawSystem.GetShouldBloom()) return;
+        var previous = Main.screenTarget;
+        var previousSwap = Main.screenTargetSwap;
+        if (previous == null || previousSwap == null || previous.IsDisposed || previousSwap.IsDisposed) return;
+        if (previous.Format == SurfaceFormat.HdrBlendable && previousSwap.Format == SurfaceFormat.HdrBlendable) return;
+
+        GraphicsDevice device = Main.graphics.GraphicsDevice;
+        // Never retire a bound surface. If another hook is using it, retry next frame.
+        foreach (var binding in device.GetRenderTargets())
+            if (ReferenceEquals(binding.RenderTarget, previous) || ReferenceEquals(binding.RenderTarget, previousSwap)) return;
+
+        // Keep the actual surface dimensions, not Main.screenWidth/Height which can
+        // temporarily be UI-scaled. Do not dispose the old pair until both allocations succeed.
+        RenderTarget2D next = null;
+        RenderTarget2D nextSwap;
+        try
         {
-            Main.screenTarget.Dispose();
-            GraphicsDevice graphicsDevice = Main.graphics.GraphicsDevice;
-            Main.screenTarget = new RenderTarget2D(graphicsDevice, 
-                graphicsDevice.PresentationParameters.BackBufferWidth, 
-                graphicsDevice.PresentationParameters.BackBufferHeight, false,
-                SurfaceFormat.HdrBlendable, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+            next = new RenderTarget2D(device, previous.Width, previous.Height, false,
+                SurfaceFormat.HdrBlendable, lightsMod != null ? DepthFormat.None : previous.DepthStencilFormat,
+                0, lightsMod != null ? RenderTargetUsage.PreserveContents : previous.RenderTargetUsage);
+            nextSwap = new RenderTarget2D(device, previousSwap.Width, previousSwap.Height, false,
+                SurfaceFormat.HdrBlendable, previousSwap.DepthStencilFormat, 0, previousSwap.RenderTargetUsage);
         }
-        else
+        catch
         {
-            Main.screenTarget.Dispose();
-            Main.screenTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight,
-                false, SurfaceFormat.HdrBlendable, DepthFormat.Depth24);
+            next?.Dispose();
+            throw;
         }
 
-
-        Main.screenTargetSwap.Dispose();
-        Main.screenTargetSwap = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight,
-            false, SurfaceFormat.HdrBlendable, DepthFormat.Depth24);
+        Main.screenTarget = next;
+        Main.screenTargetSwap = nextSwap;
+        previous.Dispose();
+        previousSwap.Dispose();
     }
 
     private static void FilterManager_EndCapture(Terraria.Graphics.Effects.On_FilterManager.orig_EndCapture orig,

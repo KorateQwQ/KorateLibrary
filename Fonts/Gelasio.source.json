@@ -1,0 +1,17 @@
+{
+  "source_sha256": "4daecea457258c9ebeb8bc99ed3fd24353618bfad3ea4b93fa0b5d0468fc04e4",
+  "source_family": "Gelasio",
+  "family": "KL Gelasio",
+  "weight": 400.0,
+  "size_points": 36.0,
+  "spacing": 0,
+  "glyph_count": 95,
+  "range_count": 1,
+  "missing_requested_codepoints": [],
+  "source_url": "https://raw.githubusercontent.com/google/fonts/a60a77e14f28abd4ef243a1b5dfc48df0cec5205/ofl/gelasio/Gelasio%5Bwght%5D.ttf",
+  "license": "SIL Open Font License 1.1",
+  "license_file": "Gelasio-OFL.txt",
+  "runtime_asset": "KL/Fonts/Gelasio",
+  "runtime_em_pixels": 48,
+  "usage": "Constellation footer slot labels; Georgia metrics-compatible alternative, not the same typeface."
+}

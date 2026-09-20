@@ -1,0 +1,10 @@
+{
+  "family": "Noto Serif SC",
+  "version": "Version 2.02;241114204558;non-release",
+  "weight": 400,
+  "source_sha256": "a4aed9985a5916fbf6690456f8732a9fccd517938e353165d4142b4f11a39280",
+  "size_points": 36,
+  "nominal_pixels": 48,
+  "glyphs": 30485,
+  "coverage": "All printable BMP characters present in the source cmap; no supplementary-plane support."
+}
