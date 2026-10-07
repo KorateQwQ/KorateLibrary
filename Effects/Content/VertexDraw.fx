@@ -76,8 +76,8 @@ float4 PixelShaderFunction(PSInput input) : COLOR0
         return edgeColor;
 
     if (useRforAlpha)
-        return float4((input.Color * coord.z).rgb, coord.z * c.r);
-    return c * input.Color * float4(coord.z, coord.z, coord.z, coord.z);
+        return float4(input.Color.rgb, c.r* coord.z);
+    return c * float4(input.Color.rgb, input.Color.a * coord.z);
 }
 
 PSInput VertexShaderFunction(VSInput input)
@@ -94,7 +94,7 @@ technique Technique1
 {
     pass ColorBar
     {
-        VertexShader = compile vs_2_0 VertexShaderFunction();
-        PixelShader = compile ps_2_0 PixelShaderFunction();
+        VertexShader = compile vs_3_0 VertexShaderFunction();
+        PixelShader = compile ps_3_0 PixelShaderFunction();
     }
 }

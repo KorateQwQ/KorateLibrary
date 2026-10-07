@@ -141,23 +141,23 @@ public partial class DrawHelper : ModSystem
         private static VertexDeclaration _vertexDeclaration = new VertexDeclaration(new VertexElement[3]
         {
             new VertexElement(0, VertexElementFormat.Vector2, VertexElementUsage.Position, 0),
-            new VertexElement(8, VertexElementFormat.Color, VertexElementUsage.Color, 0),
-            new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.TextureCoordinate, 0)
+            new VertexElement(8, VertexElementFormat.Vector4, VertexElementUsage.Color, 0),
+            new VertexElement(24, VertexElementFormat.Vector3, VertexElementUsage.TextureCoordinate, 0)
         });
         public Vector2 Position;
-        public Color Color;
+        public Vector4 Color;
         public Vector3 TexCoord;
 
         public CustomVertexInfo(Vector2 position, Color color, Vector3 texCoord)
         {
             Position = position;
-            Color = color;
+            Color = color.ToVector4();
             TexCoord = texCoord;
         }
         public CustomVertexInfo(Vector2 position, Vector4 color, Vector3 texCoord)
         {
             Position = position;
-            Color = new Color(color.X, color.Y, color.Z, color.W)*255f;
+            Color = color;
             TexCoord = texCoord;
         }
 

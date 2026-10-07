@@ -2,12 +2,18 @@
 
 public class KLDpsHelper
 {
+    /// <summary>
+    /// boss列表代表的boss阶段对应的dps参考
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
     public static float GetStateDps(float state)
     {
         float[] stateDps =
         [
-            30f,
-            50f,   // 史莱姆王
+            20f,   //初始没有任何提升时
+            30f,   //升级提升等级到5时
+            50f,   // 史莱姆王, 解锁等级上限为10
             80f,   // 克苏鲁之眼
             110f,  // 世界吞噬者 / 克苏鲁之脑
             150f,  // 蜂王

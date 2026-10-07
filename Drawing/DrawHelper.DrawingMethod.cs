@@ -169,7 +169,25 @@ public partial class DrawHelper : ModSystem
 
         return min + (max - min) * waveProgress;
     }
-    
+    public static void BeginDraw(int state=0, int defferred = 0, bool adjustToScreen = true, SamplerState ss = null,Effect shader = null) 
+    {
+        BlendState blendState = BlendState.AlphaBlend;
+        if(state==1)blendState = BlendState.Additive;
+        if(state==2) blendState = BlendState.NonPremultiplied;
+        if (state == 3) blendState = ReverseBS;
+        if (state == 4) blendState = AlphaBlendNormal;
+        if (ss == null) ss = Main.DefaultSamplerState;
+        if (!adjustToScreen || TimeStopManager.IsRenderingPlayerTarget)
+        {
+            Main.spriteBatch.Begin((SpriteSortMode)defferred, blendState, ss,
+                DepthStencilState.None, RasterizerState.CullNone, shader);
+        }
+        else
+        {
+            Main.spriteBatch.Begin((SpriteSortMode)defferred, blendState, ss,
+                DepthStencilState.None, RasterizerState.CullNone, shader, Main.GameViewMatrix.TransformationMatrix);
+        }
+    }
     public static void EndBeginDraw(int state=0, int defferred = 0, bool adjustToScreen = true, SamplerState ss = null,Effect shader = null) 
     {
         BlendState blendState = BlendState.AlphaBlend;
@@ -323,14 +341,14 @@ public partial class DrawHelper : ModSystem
         List<CustomVertexInfo> bars = new List<CustomVertexInfo>();
         List<CustomVertexInfo> triangleList = new List<CustomVertexInfo>();
         
-        bars.Add(new CustomVertexInfo(position + new Vector2(0,-size.Y/2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(0,-size.Y/2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(0, 1, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2,0).RotatedBy(rotation) , color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2,0).RotatedBy(rotation) , color.Value.ToVector4(),
             new Vector3(0, 0, alpha))); 
         
-        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2,0).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2,0).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(1, 1, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(0,size.Y/2).RotatedBy(rotation) , color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(0,size.Y/2).RotatedBy(rotation) , color.Value.ToVector4(),
             new Vector3(1, 0, alpha)));
         
         var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, 0, 1);
@@ -366,14 +384,14 @@ public partial class DrawHelper : ModSystem
 
         float skewValue = skew * (size.X);
         
-        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(0, 0, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2,size.Y/2).RotatedBy(rotation) , color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2,size.Y/2).RotatedBy(rotation) , color.Value.ToVector4(),
             new Vector3(0, 1, alpha))); 
         
-        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(1, 0, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2,size.Y/2).RotatedBy(rotation) , color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2,size.Y/2).RotatedBy(rotation) , color.Value.ToVector4(),
             new Vector3(1, 1, alpha)));
         
         var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, 0, 1);
@@ -429,14 +447,14 @@ public partial class DrawHelper : ModSystem
 
         float skewValue = skew * (size.X);
         
-        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(0, 0, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2,size.Y/2).RotatedBy(rotation) , color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X/2,size.Y/2).RotatedBy(rotation) , color.Value.ToVector4(),
             new Vector3(0, 1, alpha))); 
         
-        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2+skewValue,-size.Y/2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(1, 0, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2,size.Y/2).RotatedBy(rotation) , color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(size.X/2,size.Y/2).RotatedBy(rotation) , color.Value.ToVector4(),
             new Vector3(1, 1, alpha)));
         
         var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, 0, 1);
@@ -494,14 +512,14 @@ public partial class DrawHelper : ModSystem
 
         float skewValue = skew * size.X;
 
-        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X / 2 + skewValue, -size.Y / 2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X / 2 + skewValue, -size.Y / 2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(0, 0, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X / 2, size.Y / 2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(-size.X / 2, size.Y / 2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(0, 1, alpha)));
 
-        bars.Add(new CustomVertexInfo(position + new Vector2(size.X / 2 + skewValue, -size.Y / 2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(size.X / 2 + skewValue, -size.Y / 2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(1, 0, alpha)));
-        bars.Add(new CustomVertexInfo(position + new Vector2(size.X / 2, size.Y / 2).RotatedBy(rotation), color.Value,
+        bars.Add(new CustomVertexInfo(position + new Vector2(size.X / 2, size.Y / 2).RotatedBy(rotation), color.Value.ToVector4(),
             new Vector3(1, 1, alpha)));
 
         var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, 0, 1);

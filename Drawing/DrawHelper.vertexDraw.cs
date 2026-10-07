@@ -346,10 +346,24 @@ public partial class DrawHelper : ModSystem
         return result;
     }
 
-    //以顶点绘制拖尾,alpha是用于bloom的绘制强度
+    // Compatibility overload for ordinary 0-1 colors. Use the Vector4 overload for HDR bloom values.
     public static void TrailEffect(Texture2D mainTex, Vector2[] topPoints, Color startColor, Color endColor,
         float maxWidth = 5f, float endWidth = 5f, float startAlpha = 1f,
         float endAlpha = 0.1f, int drawTimes = 1, int blendState = 0, Vector2? uTime = null, Vector2? imageScale = null,
+        Vector2 attachPoint = default, float attachRotation = 0f,
+        float threshold = 0.5f, float edge = 0, Vector4? edgeColor = null, Texture2D clipMask = null,
+        Vector2? maskScale = null, Vector2 maskTime = default,
+        bool useRforAlpha = false, bool debugPoint = false)
+    {
+        TrailEffect(mainTex, topPoints, startColor.ToVector4(), endColor.ToVector4(), maxWidth, endWidth,
+            startAlpha, endAlpha, drawTimes, blendState, uTime, imageScale, attachPoint, attachRotation,
+            threshold, edge, edgeColor, clipMask, maskScale, maskTime, useRforAlpha, debugPoint);
+    }
+
+    // Vertex colors stay as Vector4 so callers can supply HDR bloom values above 1.
+    public static void TrailEffect(Texture2D mainTex, Vector2[] topPoints, Vector4 startColor, Vector4 endColor,
+        float maxWidth = 5f, float endWidth = 5f, float startAlpha = 1f,
+        float endAlpha = 1f, int drawTimes = 1, int blendState = 0, Vector2? uTime = null, Vector2? imageScale = null,
         Vector2 attachPoint = default,float attachRotation = 0f,
         //消融相关参数
         float threshold = 0.5f, float edge = 0, Vector4? edgeColor = null, Texture2D clipMask = null,
@@ -397,7 +411,7 @@ public partial class DrawHelper : ModSystem
                 //var color = new Color(255, 123, 35, 255);//Color.Lerp(Color.White,Color.Red , factor);//Projectile.GetFairyQueenWeaponsColor(0f)//从头部到尾部渐变颜色
                 var lerpAlpha = MathHelper.Lerp(startAlpha, endAlpha, factor); //从头部到尾部越来越透明
                 if(lerpAlpha<0) lerpAlpha = 0;
-                var color = Color.Lerp(startColor, endColor, factor);
+                var color = Vector4.Lerp(startColor, endColor, factor);
 
                 var trans = Main.GameViewMatrix != null ? Main.GameViewMatrix.TransformationMatrix : Matrix.Identity;
                 if (debugPoint)

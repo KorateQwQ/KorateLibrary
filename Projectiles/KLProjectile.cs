@@ -19,11 +19,16 @@ public abstract class KLProjectile : ModProjectile
     private Vector2[] oldCenterTrailPositions = Array.Empty<Vector2>();
 
     private int oldCenterTrailPointCount;
+    private readonly List<Vector2> distanceLimitedTrailPositions = new();
 
     public bool ImmuneTimeStop = false;
     
     //拖尾记录的长度，大于0说明此弹幕为拖尾弹幕
     public int TrailLength = 0;
+    /// <summary>等距生成 OldCenter 的采样数；启用后优先于旧的 TrailLength。</summary>
+    public int TrailSampleCount;
+    /// <summary>中心线沿历史路径允许保留的最大世界距离。</summary>
+    public float TrailMaxLength;
     public Texture2D ThisTex => TextureAssets.Projectile[Projectile.type].Value;
 
     public Player Owner => Main.player[Projectile.owner];
@@ -310,6 +315,11 @@ public abstract class KLProjectile : ModProjectile
     
     public override void SetDefaults()
     {
+        distanceLimitedTrailPositions.Clear();
+        oldCenterTrailPositions = Array.Empty<Vector2>();
+        oldCenterTrailPointCount = 0;
+        OldCenter = null;
+
         /*if (TrailLength > 0)
         {
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = TrailLength;
@@ -322,7 +332,7 @@ public abstract class KLProjectile : ModProjectile
 
     protected bool ValidTrailArray(int minPointCount = 2)
     {
-        return TrailLength > 0 && OldCenter != null && OldCenter.Length >= minPointCount;
+        return (TrailSampleCount > 0 || TrailLength > 0) && OldCenter != null && OldCenter.Length >= minPointCount;
     }
     
     /// <summary>
@@ -334,7 +344,11 @@ public abstract class KLProjectile : ModProjectile
     {
         // A time-stopped projectile is still drawn, but its trail must retain
         // the last sampled positions until it can move again.
-        if (TrailLength > 0 && CanMoveInTimeStop&&!Main.gamePaused)
+        if (TrailSampleCount > 0 && TrailMaxLength > 0f && CanMoveInTimeStop && !Main.gamePaused)
+        {
+            RecordDistanceLimitedTrail();
+        }
+        else if (TrailLength > 0 && CanMoveInTimeStop&&!Main.gamePaused)
         {
             if (oldCenterTrailPositions.Length != TrailLength)
             {
@@ -354,6 +368,58 @@ public abstract class KLProjectile : ModProjectile
             Array.Copy(oldCenterTrailPositions, OldCenter, oldCenterTrailPointCount);
         }
         return false;
+    }
+
+    private void RecordDistanceLimitedTrail()
+    {
+        Vector2 center = Projectile.Center;
+        if (distanceLimitedTrailPositions.Count == 0 ||
+            Vector2.DistanceSquared(distanceLimitedTrailPositions[0], center) > 0.01f)
+        {
+            distanceLimitedTrailPositions.Insert(0, center);
+        }
+
+        float remainingLength = TrailMaxLength;
+        for (int i = 1; i < distanceLimitedTrailPositions.Count; i++)
+        {
+            float segmentLength = Vector2.Distance(distanceLimitedTrailPositions[i - 1], distanceLimitedTrailPositions[i]);
+            if (segmentLength <= remainingLength)
+            {
+                remainingLength -= segmentLength;
+                continue;
+            }
+
+            float segmentProgress = segmentLength <= 0f ? 0f : remainingLength / segmentLength;
+            distanceLimitedTrailPositions[i] = Vector2.Lerp(
+                distanceLimitedTrailPositions[i - 1], distanceLimitedTrailPositions[i], segmentProgress);
+            distanceLimitedTrailPositions.RemoveRange(i + 1, distanceLimitedTrailPositions.Count - i - 1);
+            break;
+        }
+
+        float pathLength = 0f;
+        for (int i = 1; i < distanceLimitedTrailPositions.Count; i++)
+            pathLength += Vector2.Distance(distanceLimitedTrailPositions[i - 1], distanceLimitedTrailPositions[i]);
+
+        int outputCount = pathLength <= 0.01f ? 1 : Math.Max(1, TrailSampleCount);
+        OldCenter = new Vector2[outputCount];
+        for (int sample = 0; sample < outputCount; sample++)
+        {
+            float targetDistance = outputCount == 1 ? 0f : pathLength * sample / (outputCount - 1f);
+            float traversed = 0f;
+            OldCenter[sample] = distanceLimitedTrailPositions[0];
+            for (int i = 1; i < distanceLimitedTrailPositions.Count; i++)
+            {
+                float segmentLength = Vector2.Distance(distanceLimitedTrailPositions[i - 1], distanceLimitedTrailPositions[i]);
+                if (traversed + segmentLength >= targetDistance)
+                {
+                    float segmentProgress = segmentLength <= 0f ? 0f : (targetDistance - traversed) / segmentLength;
+                    OldCenter[sample] = Vector2.Lerp(distanceLimitedTrailPositions[i - 1], distanceLimitedTrailPositions[i], segmentProgress);
+                    break;
+                }
+                traversed += segmentLength;
+                OldCenter[sample] = distanceLimitedTrailPositions[i];
+            }
+        }
     }
 
     public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers,

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using KL.Configs;
 using KL.Dusts;
 using KL.Projectiles;
@@ -34,7 +35,22 @@ public class DrawSystem : ModSystem
 
     public static List<Dust> KLDustList = new List<Dust>(8000);
 
-    private RenderTarget2D saveScreen;
+    private static readonly FieldInfo SpriteBatchBeginCalled = typeof(SpriteBatch).GetField("beginCalled",
+        BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo SpriteBatchSortMode = typeof(SpriteBatch).GetField("sortMode",
+        BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo SpriteBatchBlendState = typeof(SpriteBatch).GetField("blendState",
+        BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo SpriteBatchSamplerState = typeof(SpriteBatch).GetField("samplerState",
+        BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo SpriteBatchDepthStencilState = typeof(SpriteBatch).GetField("depthStencilState",
+        BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo SpriteBatchRasterizerState = typeof(SpriteBatch).GetField("rasterizerState",
+        BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo SpriteBatchCustomEffect = typeof(SpriteBatch).GetField("customEffect",
+        BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly FieldInfo SpriteBatchTransformMatrix = typeof(SpriteBatch).GetField("transformMatrix",
+        BindingFlags.Instance | BindingFlags.NonPublic);
 
     private readonly Stopwatch _sw = new Stopwatch();
 
@@ -50,9 +66,6 @@ public class DrawSystem : ModSystem
     //bloom迭代次数
     private static int bloomItr = 5;
 
-    //之前的bloom效果，弃用了（）
-    private static bool ShouldBloom = false;
-    
     //bloom效果
     private static bool ShouldBloom2 = true;
 
@@ -150,6 +163,8 @@ public class DrawSystem : ModSystem
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings, LayerDrawRequestSystem.DrawTiming.After);
+        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings,
+            LayerDrawRequestSystem.DrawTiming.After);
 
     }
 
@@ -163,7 +178,7 @@ public class DrawSystem : ModSystem
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.After);
-        StartBloom();
+        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.After);
     }
 
     private void On_Main_DrawPlayers_AfterProjectiles(On_Main.orig_DrawPlayers_AfterProjectiles orig, Main self)
@@ -171,30 +186,198 @@ public class DrawSystem : ModSystem
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles, LayerDrawRequestSystem.DrawTiming.After);
+        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles,
+            LayerDrawRequestSystem.DrawTiming.After);
     }
 
-    //Bloom后处理效果
-    void StartBloom()
+    // Renders complete requested visuals once, then derives their normal and bloom results.
+    private void RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer layer,
+        LayerDrawRequestSystem.DrawTiming timing)
     {
-        if (RenderHelper.BloomRender != null&&CanUseRender&&ShouldBloom2)
+        if (!LayerDrawRequestSystem.HasBloomRequests(layer, timing))
         {
-            Main.spriteBatch.Begin((SpriteSortMode)1, ScreenBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone);
-
-            RenderHelper.DrawOverFlowScreenTarget();
-            
-            DownSampler(bloomItr);
-            UpSampler(bloomItr);
-            
-            RenderHelper.ReDrawScreenTarget();
-            
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin((SpriteSortMode)1, ScreenBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone);
-            ReColorEffect(Vector4.One*bloomStr,ReColorState.Bloom,RenderHelper.LastTargetRender);
-            Main.spriteBatch.Draw(RenderHelper.BloomUpSample[5], new Vector2(0)+bloomDrawOffset, new Color(255,255,255,255));
-            
-            Main.spriteBatch.End();
-
+            return;
         }
+
+        if (!ShouldBloom2)
+        {
+            RenderBloomRequestsWithoutPostProcess(layer, timing);
+            return;
+        }
+        RenderHelper.EnsureRenderTargets();
+        GraphicsDevice graphicsDevice = Main.instance.GraphicsDevice;
+        if (graphicsDevice.GetRenderTargets().Length == 0)
+        {
+            RenderBloomRequestsWithoutSceneTarget(layer, timing);
+            return;
+        }
+
+        if (graphicsDevice.GetRenderTargets()[0].RenderTarget is not RenderTarget2D sceneTarget)
+        {
+            RenderBloomRequestsWithoutPostProcess(layer, timing);
+            return;
+        }
+        SpriteBatch spriteBatch = Main.spriteBatch;
+        SpriteBatchState? previousState = CaptureSpriteBatchState(spriteBatch);
+        EndSpriteBatchIfActive(spriteBatch);
+
+        graphicsDevice.SetRenderTarget(RenderHelper.SaveScreenRender);
+        graphicsDevice.Clear(Color.Transparent);
+        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp,
+            DepthStencilState.None, RasterizerState.CullNone);
+        spriteBatch.Draw(sceneTarget, Vector2.Zero, Color.White);
+        spriteBatch.End();
+
+        graphicsDevice.SetRenderTarget(RenderHelper.BloomRender);
+        graphicsDevice.Clear(Color.Transparent);
+        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState,
+            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        LayerDrawRequestSystem.FlushBloom(layer, timing);
+
+        // The callback draws once. Its normal appearance and bloom are both derived from this source.
+        EnsureSpriteBatchActive(spriteBatch);
+
+        RenderHelper.SwitchRender(RenderHelper.Render, state: 0);
+        DrawUnderflowColorEffect();
+        spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
+
+        int iterationCount = Math.Clamp(bloomItr, 2, RenderHelper.BloomDownSample.Length);
+        DownSampler(RenderHelper.BloomRender, iterationCount);
+        UpSampler(iterationCount);
+
+        RenderHelper.SwitchRender(RenderHelper.Render2, state: 2);
+        spriteBatch.Draw(RenderHelper.SaveScreenRender, Vector2.Zero, Color.White);
+        spriteBatch.Draw(RenderHelper.Render, Vector2.Zero, Color.White);
+
+        EndBeginDraw(0, 1, false);
+        graphicsDevice.SetRenderTarget(sceneTarget);
+        graphicsDevice.Clear(Color.Transparent);
+        /*spriteBatch.Draw(RenderHelper.Render2, Vector2.Zero, Color.White);
+
+        EndBeginDraw(0, 1, false);*/
+        ReColorEffect(Vector4.One * bloomStr, ReColorState.Bloom, RenderHelper.Render2);
+        spriteBatch.Draw(RenderHelper.BloomUpSample[5], bloomDrawOffset, Color.White);
+        EndSpriteBatchIfActive(spriteBatch);
+        RestoreSpriteBatchState(spriteBatch, previousState);
+    }
+
+    // Retro lighting can draw directly to the backbuffer, so there is no scene texture
+    // to sample. Bloom can still be produced from the requested visual itself; the
+    // transparent background makes the final pass a foreground-only composite.
+    private void RenderBloomRequestsWithoutSceneTarget(LayerDrawRequestSystem.DrawTargetLayer layer,
+        LayerDrawRequestSystem.DrawTiming timing)
+    {
+        GraphicsDevice graphicsDevice = Main.instance.GraphicsDevice;
+        SpriteBatch spriteBatch = Main.spriteBatch;
+        SpriteBatchState? previousState = CaptureSpriteBatchState(spriteBatch);
+        EndSpriteBatchIfActive(spriteBatch);
+
+        PresentationParameters presentation = graphicsDevice.PresentationParameters;
+        RenderTargetUsage previousUsage = presentation.RenderTargetUsage;
+        Viewport previousViewport = graphicsDevice.Viewport;
+        Rectangle previousScissor = graphicsDevice.ScissorRectangle;
+        // FNA clears a DiscardContents backbuffer on rebind, even without an explicit Clear.
+        presentation.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+        try
+        {
+            graphicsDevice.SetRenderTarget(RenderHelper.BloomRender);
+            graphicsDevice.Clear(Color.Transparent);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+            LayerDrawRequestSystem.FlushBloom(layer, timing);
+            EnsureSpriteBatchActive(spriteBatch);
+
+            RenderHelper.SwitchRender(RenderHelper.Render, state: 0, ignoreCanUseRender: true);
+            DrawUnderflowColorEffect();
+            spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
+
+            int iterationCount = Math.Clamp(bloomItr, 2, RenderHelper.BloomDownSample.Length);
+            DownSampler(RenderHelper.BloomRender, iterationCount, ignoreCanUseRender: true);
+            UpSampler(iterationCount, ignoreCanUseRender: true);
+
+            RenderHelper.SwitchRender(RenderHelper.Render2, state: 2, ignoreCanUseRender: true);
+            spriteBatch.Draw(RenderHelper.Render, Vector2.Zero, Color.White);
+
+            RenderHelper.SwitchRender(null, state: 0, ignoreCanUseRender: true, clearTarget: false);
+            ReColorEffect(Vector4.One * bloomStr, ReColorState.Bloom, RenderHelper.Render2);
+            spriteBatch.Draw(RenderHelper.BloomUpSample[5], bloomDrawOffset, Color.White);
+        }
+        finally
+        {
+            EndSpriteBatchIfActive(spriteBatch);
+            graphicsDevice.SetRenderTarget(null);
+            presentation.RenderTargetUsage = previousUsage;
+            graphicsDevice.Viewport = previousViewport;
+            graphicsDevice.ScissorRectangle = previousScissor;
+            RestoreSpriteBatchState(spriteBatch, previousState);
+        }
+    }
+
+    private static void RenderBloomRequestsWithoutPostProcess(LayerDrawRequestSystem.DrawTargetLayer layer,
+        LayerDrawRequestSystem.DrawTiming timing)
+    {
+        SpriteBatch spriteBatch = Main.spriteBatch;
+        SpriteBatchState? previousState = CaptureSpriteBatchState(spriteBatch);
+        EndSpriteBatchIfActive(spriteBatch);
+        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState,
+            DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        LayerDrawRequestSystem.FlushBloom(layer, timing);
+        EndSpriteBatchIfActive(spriteBatch);
+        RestoreSpriteBatchState(spriteBatch, previousState);
+    }
+
+    private static void EndSpriteBatchIfActive(SpriteBatch spriteBatch)
+    {
+        if (SpriteBatchBeginCalled?.GetValue(spriteBatch) is true)
+        {
+            spriteBatch.End();
+        }
+    }
+
+    private static void EnsureSpriteBatchActive(SpriteBatch spriteBatch)
+    {
+        if (SpriteBatchBeginCalled?.GetValue(spriteBatch) is not true)
+        {
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState,
+                DepthStencilState.None, RasterizerState.CullNone);
+        }
+    }
+
+    private readonly record struct SpriteBatchState(
+        SpriteSortMode SortMode,
+        BlendState BlendState,
+        SamplerState SamplerState,
+        DepthStencilState DepthStencilState,
+        RasterizerState RasterizerState,
+        Effect Effect,
+        Matrix TransformMatrix);
+
+    private static SpriteBatchState? CaptureSpriteBatchState(SpriteBatch spriteBatch)
+    {
+        if (SpriteBatchBeginCalled?.GetValue(spriteBatch) is not true)
+        {
+            return null;
+        }
+
+        return new SpriteBatchState(
+            (SpriteSortMode)SpriteBatchSortMode.GetValue(spriteBatch),
+            (BlendState)SpriteBatchBlendState.GetValue(spriteBatch),
+            (SamplerState)SpriteBatchSamplerState.GetValue(spriteBatch),
+            (DepthStencilState)SpriteBatchDepthStencilState.GetValue(spriteBatch),
+            (RasterizerState)SpriteBatchRasterizerState.GetValue(spriteBatch),
+            (Effect)SpriteBatchCustomEffect.GetValue(spriteBatch),
+            (Matrix)SpriteBatchTransformMatrix.GetValue(spriteBatch));
+    }
+
+    private static void RestoreSpriteBatchState(SpriteBatch spriteBatch, SpriteBatchState? state)
+    {
+        if (state is not SpriteBatchState value)
+        {
+            return;
+        }
+
+        spriteBatch.Begin(value.SortMode, value.BlendState, value.SamplerState, value.DepthStencilState,
+            value.RasterizerState, value.Effect, value.TransformMatrix);
     }
 
     private void On_Main_CacheProjDraws(On_Main.orig_CacheProjDraws orig, Main self)
@@ -286,26 +469,36 @@ public class DrawSystem : ModSystem
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindNPCsAndTiles))
         {
             LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCsAndTiles, LayerDrawRequestSystem.DrawTiming.After);
+            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCsAndTiles,
+                LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindNPCs))
         {
             LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCs, LayerDrawRequestSystem.DrawTiming.After);
+            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCs,
+                LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindProjectiles))
         {
             LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindProjectiles, LayerDrawRequestSystem.DrawTiming.After);
+            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.BehindProjectiles,
+                LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsOverPlayers))
         {
             LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.OverPlayers, LayerDrawRequestSystem.DrawTiming.After);
+            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.OverPlayers,
+                LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsOverWiresUI))
         {
             LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.OverWiresUI, LayerDrawRequestSystem.DrawTiming.After);
+            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.OverWiresUI,
+                LayerDrawRequestSystem.DrawTiming.After);
         }
         
         if (!Main.LocalPlayer.active) return;
@@ -355,52 +548,24 @@ public class DrawSystem : ModSystem
         EndBeginDraw();
     }
 
-    public void PrePareBloomRender(bool startSpriteBatch = true)
-    {
-        if (!CanUseRender) return;
-        if (!ShouldBloom) return;
-
-        SpriteBatch sb = Main.spriteBatch;
-        GraphicsDevice gd = Main.instance.GraphicsDevice;
-
-        if (startSpriteBatch)
-            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None,
-                Main.Rasterizer, null);
-        sb.End();
-        sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None,
-            RasterizerState.CullNone);
-
-        if (Main.graphics.GraphicsDevice.GetRenderTargets().Length > 0)
-        {
-            Texture target = Main.graphics.GraphicsDevice.GetRenderTargets()[0].RenderTarget;
-            saveScreen = target as RenderTarget2D;
-
-            gd.SetRenderTarget(RenderHelper.SaveScreenRenderForBloom); //在这个上面绘制一遍原图，相当于“保存”
-            gd.Clear(Color.Transparent);
-            sb.Draw(saveScreen, Vector2.Zero, Color.White);
-            RenderHelper.SwitchRender(RenderHelper.BloomRender, true);
-        }
-        else
-        {
-            CanUseRender = false;
-            if (startSpriteBatch) Main.spriteBatch.End();
-        }
-    }
-
     private void On_Main_DrawProjectiles(On_Main.orig_DrawProjectiles orig, Main self)
     {
         CurrentDrawLayer = DrawLayer.Normal;
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
+        TrailManager.SubmitDrawRequests();
         LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.After);
+        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.Projectiles,
+            LayerDrawRequestSystem.DrawTiming.After);
     }
 
-    private void DownSampler(int time = 5)
+    private void DownSampler(Texture2D bloomSource, int time = 5, bool ignoreCanUseRender = false)
     {
         Vector2 screenCenter = new Vector2(Main.screenWidth / 2f, Main.screenHeight / 2f);
         for (int i = 0; i < time; i++)
         {
-            RenderHelper.SwitchRender(RenderHelper.BloomDownSample[i], state: 0);
+            RenderHelper.SwitchRender(RenderHelper.BloomDownSample[i], state: 0,
+                ignoreCanUseRender: ignoreCanUseRender);
             Vector2 screenSize = new Vector2(RenderHelper.BloomDownSample[i].Width,
                 RenderHelper.BloomDownSample[i].Height);
             //EndBeginDraw(1,1,false);
@@ -408,7 +573,7 @@ public class DrawSystem : ModSystem
             if (i == 0)
             {
                 GaussianBlur(screenSize / 4f, strength: 1.2f);
-                DrawInScreen(RenderHelper.BloomRender, screenSize / 2f, Color.White);
+                DrawInScreen(bloomSource, screenSize / 2f, Color.White);
             }
             else
             {
@@ -420,7 +585,7 @@ public class DrawSystem : ModSystem
         }
     }
 
-    private void UpSampler(int time = 5)
+    private void UpSampler(int time = 5, bool ignoreCanUseRender = false)
     {
         float lastResultScale = 0.5f;
         float BackGroundStrength = TotalBloomBackGroundStrength;
@@ -432,7 +597,8 @@ public class DrawSystem : ModSystem
                 RenderHelper.BloomUpSample[i].Height);
 
             float scale = MathHelper.Lerp(0.5f, 0.2f, (float)i / 5);
-            RenderHelper.SwitchRender(RenderHelper.BloomUpSample[i], state: 0);
+            RenderHelper.SwitchRender(RenderHelper.BloomUpSample[i], state: 0,
+                ignoreCanUseRender: ignoreCanUseRender);
             GaussianBlurTwice(screenSize / 4f, BackGroundStrength * scale, BlurStrength,
                 RenderHelper.BloomDownSample[5 - i]); //MathF.Pow(2,time-2-i)
             //GaussianBlur(screenSize,1f);

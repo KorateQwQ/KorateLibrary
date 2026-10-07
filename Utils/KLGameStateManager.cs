@@ -275,11 +275,11 @@ public class KLGameStateManager : KLModSystem
     public static int GetLevelCap(float bossState)
     {
 	    bossState = MathF.Max(bossState, 0f);
-	    if (bossState <= 18) return (int)bossState * 5;
+	    if (bossState <= 18) return (int)bossState * 5+5;
 
 	    float fullState = MathF.Floor(bossState);
 	    float fraction = bossState - fullState;
-	    int levelCap = (int)fullState * 5;
+	    int levelCap = (int)fullState * 5+5;
 
 	    if (fraction >= 0.5f)
 	    {

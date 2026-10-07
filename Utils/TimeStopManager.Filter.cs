@@ -144,10 +144,6 @@ public class TimeStopManager_Filter : ModSystem
 
                 DrawModDustOrig();
 
-                /*RenderHelper.ReDrawScreenTarget();
-                    sb.End();
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None,  Main.Rasterizer, null,  Main.Transform);
-                    sb.Draw(Homura.render, Vector2.Zero, Color.White);*/
             }
         }
         else

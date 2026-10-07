@@ -65,6 +65,8 @@ public sealed class LayerDrawRequestSystem : ModSystem
 
     private static readonly Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), Dictionary<string, DrawRequestGroup>> Requests = new();
     private static readonly Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), List<string>> IdOrder = new();
+    private static readonly Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), Dictionary<string, DrawRequestGroup>> BloomRequests = new();
+    private static readonly Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), List<string>> BloomIdOrder = new();
 
     public static void Request(string id, DrawTargetLayer layer, DrawTiming timing, Action drawAction)
     {
@@ -83,22 +85,34 @@ public sealed class LayerDrawRequestSystem : ModSystem
             return;
         }
 
-        var requestPoint = (layer, timing);
-        if (!Requests.TryGetValue(requestPoint, out Dictionary<string, DrawRequestGroup> groups))
+        AddRequest(Requests, IdOrder, id, layer, timing, drawAction);
+    }
+
+    /// <summary>
+    /// Requests a complete visual draw that is collected with other bloom requests at the same layer.
+    /// KL renders the callback once into an isolated target, then composites its normal appearance
+    /// and its blurred bloom back into the requested layer.
+    /// </summary>
+    public static void RequestBloom(string id, DrawTargetLayer layer, DrawTiming timing, Action drawAction)
+    {
+        if (drawAction == null)
         {
-            groups = new Dictionary<string, DrawRequestGroup>();
-            Requests[requestPoint] = groups;
-            IdOrder[requestPoint] = new List<string>();
+            return;
         }
 
-        if (!groups.TryGetValue(id, out DrawRequestGroup group))
+        RequestBloom(id, layer, timing, _ => drawAction());
+    }
+
+    /// <inheritdoc cref="RequestBloom(string, DrawTargetLayer, DrawTiming, Action)" />
+    public static void RequestBloom(string id, DrawTargetLayer layer, DrawTiming timing,
+        Action<DrawRequestContext> drawAction)
+    {
+        if (string.IsNullOrWhiteSpace(id) || drawAction == null)
         {
-            group = new DrawRequestGroup();
-            groups[id] = group;
-            IdOrder[requestPoint].Add(id);
+            return;
         }
 
-        group.Entries.Add(new DrawRequestEntry(drawAction));
+        AddRequest(BloomRequests, BloomIdOrder, id, layer, timing, drawAction);
     }
 
     public static void Request(string id, DrawAnchor anchor, Action drawAction)
@@ -129,24 +143,72 @@ public sealed class LayerDrawRequestSystem : ModSystem
     {
         Requests.Clear();
         IdOrder.Clear();
+        BloomRequests.Clear();
+        BloomIdOrder.Clear();
     }
 
     public static void Flush(DrawTargetLayer layer, DrawTiming timing)
     {
+        Flush(Requests, IdOrder, layer, timing);
+    }
+
+    /// <summary>
+    /// Runs complete visual draws registered for a layer. DrawSystem owns the render target and
+    /// invokes this once per populated layer.
+    /// </summary>
+    public static bool FlushBloom(DrawTargetLayer layer, DrawTiming timing)
+    {
+        return Flush(BloomRequests, BloomIdOrder, layer, timing);
+    }
+
+    public static bool HasBloomRequests(DrawTargetLayer layer, DrawTiming timing)
+    {
+        return BloomRequests.TryGetValue((layer, timing), out Dictionary<string, DrawRequestGroup> groups) &&
+               groups.Count > 0;
+    }
+
+    private static void AddRequest(
+        Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), Dictionary<string, DrawRequestGroup>> requestStore,
+        Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), List<string>> orderStore,
+        string id,
+        DrawTargetLayer layer,
+        DrawTiming timing,
+        Action<DrawRequestContext> drawAction)
+    {
         var requestPoint = (layer, timing);
-        if (!Requests.TryGetValue(requestPoint, out Dictionary<string, DrawRequestGroup> groups))
+        if (!requestStore.TryGetValue(requestPoint, out Dictionary<string, DrawRequestGroup> groups))
         {
-            return;
+            groups = new Dictionary<string, DrawRequestGroup>();
+            requestStore[requestPoint] = groups;
+            orderStore[requestPoint] = new List<string>();
         }
 
-        if (!IdOrder.TryGetValue(requestPoint, out List<string> order))
+        if (!groups.TryGetValue(id, out DrawRequestGroup group))
         {
-            return;
+            group = new DrawRequestGroup();
+            groups[id] = group;
+            orderStore[requestPoint].Add(id);
+        }
+
+        group.Entries.Add(new DrawRequestEntry(drawAction));
+    }
+
+    private static bool Flush(
+        Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), Dictionary<string, DrawRequestGroup>> requestStore,
+        Dictionary<(DrawTargetLayer Layer, DrawTiming Timing), List<string>> orderStore,
+        DrawTargetLayer layer,
+        DrawTiming timing)
+    {
+        var requestPoint = (layer, timing);
+        if (!requestStore.TryGetValue(requestPoint, out Dictionary<string, DrawRequestGroup> groups) ||
+            !orderStore.TryGetValue(requestPoint, out List<string> order))
+        {
+            return false;
         }
 
         List<string> snapshotOrder = new List<string>(order);
-        Requests.Remove(requestPoint);
-        IdOrder.Remove(requestPoint);
+        requestStore.Remove(requestPoint);
+        orderStore.Remove(requestPoint);
 
         foreach (string id in snapshotOrder)
         {
@@ -162,6 +224,8 @@ public sealed class LayerDrawRequestSystem : ModSystem
                 group.Entries[i].DrawAction?.Invoke(context);
             }
         }
+
+        return true;
     }
 
     public static void Flush(DrawAnchor anchor)
