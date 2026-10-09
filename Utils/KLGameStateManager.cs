@@ -100,6 +100,8 @@ public class KLGameStateManager : KLModSystem
         bossInfos.Clear();
         specialBossPhaseItemTypes.Clear();
         origBossInfos.Clear();
+        HasBossCheckList = false;
+        TotalBossAmount = 0;
         
         if (ModLoader.TryGetMod("BossChecklist", out Mod bossChecklist) && bossChecklist.Version >= BossChecklistAPIVersion)
         {
@@ -151,7 +153,7 @@ public class KLGameStateManager : KLModSystem
 		        TotalBossAmount = bossInfos.Count(boss => boss.Value.isBoss);
 	        }
         }
-        else
+        if (bossInfos.Count == 0)
         {
 	        HasBossCheckList = false;
 	        origBossInfos.Add(NPCID.KingSlime,new OrigBossChecklistBossInfo(KingSlime, () => NPC.downedSlimeKing));
@@ -634,6 +636,44 @@ public class KLGameStateManager : KLModSystem
 	    if (bossInfo!=null) return bossInfo.downed();
 
 	    return false;
+    }
+
+    /// <summary>
+    /// 按传入的角色进度查找下一 Boss 阶段，不读取或修改世界击杀状态。
+    /// 未取得 Boss Checklist 数据时，使用与 GetBossState 相同的原版备用表。
+    /// </summary>
+    public static bool TryGetNextBoss(float progress, out string bossName, out float bossState)
+    {
+        bossName = null;
+        bossState = progress;
+        if (bossInfos.Count > 0)
+        {
+            var next = bossInfos.Values
+                .Where(info => info.isBoss && info.progression > progress)
+                .OrderBy(info => info.progression)
+                .ThenBy(info => info.key, StringComparer.Ordinal)
+                .FirstOrDefault();
+            if (next == null) return false;
+            bossName = next.displayName?.Value ?? next.key;
+            bossState = next.progression;
+            return true;
+        }
+
+        var nextOriginal = origBossInfos
+            .Where(entry => entry.Value.progression > progress)
+            .OrderBy(entry => entry.Value.progression)
+            .ThenBy(entry => entry.Key)
+            .FirstOrDefault();
+        if (nextOriginal.Value == null) return false;
+
+        bossState = nextOriginal.Value.progression;
+        bossName = Lang.GetNPCNameValue(nextOriginal.Key);
+        // 同一阶段的双子、邪恶 Boss 合并展示；身体分段不单独推进。
+        if (nextOriginal.Key == NPCID.Retinazer)
+            bossName += " / " + Lang.GetNPCNameValue(NPCID.Spazmatism);
+        else if (nextOriginal.Key == NPCID.EaterofWorldsHead)
+            bossName += " / " + Lang.GetNPCNameValue(NPCID.BrainofCthulhu);
+        return true;
     }
 
     public static Dictionary<string, BossChecklistBossInfo> GetBossInfos()
