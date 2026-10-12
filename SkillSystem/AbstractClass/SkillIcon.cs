@@ -120,6 +120,8 @@ public abstract class SkillIcon(Skill skill) : SUIImage,IDraggableUI
         
         CDEffect.Parameters["time"].SetValue(1 - Skill.CooldownRemainingFraction);
         CDEffect.Parameters["flashTime"].SetValue(FlashTime/30f);
+        // 还有可用层数时图标保持彩色，只压暗未转好的部分。
+        CDEffect.Parameters["ready"]?.SetValue(Skill.Stack > 0 ? 1f : 0f);
 
         EndBeginDrawUI(0,1,true,null,CDEffect);
         if(Skill.ModSkill.PreDrawSkillIcon(finalPosition, GetDrawSize(),Color.White,CDEffect))base.Draw(gameTime, spriteBatch);
