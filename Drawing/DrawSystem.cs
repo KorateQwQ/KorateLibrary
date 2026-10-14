@@ -241,8 +241,14 @@ public class DrawSystem : ModSystem
         DrawUnderflowColorEffect();
         spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
+        // Blur only HDR pixels above the bloom threshold, not the complete visual.
+        // Render2 is scratch space here; the final scene composite is built after UpSampler.
+        RenderHelper.SwitchRender(RenderHelper.Render2, state: 0);
+        DrawOverflowColorEffect();
+        spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
+
         int iterationCount = Math.Clamp(bloomItr, 2, RenderHelper.BloomDownSample.Length);
-        DownSampler(RenderHelper.BloomRender, iterationCount);
+        DownSampler(RenderHelper.Render2, iterationCount);
         UpSampler(iterationCount);
 
         RenderHelper.SwitchRender(RenderHelper.Render2, state: 2);
@@ -291,8 +297,12 @@ public class DrawSystem : ModSystem
             DrawUnderflowColorEffect();
             spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
+            RenderHelper.SwitchRender(RenderHelper.Render2, state: 0, ignoreCanUseRender: true);
+            DrawOverflowColorEffect();
+            spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
+
             int iterationCount = Math.Clamp(bloomItr, 2, RenderHelper.BloomDownSample.Length);
-            DownSampler(RenderHelper.BloomRender, iterationCount, ignoreCanUseRender: true);
+            DownSampler(RenderHelper.Render2, iterationCount, ignoreCanUseRender: true);
             UpSampler(iterationCount, ignoreCanUseRender: true);
 
             RenderHelper.SwitchRender(RenderHelper.Render2, state: 2, ignoreCanUseRender: true);

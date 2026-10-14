@@ -1,9 +1,27 @@
 using System;
 using System.Collections.Generic;
+using KL.Extensions;
 using KL.Utils;
 using Terraria.DataStructures;
 
 namespace KL.DamageSystem;
+
+/// <summary>
+/// 积蓄值的累积方式。
+/// </summary>
+internal enum ElementBuildUpMode
+{
+    /// <summary>
+    /// 按伤害比例累积，积蓄上限由 <see cref="ElementBuildupBuffRegistry.Entry.MaxBuildUpRatio"/> 与目标生命上限决定。
+    /// </summary>
+    DamageRatio,
+
+    /// <summary>
+    /// 按命中次数累积，与伤害无关，积蓄上限固定为 <see cref="ElementBuildupBuffRegistry.Entry.FixedThreshold"/>，
+    /// 每次有效命中增加 <see cref="ElementBuildupBuffRegistry.Entry.GainPerHit"/> 点。
+    /// </summary>
+    HitCount,
+}
 
 internal sealed class ElementBuildupContext
 {
@@ -56,7 +74,12 @@ internal static class ElementBuildupBuffRegistry
             Func<float, float> buildUpFormula,
             float maxBuildUpRatio,
             ModifyBuildUpDelegate modifyOnBuildUp,
-            Action<ElementBuildupContext> onHit)
+            Action<ElementBuildupContext> onHit,
+            ElementBuildUpMode mode,
+            float fixedThreshold,
+            float gainPerHit,
+            bool routeToAnchor,
+            int idleResetTime)
         {
             Element = element;
             BuffId = buffId;
@@ -66,6 +89,11 @@ internal static class ElementBuildupBuffRegistry
             MaxBuildUpRatio = maxBuildUpRatio;
             ModifyOnBuildUp = modifyOnBuildUp;
             OnHit = onHit;
+            Mode = mode;
+            FixedThreshold = fixedThreshold;
+            GainPerHit = gainPerHit;
+            RouteToAnchor = routeToAnchor;
+            IdleResetTime = idleResetTime;
         }
 
         public ElementType Element { get; }
@@ -91,7 +119,25 @@ internal static class ElementBuildupBuffRegistry
 
         // 每次命中时的回调（可为空）
         public Action<ElementBuildupContext> OnHit { get; }
+
+        // 积蓄值的累积方式
+        public ElementBuildUpMode Mode { get; }
+
+        // HitCount 模式下的固定积蓄上限（点）
+        public float FixedThreshold { get; }
+
+        // HitCount 模式下每次有效命中增加的积蓄点数
+        public float GainPerHit { get; }
+
+        // 是否把积蓄/异常统一挂到元素锚点上（多部位 Boss 共享一套积蓄与 CD）
+        public bool RouteToAnchor { get; }
+
+        // 距上次有效积蓄超过该时长（tick）后清空积蓄，<=0 表示永不自动清空
+        public int IdleResetTime { get; }
     }
+
+    // 默认 15 秒无有效积蓄后清空
+    public const int DefaultIdleResetTime = 900;
 
     static Func<float, float> DefaultBuildUpFormula { get; } = x => MathF.Max(1, KLMathF.ClampLerp(1, 100, x / 1000f));
 
@@ -125,7 +171,12 @@ internal static class ElementBuildupBuffRegistry
         Func<float, float> buildUpFormula,
         float maxBuildUpRatio = 0.1f,
         ModifyBuildUpDelegate modifyOnBuildUp = null,
-        Action<ElementBuildupContext> onHit = null)
+        Action<ElementBuildupContext> onHit = null,
+        ElementBuildUpMode mode = ElementBuildUpMode.DamageRatio,
+        float fixedThreshold = 0f,
+        float gainPerHit = 1f,
+        bool routeToAnchor = false,
+        int idleResetTime = DefaultIdleResetTime)
     {
         if (element == ElementType.None)
             return;
@@ -136,7 +187,8 @@ internal static class ElementBuildupBuffRegistry
         predicate ??= _ => true;
         buildUpFormula ??= DefaultBuildUpFormula;
 
-        var entry = new Entry(element, buffId, buffDuration, predicate, buildUpFormula, maxBuildUpRatio, modifyOnBuildUp, onHit);
+        var entry = new Entry(element, buffId, buffDuration, predicate, buildUpFormula, maxBuildUpRatio, modifyOnBuildUp, onHit,
+            mode, fixedThreshold, gainPerHit, routeToAnchor, idleResetTime);
         EntriesByElement[element] = entry;
 
         if (buffId > 0)
@@ -148,6 +200,37 @@ internal static class ElementBuildupBuffRegistry
 
             ElementByBuffId[buffId] = element;
         }
+    }
+
+    /// <summary>
+    /// 注册一条按命中次数累积的规则：与伤害无关，固定阈值，每次有效命中增加固定点数。
+    /// </summary>
+    public static void RegisterHitCount(
+        ElementType element,
+        int buffId,
+        int buffDuration,
+        float threshold,
+        float gainPerHit,
+        Func<ElementBuildupContext, bool> predicate = null,
+        ModifyBuildUpDelegate modifyOnBuildUp = null,
+        Action<ElementBuildupContext> onHit = null,
+        bool routeToAnchor = false,
+        int idleResetTime = DefaultIdleResetTime)
+    {
+        Register(
+            element,
+            buffId,
+            buffDuration,
+            predicate,
+            null,
+            0f,
+            modifyOnBuildUp,
+            onHit,
+            ElementBuildUpMode.HitCount,
+            threshold,
+            gainPerHit,
+            routeToAnchor,
+            idleResetTime);
     }
 
     // 尝试根据当前积蓄上下文触发规则
@@ -164,6 +247,17 @@ internal static class ElementBuildupBuffRegistry
             return false;
         }
 
+        // 多部位 Boss：先把目标收敛到统一锚点，后续 predicate / 积蓄 / 结算都基于锚点。
+        // 这一步必须在 predicate 之前完成，因为 predicate 往往要读取锚点上的积蓄与 CD 状态。
+        if (entry.RouteToAnchor)
+        {
+            NPC anchor = context.Target.GetElementAnchorNPC();
+            if (anchor is not { active: true })
+                return false;
+
+            context.Target = anchor;
+        }
+
         if (!entry.Predicate(context))
             return false;
 
@@ -171,12 +265,26 @@ internal static class ElementBuildupBuffRegistry
 
         entry.OnHit?.Invoke(context);
 
-        float newBuildUpValue = entry.BuildUpFormula(context.Hit.SourceDamage);
-        float maxBuildUpRatio = entry.MaxBuildUpRatio;
-        float maxBuildUpValue = context.Target.lifeMax * maxBuildUpRatio;
+        float newBuildUpValue;
+        float maxBuildUpValue;
 
-        // 保底 60 次攻击打满
-        if (newBuildUpValue < maxBuildUpValue / 60f) newBuildUpValue = maxBuildUpValue / 60f;
+        if (entry.Mode == ElementBuildUpMode.HitCount)
+        {
+            maxBuildUpValue = entry.FixedThreshold;
+            newBuildUpValue = entry.GainPerHit;
+        }
+        else
+        {
+            newBuildUpValue = entry.BuildUpFormula(context.Hit.SourceDamage);
+            maxBuildUpValue = context.Target.lifeMax * entry.MaxBuildUpRatio;
+
+            // 保底 60 次攻击打满
+            if (newBuildUpValue < maxBuildUpValue / 60f) newBuildUpValue = maxBuildUpValue / 60f;
+        }
+
+        // 阈值非法时视为该规则未配置完成，直接跳过，避免出现除零或瞬间满额。
+        if (maxBuildUpValue <= 0f)
+            return false;
 
         if (!g.ElementAccumulation.TryGetValue(context.Element, out ElementalGlobalNPC.BuildUpProgressContext progress))
         {
@@ -185,6 +293,7 @@ internal static class ElementBuildupBuffRegistry
         }
 
         progress.Max = maxBuildUpValue;
+        progress.IdleResetTime = entry.IdleResetTime;
 
         if (progress.Current + newBuildUpValue >= maxBuildUpValue)
         {
@@ -206,7 +315,13 @@ internal static class ElementBuildupBuffRegistry
 
             if (applyInfo.ApplyDebuff && applyInfo.BuffId > 0 && applyInfo.Duration > 0)
             {
-                if(Main.netMode != NetmodeID.MultiplayerClient)context.Target.AddBuffToSelfAndChildren(applyInfo.BuffId, applyInfo.Duration,forcedAddBuff:applyInfo.ForcedAddBuff);
+                if(Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    if (entry.RouteToAnchor)
+                        context.Target.AddBuffToAnchorParts(applyInfo.BuffId, applyInfo.Duration, forcedAddBuff: applyInfo.ForcedAddBuff);
+                    else
+                        context.Target.AddBuffToSelfAndChildren(applyInfo.BuffId, applyInfo.Duration, forcedAddBuff: applyInfo.ForcedAddBuff);
+                }
                 //PrintText($"Applying buff {applyInfo.BuffId} to {context.Target.FullName} for {applyInfo.Duration} ticks");
             }
         }
@@ -215,6 +330,7 @@ internal static class ElementBuildupBuffRegistry
             progress.Current += newBuildUpValue;
         }
 
+        progress.IdleTime = 0;
         progress.VisualTime = 120;
         return true;
     }

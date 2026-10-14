@@ -115,11 +115,26 @@ public class ElementalGlobalNPC : KLGlobalNpc
     {
         if (ElementAccumulation == null)
             return null;
-        
+
         if (!ElementAccumulation.TryGetValue(type, out BuildUpProgressContext ctx) || ctx == null)
             return null;
-        
+
         return ctx.MaxDuration;
+    }
+
+    // 取该元素的积蓄上下文，不存在时补一个空壳（用于绘制冻结 CD 这类没有积蓄值也要显示的状态）
+    private BuildUpProgressContext GetOrCreateAccumulation(ElementType type)
+    {
+        if (ElementAccumulation == null)
+            ElementAccumulation = new Dictionary<ElementType, BuildUpProgressContext>();
+
+        if (!ElementAccumulation.TryGetValue(type, out BuildUpProgressContext ctx) || ctx == null)
+        {
+            ctx = new BuildUpProgressContext();
+            ElementAccumulation[type] = ctx;
+        }
+
+        return ctx;
     }
     
     // 对于另一个npc的主体逻辑npc，如果其部件被冻结，其逻辑npc也会被视为冻结
@@ -128,20 +143,114 @@ public class ElementalGlobalNPC : KLGlobalNpc
     private Rectangle frozenFrame;
     private double frozenFrameCounter;
     private static Texture2D frozenTex;
-    
-    Dictionary<int,int> dustCount = new Dictionary<int,int>();
 
-    bool ShouldSpawnDust(int dustType,/*间隔时间*/ int interval = 10)
+    #region 冻结冷却
+
+    /// <summary>
+    /// 基础冻结 CD（tick），60 秒。
+    /// </summary>
+    public const int FreezeCooldownDuration = 3600;
+
+    // 距离可以再次积累冻结还需要多久，仅在冻结结束后开始计时。
+    private int freezeCooldown;
+
+    // 上一帧是否处于冻结中，用于捕捉“冻结刚好结束”的那一帧。
+    private bool freezeWasActive;
+
+    /// <summary>
+    /// 剩余的冻结 CD（tick）。多部位 Boss 上只有锚点持有关键状态，其余部位转读锚点。
+    /// </summary>
+    public int GetFreezeCooldown(NPC npc)
     {
-        if (!dustCount.ContainsKey(dustType))
-        {
-            dustCount[dustType] = 0;
-            return true;
-        }
-        if (dustCount[dustType]++ >=interval) return true;
-        return true;
+        if (npc == null) return 0;
+
+        NPC anchor = npc.GetElementAnchorNPC();
+        if (anchor == null || anchor.whoAmI == npc.whoAmI) return freezeCooldown;
+
+        return anchor.GetGlobalNPC<ElementalGlobalNPC>().GetFreezeCooldown(anchor);
     }
-    
+
+    /// <summary>
+    /// 剩余冻结 CD 的秒数。
+    /// </summary>
+    public float GetFreezeCooldownSeconds(NPC npc) => GetFreezeCooldown(npc) / 60f;
+
+    /// <summary>
+    /// 当前是否可以开始积累冻结：冻结 CD 归零，且不处于冻结状态。
+    /// </summary>
+    public bool IsFreezeAccumulating(NPC npc)
+    {
+        if (npc == null) return false;
+
+        NPC anchor = npc.GetElementAnchorNPC();
+        if (anchor == null || anchor.whoAmI == npc.whoAmI)
+            return freezeCooldown <= 0 && !GetAffliction(ElementType.Ice);
+
+        return anchor.GetGlobalNPC<ElementalGlobalNPC>().IsFreezeAccumulating(anchor);
+    }
+
+    /// <summary>
+    /// 直接扣除剩余冻结 CD，最低减到 0（不储存负 CD）。
+    /// </summary>
+    /// <param name="npc">被命中的部位，内部会自动路由到元素锚点</param>
+    /// <param name="seconds">要扣除的秒数</param>
+    public void ReduceFreezeCooldown(NPC npc, float seconds)
+    {
+        if (npc == null) return;
+
+        NPC anchor = npc.GetElementAnchorNPC();
+        if (anchor == null || anchor.whoAmI == npc.whoAmI)
+        {
+            ReduceFreezeCooldownLocal(seconds);
+            return;
+        }
+
+        anchor.GetGlobalNPC<ElementalGlobalNPC>().ReduceFreezeCooldownLocal(seconds);
+    }
+
+    private void ReduceFreezeCooldownLocal(float seconds)
+    {
+        if (seconds <= 0f) return;
+
+        int ticks = (int)MathF.Round(seconds * 60f, MidpointRounding.AwayFromZero);
+        if (ticks <= 0) return;
+
+        freezeCooldown = Math.Max(0, freezeCooldown - ticks);
+    }
+
+    private void UpdateFreezeCooldown(NPC npc)
+    {
+        if (npc == null) return;
+
+        // 只有锚点维护冻结 CD，其余部位通过 GetFreezeCooldown 转读锚点，避免各部位状态分裂。
+        NPC anchor = npc.GetElementAnchorNPC();
+        if (anchor == null || anchor.whoAmI != npc.whoAmI)
+            return;
+
+        bool frozenNow = GetAffliction(ElementType.Ice) || IsLogicFrozen;
+
+        if (frozenNow)
+        {
+            // 冻结中：CD 不推进，并记下“曾处于冻结”。
+            freezeWasActive = true;
+            freezeCooldown = 0;
+            return;
+        }
+
+        if (freezeWasActive)
+        {
+            // 冻结刚结束的这一帧，CD 从此刻开始计时。
+            freezeWasActive = false;
+            freezeCooldown = FreezeCooldownDuration;
+            return;
+        }
+
+        if (freezeCooldown > 0)
+            freezeCooldown--;
+    }
+
+    #endregion
+
     public sealed class BuildUpProgressContext
     {
         private float current;
@@ -154,9 +263,15 @@ public class ElementalGlobalNPC : KLGlobalNpc
         private int updateCounter;
 
         private int duration = 1;
-        
+
         private int maxDuration = 1;
-        
+
+        // 距上一次有效积蓄经过的时间
+        private int idleTime;
+
+        // 超过该时间没有有效积蓄则清空，<=0 表示不自动清空
+        private int idleResetTime = ElementBuildupBuffRegistry.DefaultIdleResetTime;
+
         public float Current
         {
             get => current;
@@ -197,6 +312,18 @@ public class ElementalGlobalNPC : KLGlobalNpc
             get => maxDuration;
             set => maxDuration = value < 1 ? 1 : value;
         }
+
+        public int IdleTime
+        {
+            get => idleTime;
+            set => idleTime = value < 0 ? 0 : value;
+        }
+
+        public int IdleResetTime
+        {
+            get => idleResetTime;
+            set => idleResetTime = value;
+        }
     }
 
     // 异常积蓄槽，元素异常的积蓄值在此累计。
@@ -233,8 +360,13 @@ public class ElementalGlobalNPC : KLGlobalNpc
                 binaryWriter.Write(context.UpdateCounter);
                 binaryWriter.Write(context.Duration);
                 binaryWriter.Write(context.MaxDuration);
+                binaryWriter.Write(context.IdleTime);
+                binaryWriter.Write(context.IdleResetTime);
             }
         }
+
+        binaryWriter.Write(freezeCooldown);
+        binaryWriter.Write(freezeWasActive);
 
         base.SendExtraAI(npc, bitWriter, binaryWriter);
     }
@@ -264,10 +396,15 @@ public class ElementalGlobalNPC : KLGlobalNpc
                 UpdateCounter = binaryReader.ReadInt32(),
                 Duration = binaryReader.ReadInt32(),
                 MaxDuration = binaryReader.ReadInt32(),
+                IdleTime = binaryReader.ReadInt32(),
+                IdleResetTime = binaryReader.ReadInt32(),
             };
 
             ElementAccumulation[type] = context;
         }
+
+        freezeCooldown = binaryReader.ReadInt32();
+        freezeWasActive = binaryReader.ReadBoolean();
 
         base.ReceiveExtraAI(npc, bitReader, binaryReader);
     }
@@ -349,17 +486,68 @@ public class ElementalGlobalNPC : KLGlobalNpc
 
     public override void PostAI(NPC npc)
     {
+        // 冻结判定必须在 IsLogicFrozen 被清除之前读取，CD 的起算点也就落在这里。
+        // 注意：PreAI 返回 false 时 NPCLoader 依然会调用 PostAI，所以冻结中的实体也能推进 CD 状态。
+        UpdateFreezeCooldown(npc);
+
+        int cooldown = GetFreezeCooldown(npc);
+
         IsLogicFrozen = false;
+
+        if (Main.netMode != NetmodeID.MultiplayerClient)
+        {
+            // 无积蓄超时清零由服务端（或单机）决定，客户端直接读同步结果，避免两端计数漂移。
+            foreach (var accPair in ElementAccumulation)
+            {
+                BuildUpProgressContext progress = accPair.Value;
+                if (progress == null || progress.IdleResetTime <= 0) continue;
+
+                if (progress.Current > 0f && !progress.InAffliction)
+                {
+                    progress.IdleTime++;
+
+                    if (progress.IdleTime >= progress.IdleResetTime)
+                    {
+                        progress.Current = 0f;
+                        progress.VisualTime = 0f;
+                        progress.IdleTime = 0;
+                    }
+                }
+                else
+                {
+                    progress.IdleTime = 0;
+                }
+            }
+        }
+
         if (Main.netMode != NetmodeID.Server)
         {
             foreach (var accPair in ElementAccumulation)
             {
-                if(accPair.Value.VisualTime > 0&& accPair.Value.Current<=0) accPair.Value.VisualTime--;
-                SetDuration(accPair.Key,accPair.Value.Duration-1);
+                BuildUpProgressContext progress = accPair.Value;
+                if (progress == null) continue;
+
+                // 冻结 CD 期间即便没有积蓄也要保持图标可见，这里先垫住可视时间。
+                if (accPair.Key == ElementType.Ice && !progress.InAffliction && cooldown > 0
+                    && progress.VisualTime < 120f)
+                {
+                    progress.VisualTime = 120f;
+                }
+
+                // 距超时最后 1 秒内跟着剩余时间一起淡出，使得清空那一刻进度条刚好消失。
+                if (progress.Current > 0f && !progress.InAffliction && progress.IdleResetTime > 0)
+                {
+                    int remaining = progress.IdleResetTime - progress.IdleTime;
+                    if (remaining < 60 && progress.VisualTime > remaining)
+                        progress.VisualTime = remaining;
+                }
+
+                if(progress.VisualTime > 0&& progress.Current<=0 && cooldown <= 0) progress.VisualTime--;
+                SetDuration(accPair.Key,progress.Duration-1);
                 //SetAffliction(accPair.Key,false);
             }
         }
-        
+
         base.PostAI(npc);
     }
 
@@ -511,10 +699,15 @@ public class ElementalGlobalNPC : KLGlobalNpc
         /*if (npc.type >= NPCID.TheDestroyer && npc.type <= NPCID.TheDestroyerTail)
             return base.DrawHealthBar(npc, hbPosition, ref scale, ref position);*/
 
-        if(ElementAccumulation is null || ElementAccumulation.Count == 0|| !IsBeginDrawCalled())return base.DrawHealthBar(npc, hbPosition, ref scale, ref position);
-        
+        if (ElementAccumulation is null || !IsBeginDrawCalled()) return base.DrawHealthBar(npc, hbPosition, ref scale, ref position);
+
+        // 冻结 CD 期间即便没有任何积蓄也要显示灰白图标，所以先把冰的条目补上再判断是否需要绘制。
+        GetOrCreateAccumulation(ElementType.Ice);
+
+        if (ElementAccumulation.Count == 0) return base.DrawHealthBar(npc, hbPosition, ref scale, ref position);
+
         if (npc.GetRealNpc() is {} realNpc && realNpc.whoAmI!=npc.whoAmI) return base.DrawHealthBar(npc, hbPosition, ref scale, ref position);
-        
+
         Vector2 anchor = position;
 
         // 多体节蠕虫：只让主体绘制一次，并让位置按毁灭者风格跟随离玩家最近且可见的体节。
@@ -530,27 +723,39 @@ public class ElementalGlobalNPC : KLGlobalNpc
         Vector2 iconScale = new Vector2(1);
         float xOffset = 35;
 
+        // 冻结 CD 与积蓄条共用一套绘制，但冰冻在 CD 期间需要单独显示一个灰白图标，
+        // 因此这里在遍历前把虚拟的冰条补进集合，避免绘制循环被拆散。
+        GetOrCreateAccumulation(ElementType.Ice);
+
+        // 多部位 Boss 上 CD 存在锚点里，这里转读一次，避免各部件显示不一致。
+        int cooldown = GetFreezeCooldown(npc);
+
         //Todo: 改为反向绘制，避免最先出现的异常改变位置
         foreach (var accumulationPair in ElementAccumulation)
         {
             if(accumulationPair.Value.VisualTime<=0)continue;
             float alpha = KLMathF.ClampLerp(0, 1, accumulationPair.Value.VisualTime / 60f);
             //accumulationPair.Value.InAffliction
-            Asset<Texture2D> icon = ElementTypeHelper.GetElementIconTexture(ElementType.Fire);
+            Asset<Texture2D> icon = ElementTypeHelper.GetElementIconTexture(accumulationPair.Key);
             //rintText(accumulationPair.Value.Current);
             Vector4 progressColor = ElementTypeHelper.GetElementColor(accumulationPair.Key).ToVector4();
             float progress = accumulationPair.Value.Current/(float)accumulationPair.Value.Max;
+
+            // 冻结 CD 中的冰：灰白图标 + 反向倒计时环
+            bool freezeCooldownVisual = accumulationPair.Key == ElementType.Ice
+                                        && !accumulationPair.Value.InAffliction
+                                        && cooldown > 0;
 
             if (progress <= 0.001f&&!accumulationPair.Value.InAffliction)
             {
                 progressColor = new Vector4(0.20f, 0.20f, 0.20f, 0.80f);
             }
-            
+
             if (accumulationPair.Value.InAffliction)
             {
                 progress = accumulationPair.Value.Duration/(float)accumulationPair.Value.MaxDuration;
 
-                
+
                 ProgressCircleEffect(1, ringWidth: 0.08f, progressColor: progressColor,bloomStrength:0.5f);
                 int count = accumulationPair.Value.UpdateCounter;
                 //根据count持续的做从3到1的渐变
@@ -560,9 +765,26 @@ public class ElementalGlobalNPC : KLGlobalNpc
                 DrawInWorld(icon.Value, anchor+offset, Color.White*alpha*extraAlpha, barScale*extraScale);
 
             }
-            ProgressCircleEffect(progress, ringWidth: 0.08f, progressColor: progressColor);
-            DrawInWorld(icon.Value, anchor+offset, Color.White*alpha, barScale);
-            
+
+            if (freezeCooldownVisual)
+            {
+                // Progress 就是进度弧长度，圆环随剩余 CD 减小而变短，读起来就是倒计时。
+                float cooldownProgress = cooldown / (float)FreezeCooldownDuration;
+                Vector4 cooldownColor = new Vector4(0.80f, 0.85f, 0.90f, 0.90f);
+                ProgressCircleEffect(cooldownProgress, ringWidth: 0.08f, progressColor: cooldownColor);
+
+                // 灰白图标：借 ReColor 的灰度 pass 把彩色图标转成灰白，画完立刻还原批次。
+                EndBeginDraw(0, 1);
+                ReColorEffect(Vector4.One, ReColorState.Grey);
+                DrawInWorld(icon.Value, anchor+offset, Color.White*alpha, barScale);
+                EndBeginDraw(0, 1);
+            }
+            else
+            {
+                ProgressCircleEffect(progress, ringWidth: 0.08f, progressColor: progressColor);
+                DrawInWorld(icon.Value, anchor+offset, Color.White*alpha, barScale);
+            }
+
             offset.X += xOffset;
         }
         EndBeginDraw();
