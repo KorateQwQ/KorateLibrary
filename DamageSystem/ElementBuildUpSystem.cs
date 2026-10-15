@@ -24,14 +24,14 @@ public class ElementBuildUpSystem : ModSystem
             ModifyFireBuildUp,
             OnHit_Fire);
 
-        // 冰：按有效命中次数积累，84 点阈值，每发 +1（冰锥每次攻击 3 发、60 帧内不重复命中，
-        // 因此“每次攻击最多 +3 点”由弹幕自身的 usesLocalNPCImmunity 保证）。
+        // 冰：按有效命中次数积累，54 点阈值，每发 +1。
+        // 冰锥每轮 3 发，单目标全部命中需 18 轮；按 0.75 秒周期约需 13.5 秒。
         // 积蓄与 CD 统一挂到元素锚点，多部位 Boss 共享一套冻结状态。
         ElementBuildupBuffRegistry.RegisterHitCount(
             ElementType.Ice,
             ModContent.BuffType<ElementalAffliction_Freeze>(),
             240,
-            84f,
+            54f,
             1f,
             FreezePredict,
             ModifyFreezeBuildUp,

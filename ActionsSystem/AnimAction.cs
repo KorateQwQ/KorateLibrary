@@ -8,6 +8,9 @@ namespace KL.ActionsSystem;
 /// </summary>
 public abstract class AnimAction
 {
+    /// <summary>动作节点射击的来源标识，供物品钩子与原版自动射击区分，不依赖动作帧号。</summary>
+    public const string ShotSourceContext = "KL.AnimAction";
+
     /// <summary>
     /// 是否使用物品时间，如果为是，动作发生时，角色当前手持物品会被强制设置为动作时间。
     /// </summary>
@@ -342,7 +345,7 @@ public abstract class AnimAction
         //int damage = player.GetWeaponDamage(item);
         //float knockback = player.GetWeaponKnockback(item, item.knockBack);
         
-        EntitySource_ItemUse_WithAmmo source = new(player, item, 0);
+        EntitySource_ItemUse_WithAmmo source = new(player, item, 0, ShotSourceContext);
 
         //Vector2 position = player.RotatedRelativePoint(player.MountedCenter);
 

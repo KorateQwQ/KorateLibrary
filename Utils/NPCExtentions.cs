@@ -49,6 +49,21 @@ public static class NPCExtentions
     {
         if (npc == null) return null;
 
+        // 骷髅王的手、机械骷髅王的四种武器部位均通过 ai[1] 指向所属头部。
+        // 按实例索引关联，不能把同类型的另一只 Boss 归到同一组。
+        if (npc.type == NPCID.SkeletronHand || npc.type == NPCID.PrimeCannon
+            || npc.type == NPCID.PrimeSaw || npc.type == NPCID.PrimeVice || npc.type == NPCID.PrimeLaser)
+        {
+            int headIndex = (int)npc.ai[1];
+            int headType = npc.type == NPCID.SkeletronHand ? NPCID.SkeletronHead : NPCID.SkeletronPrime;
+            if (headIndex >= 0 && headIndex < Main.npc.Length)
+            {
+                NPC head = Main.npc[headIndex];
+                if (head is { active: true } && head.type == headType)
+                    return head;
+            }
+        }
+
         // 月亮领主：手/头等部件通过 ai[3] 指向核心
         if (npc.type == NPCID.MoonLordHand || npc.type == NPCID.MoonLordHead)
         {
@@ -61,14 +76,15 @@ public static class NPCExtentions
             }
         }
 
-        // 石巨人头：通过 golemBoss 指向身体
-        if (npc.type == NPCID.GolemHead)
+        // 与原版石巨人部位 AI 一致，通过 golemBoss 关联身体；包括二阶段游离头。
+        if (npc.type == NPCID.GolemHead || npc.type == NPCID.GolemHeadFree
+            || npc.type == NPCID.GolemFistLeft || npc.type == NPCID.GolemFistRight)
         {
             int bodyIndex = NPC.golemBoss;
             if (bodyIndex >= 0 && bodyIndex < Main.npc.Length)
             {
                 NPC body = Main.npc[bodyIndex];
-                if (body.active && body.type == NPCID.Golem)
+                if (body is { active: true } && body.type == NPCID.Golem)
                     return body;
             }
         }
@@ -102,7 +118,7 @@ public static class NPCExtentions
 
     /// <summary>
     /// 获取元素积蓄/冻结状态的统一锚点。
-    /// 先沿 realLife 链收敛蠕虫类多体节，再解析多部位 Boss 的逻辑主体（月总核心、石巨人身体、飞碟核心等），
+    /// 先读取 realLife 所指的共享血量主体，再解析多部位 Boss 的逻辑主体（骷髅头、月总核心、石巨人身体等），
     /// 因此月总手这类 realLife 为 -1 的部件也能和核心落到同一个锚点上。
     /// 解析失败或结果已失效时回退到传入的 npc 本身。
     /// </summary>
