@@ -22,7 +22,7 @@ public partial class DrawHelper : ModSystem
         if(blendState == 2) bs = BlendState.NonPremultiplied;
         if (blendState == 3) bs = ReverseBS;
         if (blendState == 4) bs = AlphaBlendNormal;
-        return bs;
+        return DrawSystem.GetBlendStateForBloom(bs);
     }
     public static void DrawInWorld(TextureInfo textureInfo,Vector2? position =null,Color? color = null,Vector2? scale = null,float rotation = 0,SpriteEffects spriteEffects = SpriteEffects.None)
     {
@@ -171,11 +171,7 @@ public partial class DrawHelper : ModSystem
     }
     public static void BeginDraw(int state=0, int defferred = 0, bool adjustToScreen = true, SamplerState ss = null,Effect shader = null) 
     {
-        BlendState blendState = BlendState.AlphaBlend;
-        if(state==1)blendState = BlendState.Additive;
-        if(state==2) blendState = BlendState.NonPremultiplied;
-        if (state == 3) blendState = ReverseBS;
-        if (state == 4) blendState = AlphaBlendNormal;
+        BlendState blendState = GetBlendState(state);
         if (ss == null) ss = Main.DefaultSamplerState;
         if (!adjustToScreen || TimeStopManager.IsRenderingPlayerTarget)
         {
@@ -190,11 +186,7 @@ public partial class DrawHelper : ModSystem
     }
     public static void EndBeginDraw(int state=0, int defferred = 0, bool adjustToScreen = true, SamplerState ss = null,Effect shader = null) 
     {
-        BlendState blendState = BlendState.AlphaBlend;
-        if(state==1)blendState = BlendState.Additive;
-        if(state==2) blendState = BlendState.NonPremultiplied;
-        if (state == 3) blendState = ReverseBS;
-        if (state == 4) blendState = AlphaBlendNormal;
+        BlendState blendState = GetBlendState(state);
         Main.spriteBatch.End();
         if (ss == null) ss = Main.DefaultSamplerState;
         if (!adjustToScreen || TimeStopManager.IsRenderingPlayerTarget)
@@ -211,6 +203,7 @@ public partial class DrawHelper : ModSystem
     
     public static void EndBeginDraw(BlendState state, int defferred = 0, bool adjustToScreen = true, SamplerState ss = null,Effect shader = null) 
     {
+        state = DrawSystem.GetBlendStateForBloom(state);
         ss??=Main.DefaultSamplerState;
         Main.spriteBatch.End();
         if (!adjustToScreen || TimeStopManager.IsRenderingPlayerTarget)
@@ -260,11 +253,7 @@ public partial class DrawHelper : ModSystem
 
     public static void EndBeginDrawUI(int state=0, int defferred = 0, bool adjustToScreen = true, SamplerState ss = null,Effect shader = null) 
     {
-        BlendState blendState = BlendState.AlphaBlend;
-        if(state==1)blendState = BlendState.Additive;
-        if(state==2) blendState = BlendState.NonPremultiplied;
-        if (state == 3) blendState = ReverseBS;
-        if (state == 4) blendState = AlphaBlendNormal;
+        BlendState blendState = GetBlendState(state);
             
         Main.spriteBatch.End();
         if (ss == null) ss = Main.DefaultSamplerState;

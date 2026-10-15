@@ -29,6 +29,11 @@ public abstract class KLProjectile : ModProjectile
     public int TrailSampleCount;
     /// <summary>中心线沿历史路径允许保留的最大世界距离。</summary>
     public float TrailMaxLength;
+    /// <summary>
+    /// 启用后在 base.DrawBehind 中采样，供同一钩子登记托管拖尾；PreDraw 不再重复采样。
+    /// 默认保留旧弹幕在 base.PreDraw 中采样的行为。
+    /// </summary>
+    protected virtual bool SampleTrailInDrawBehind => false;
     public Texture2D ThisTex => TextureAssets.Projectile[Projectile.type].Value;
 
     public Player Owner => Main.player[Projectile.owner];
@@ -336,11 +341,18 @@ public abstract class KLProjectile : ModProjectile
     }
     
     /// <summary>
-    /// 如果使用拖尾，则需要调用base来记录OldCenter,OldCenter可能为空。
+    /// 默认在此采样 OldCenter；启用 SampleTrailInDrawBehind 的弹幕已在缓存阶段采样。
     /// </summary>
     /// <param name="lightColor"></param>
     /// <returns></returns>
     public override bool PreDraw(ref Color lightColor)
+    {
+        if (!SampleTrailInDrawBehind)
+            RecordTrail();
+        return false;
+    }
+
+    private void RecordTrail()
     {
         // A time-stopped projectile is still drawn, but its trail must retain
         // the last sampled positions until it can move again.
@@ -367,7 +379,6 @@ public abstract class KLProjectile : ModProjectile
             OldCenter = new Vector2[oldCenterTrailPointCount];
             Array.Copy(oldCenterTrailPositions, OldCenter, oldCenterTrailPointCount);
         }
-        return false;
     }
 
     private void RecordDistanceLimitedTrail()
@@ -426,6 +437,8 @@ public abstract class KLProjectile : ModProjectile
         List<int> overWiresUI)
     {
         base.DrawBehind(index, behindNPCsAndTiles, behindNPCs, behindProjectiles, overPlayers, overWiresUI);
+        if (SampleTrailInDrawBehind)
+            RecordTrail();
     }
 
     public static void SpawnWindCircle(IEntitySource source,Texture2D tex,Vector2 center, Vector2 velocity, Color? frontColor = null,

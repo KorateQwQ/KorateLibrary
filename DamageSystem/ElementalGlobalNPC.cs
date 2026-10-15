@@ -146,6 +146,7 @@ public class ElementalGlobalNPC : KLGlobalNpc
 
     #region 冻结冷却
 
+
     /// <summary>
     /// 基础冻结 CD（tick），60 秒。
     /// </summary>
@@ -629,10 +630,16 @@ public class ElementalGlobalNPC : KLGlobalNpc
     }
 
     // 处理元素命中并造造异常
-    public void OnHitByElement(ElementType element, NPC npc, NPC.HitInfo hit)
+    public void OnHitByElement(ElementType element, NPC npc, NPC.HitInfo hit) =>
+        OnHitByElement(element, npc, hit, -1);
+
+    public void OnHitByElement(ElementType element, NPC npc, NPC.HitInfo hit, int sourcePlayer)
+        => OnHitByElement(element, npc, hit, sourcePlayer, null);
+
+    public void OnHitByElement(ElementType element, NPC npc, NPC.HitInfo hit, int sourcePlayer, float? hitCountGain)
     {
         NPC realNpc = npc.GetRealNpc();
-        ElementBuildupContext context = new ElementBuildupContext(realNpc, element, hit);
+        ElementBuildupContext context = new ElementBuildupContext(realNpc, element, hit, sourcePlayer, hitCountGain);
         ElementBuildupBuffRegistry.TryApply(context);
     }
 
@@ -692,6 +699,41 @@ public class ElementalGlobalNPC : KLGlobalNpc
     }
 
     #region 异常条绘制
+    private static readonly Vector4 FreezeCooldownRingColor = new Vector4(0.80f, 0.85f, 0.90f, 0.90f);
+
+    private static Texture2D freezeCooldownIcon;
+
+    // 冻结 CD 用的灰白冰图标。冰图标是纯青色（R=0），ReColor 的灰度 pass 会丢弃任一通道为 0 的像素，
+    // 整个图标都会消失，所以这里在 CPU 上按亮度转一份灰度贴图缓存起来。
+    private static Texture2D GetFreezeCooldownIcon(Texture2D source)
+    {
+        if (freezeCooldownIcon is { IsDisposed: false })
+            return freezeCooldownIcon;
+
+        Color[] data = new Color[source.Width * source.Height];
+        source.GetData(data);
+        for (int i = 0; i < data.Length; i++)
+        {
+            Color c = data[i];
+            // 贴图是预乘 alpha，亮度是 RGB 的线性组合，转换后依然保持预乘
+            byte l = (byte)Math.Clamp((int)MathF.Round(c.R * 0.3f + c.G * 0.59f + c.B * 0.11f), 0, 255);
+            data[i] = new Color(l, l, l, c.A);
+        }
+
+        freezeCooldownIcon = new Texture2D(source.GraphicsDevice, source.Width, source.Height);
+        freezeCooldownIcon.SetData(data);
+        return freezeCooldownIcon;
+    }
+
+    public override void Unload()
+    {
+        Texture2D texture = freezeCooldownIcon;
+        freezeCooldownIcon = null;
+        if (texture != null)
+            Main.QueueMainThreadAction(texture.Dispose);
+        base.Unload();
+    }
+
     // 绘制异常条
     public override bool? DrawHealthBar(NPC npc, byte hbPosition, ref float scale, ref Vector2 position)
     {
@@ -766,24 +808,13 @@ public class ElementalGlobalNPC : KLGlobalNpc
 
             }
 
+            // 圆环 shader 不采样贴图，只借图标的四边形出图，所以 Apply 之后必须紧跟这一次绘制。
+            // 冻结 CD 中进度弧长度就是剩余 CD 占比，随时间变短，读起来就是倒计时。
             if (freezeCooldownVisual)
-            {
-                // Progress 就是进度弧长度，圆环随剩余 CD 减小而变短，读起来就是倒计时。
-                float cooldownProgress = cooldown / (float)FreezeCooldownDuration;
-                Vector4 cooldownColor = new Vector4(0.80f, 0.85f, 0.90f, 0.90f);
-                ProgressCircleEffect(cooldownProgress, ringWidth: 0.08f, progressColor: cooldownColor);
-
-                // 灰白图标：借 ReColor 的灰度 pass 把彩色图标转成灰白，画完立刻还原批次。
-                EndBeginDraw(0, 1);
-                ReColorEffect(Vector4.One, ReColorState.Grey);
-                DrawInWorld(icon.Value, anchor+offset, Color.White*alpha, barScale);
-                EndBeginDraw(0, 1);
-            }
+                ProgressCircleEffect(cooldown / (float)FreezeCooldownDuration, ringWidth: 0.08f, progressColor: FreezeCooldownRingColor);
             else
-            {
                 ProgressCircleEffect(progress, ringWidth: 0.08f, progressColor: progressColor);
-                DrawInWorld(icon.Value, anchor+offset, Color.White*alpha, barScale);
-            }
+            DrawInWorld(icon.Value, anchor+offset, Color.White*alpha, barScale);
 
             offset.X += xOffset;
         }
@@ -796,7 +827,13 @@ public class ElementalGlobalNPC : KLGlobalNpc
             float alpha = KLMathF.ClampLerp(0, 1, accumulationPair.Value.VisualTime / 60f);
 
             Asset<Texture2D> icon = ElementTypeHelper.GetElementIconTexture(accumulationPair.Key);
-            DrawInWorld(icon.Value, anchor+offset, Color.White*alpha, iconScale);
+            bool freezeCooldownVisual = accumulationPair.Key == ElementType.Ice
+                                        && !accumulationPair.Value.InAffliction
+                                        && cooldown > 0;
+
+            // 冻结 CD 中显示灰白图标，剩余时间由外圈进度弧表示
+            Texture2D iconTexture = freezeCooldownVisual ? GetFreezeCooldownIcon(icon.Value) : icon.Value;
+            DrawInWorld(iconTexture, anchor+offset, Color.White*alpha, iconScale);
             offset.X += xOffset;
         }
 

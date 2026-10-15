@@ -70,6 +70,37 @@ public class DrawSystem : ModSystem
     private static bool ShouldBloom2 = true;
 
     private static Vector2 bloomDrawOffset;
+
+    private static bool capturingBloom;
+    // RGB follows the caller's blend mode; alpha records how much destination color is occluded.
+    // Additive light never occludes the destination, even where several HDR draws overlap.
+    private static readonly BlendState BloomAdditiveBlend = new()
+    {
+        ColorSourceBlend = Blend.SourceAlpha,
+        ColorDestinationBlend = Blend.One,
+        AlphaSourceBlend = Blend.Zero,
+        AlphaDestinationBlend = Blend.One
+    };
+    private static readonly BlendState BloomStraightAlphaBlend = new()
+    {
+        ColorSourceBlend = Blend.SourceAlpha,
+        ColorDestinationBlend = Blend.InverseSourceAlpha,
+        AlphaSourceBlend = Blend.One,
+        AlphaDestinationBlend = Blend.InverseSourceAlpha
+    };
+
+    /// <summary>Preserves RGB blending while recording coverage in a RequestBloom target.
+    /// KL draw helpers apply this automatically; use it when setting GraphicsDevice.BlendState directly.</summary>
+    public static BlendState GetBlendStateForBloom(BlendState blendState)
+    {
+        if (!capturingBloom)
+            return blendState;
+        if (ReferenceEquals(blendState, BlendState.Additive))
+            return BloomAdditiveBlend;
+        if (ReferenceEquals(blendState, BlendState.NonPremultiplied))
+            return BloomStraightAlphaBlend;
+        return blendState;
+    }
     
     public enum DrawLayer
     {
@@ -160,11 +191,9 @@ public class DrawSystem : ModSystem
         }
         #endif
         
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings, LayerDrawRequestSystem.DrawTiming.Before);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings, LayerDrawRequestSystem.DrawTiming.After);
-        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings,
-            LayerDrawRequestSystem.DrawTiming.After);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.InfernoRings, LayerDrawRequestSystem.DrawTiming.After);
 
     }
 
@@ -175,19 +204,39 @@ public class DrawSystem : ModSystem
 
     private void On_Main_DrawDust(On_Main.orig_DrawDust orig, Main self)
     {
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.Before);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.After);
-        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.After);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.Dust, LayerDrawRequestSystem.DrawTiming.After);
     }
 
     private void On_Main_DrawPlayers_AfterProjectiles(On_Main.orig_DrawPlayers_AfterProjectiles orig, Main self)
     {
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles, LayerDrawRequestSystem.DrawTiming.Before);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles, LayerDrawRequestSystem.DrawTiming.After);
-        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles,
-            LayerDrawRequestSystem.DrawTiming.After);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.PlayersAfterProjectiles, LayerDrawRequestSystem.DrawTiming.After);
+    }
+
+    private void FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer layer,
+        LayerDrawRequestSystem.DrawTiming timing)
+    {
+        LayerDrawRequestSystem.Flush(layer, timing);
+        RenderRequestedBloom(layer, timing);
+    }
+
+    private static void CaptureBloomRequests(LayerDrawRequestSystem.DrawTargetLayer layer,
+        LayerDrawRequestSystem.DrawTiming timing)
+    {
+        bool wasCapturing = capturingBloom;
+        capturingBloom = true;
+        try
+        {
+            LayerDrawRequestSystem.FlushBloom(layer, timing);
+            EndSpriteBatchIfActive(Main.spriteBatch);
+        }
+        finally
+        {
+            capturingBloom = wasCapturing;
+        }
     }
 
     // Renders complete requested visuals once, then derives their normal and bloom results.
@@ -232,13 +281,14 @@ public class DrawSystem : ModSystem
         graphicsDevice.Clear(Color.Transparent);
         spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState,
             DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-        LayerDrawRequestSystem.FlushBloom(layer, timing);
+        CaptureBloomRequests(layer, timing);
 
         // The callback draws once. Its normal appearance and bloom are both derived from this source.
         EnsureSpriteBatchActive(spriteBatch);
 
         RenderHelper.SwitchRender(RenderHelper.Render, state: 0);
-        DrawUnderflowColorEffect();
+        // Keep the original HDR RGB. Normalizing it by luminance changes the base visual
+        // even when bloom strength is zero; only the glow extraction applies a threshold.
         spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
         // Blur only HDR pixels above the bloom threshold, not the complete visual.
@@ -251,7 +301,9 @@ public class DrawSystem : ModSystem
         DownSampler(RenderHelper.Render2, iterationCount);
         UpSampler(iterationCount);
 
-        RenderHelper.SwitchRender(RenderHelper.Render2, state: 2);
+        // These targets already contain premultiplied results. Multiplying by alpha again
+        // lowers scene coverage, so subsequent bloom layers darken the earlier visuals.
+        RenderHelper.SwitchRender(RenderHelper.Render2, state: 0);
         spriteBatch.Draw(RenderHelper.SaveScreenRender, Vector2.Zero, Color.White);
         spriteBatch.Draw(RenderHelper.Render, Vector2.Zero, Color.White);
 
@@ -290,11 +342,10 @@ public class DrawSystem : ModSystem
             graphicsDevice.Clear(Color.Transparent);
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-            LayerDrawRequestSystem.FlushBloom(layer, timing);
+            CaptureBloomRequests(layer, timing);
             EnsureSpriteBatchActive(spriteBatch);
 
             RenderHelper.SwitchRender(RenderHelper.Render, state: 0, ignoreCanUseRender: true);
-            DrawUnderflowColorEffect();
             spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
             RenderHelper.SwitchRender(RenderHelper.Render2, state: 0, ignoreCanUseRender: true);
@@ -305,7 +356,7 @@ public class DrawSystem : ModSystem
             DownSampler(RenderHelper.Render2, iterationCount, ignoreCanUseRender: true);
             UpSampler(iterationCount, ignoreCanUseRender: true);
 
-            RenderHelper.SwitchRender(RenderHelper.Render2, state: 2, ignoreCanUseRender: true);
+            RenderHelper.SwitchRender(RenderHelper.Render2, state: 0, ignoreCanUseRender: true);
             spriteBatch.Draw(RenderHelper.Render, Vector2.Zero, Color.White);
 
             RenderHelper.SwitchRender(null, state: 0, ignoreCanUseRender: true, clearTarget: false);
@@ -418,6 +469,8 @@ public class DrawSystem : ModSystem
 
         orig(self);
 
+        // DrawBehind has sampled and refreshed every managed trail before any target layer is drawn.
+        TrailManager.SubmitDrawRequests();
 
         /*// 对所有列表按type进行排序
         DrawCacheProjsBehindNPCsAndTiles.Sort((projIndex1, projIndex2) =>
@@ -448,67 +501,57 @@ public class DrawSystem : ModSystem
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindNPCsAndTiles))
         {
             CurrentDrawLayer = DrawLayer.BehindNPCsAndTiles;
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCsAndTiles, LayerDrawRequestSystem.DrawTiming.Before);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCsAndTiles, LayerDrawRequestSystem.DrawTiming.Before);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindNPCs))
         {
             CurrentDrawLayer = DrawLayer.BehindNPCs;
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCs, LayerDrawRequestSystem.DrawTiming.Before);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCs, LayerDrawRequestSystem.DrawTiming.Before);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindProjectiles))
         {
             CurrentDrawLayer = DrawLayer.BehindProjectiles;
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindProjectiles, LayerDrawRequestSystem.DrawTiming.Before);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.BehindProjectiles, LayerDrawRequestSystem.DrawTiming.Before);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsOverPlayers))
         {
             CurrentDrawLayer = DrawLayer.OverPlayers;
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.OverPlayers, LayerDrawRequestSystem.DrawTiming.Before);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.OverPlayers, LayerDrawRequestSystem.DrawTiming.Before);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsOverWiresUI))
         {
             CurrentDrawLayer = DrawLayer.OverWiresUI;
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.OverWiresUI, LayerDrawRequestSystem.DrawTiming.Before);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.OverWiresUI, LayerDrawRequestSystem.DrawTiming.Before);
         }
         orig(self, projCache, startSpriteBatch);
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindNPCsAndTiles))
         {
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCsAndTiles, LayerDrawRequestSystem.DrawTiming.After);
-            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCsAndTiles,
-                LayerDrawRequestSystem.DrawTiming.After);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCsAndTiles, LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindNPCs))
         {
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCs, LayerDrawRequestSystem.DrawTiming.After);
-            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCs,
-                LayerDrawRequestSystem.DrawTiming.After);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.BehindNPCs, LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsBehindProjectiles))
         {
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.BehindProjectiles, LayerDrawRequestSystem.DrawTiming.After);
-            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.BehindProjectiles,
-                LayerDrawRequestSystem.DrawTiming.After);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.BehindProjectiles, LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsOverPlayers))
         {
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.OverPlayers, LayerDrawRequestSystem.DrawTiming.After);
-            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.OverPlayers,
-                LayerDrawRequestSystem.DrawTiming.After);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.OverPlayers, LayerDrawRequestSystem.DrawTiming.After);
         }
 
         if (ReferenceEquals(projCache, self.DrawCacheProjsOverWiresUI))
         {
-            LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.OverWiresUI, LayerDrawRequestSystem.DrawTiming.After);
-            RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.OverWiresUI,
-                LayerDrawRequestSystem.DrawTiming.After);
+            FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.OverWiresUI, LayerDrawRequestSystem.DrawTiming.After);
         }
         
         if (!Main.LocalPlayer.active) return;
@@ -561,12 +604,9 @@ public class DrawSystem : ModSystem
     private void On_Main_DrawProjectiles(On_Main.orig_DrawProjectiles orig, Main self)
     {
         CurrentDrawLayer = DrawLayer.Normal;
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.Before);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
-        TrailManager.SubmitDrawRequests();
-        LayerDrawRequestSystem.Flush(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.After);
-        RenderRequestedBloom(LayerDrawRequestSystem.DrawTargetLayer.Projectiles,
-            LayerDrawRequestSystem.DrawTiming.After);
+        FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.After);
     }
 
     private void DownSampler(Texture2D bloomSource, int time = 5, bool ignoreCanUseRender = false)

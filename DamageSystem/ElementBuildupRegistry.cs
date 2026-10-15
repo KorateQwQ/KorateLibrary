@@ -25,11 +25,13 @@ internal enum ElementBuildUpMode
 
 internal sealed class ElementBuildupContext
 {
-    public ElementBuildupContext(NPC target, ElementType element, NPC.HitInfo hit)
+    public ElementBuildupContext(NPC target, ElementType element, NPC.HitInfo hit, int sourcePlayer = -1, float? hitCountGain = null)
     {
         Target = target;
         Element = element;
         Hit = hit;
+        SourcePlayer = sourcePlayer;
+        HitCountGain = hitCountGain;
     }
 
     // 目标 NPC
@@ -41,6 +43,8 @@ internal sealed class ElementBuildupContext
 
     // 本次命中的信息（用于 onHit / predicate / modify 使用）
     public NPC.HitInfo Hit { get; set; }
+    public int SourcePlayer { get; }
+    public float? HitCountGain { get; }
 }
 
 internal static class ElementBuildupBuffRegistry
@@ -271,7 +275,7 @@ internal static class ElementBuildupBuffRegistry
         if (entry.Mode == ElementBuildUpMode.HitCount)
         {
             maxBuildUpValue = entry.FixedThreshold;
-            newBuildUpValue = entry.GainPerHit;
+            newBuildUpValue = context.HitCountGain ?? entry.GainPerHit;
         }
         else
         {
@@ -283,7 +287,7 @@ internal static class ElementBuildupBuffRegistry
         }
 
         // 阈值非法时视为该规则未配置完成，直接跳过，避免出现除零或瞬间满额。
-        if (maxBuildUpValue <= 0f)
+        if (maxBuildUpValue <= 0f || !float.IsFinite(newBuildUpValue) || newBuildUpValue <= 0f)
             return false;
 
         if (!g.ElementAccumulation.TryGetValue(context.Element, out ElementalGlobalNPC.BuildUpProgressContext progress))
@@ -321,6 +325,9 @@ internal static class ElementBuildupBuffRegistry
                         context.Target.AddBuffToAnchorParts(applyInfo.BuffId, applyInfo.Duration, forcedAddBuff: applyInfo.ForcedAddBuff);
                     else
                         context.Target.AddBuffToSelfAndChildren(applyInfo.BuffId, applyInfo.Duration, forcedAddBuff: applyInfo.ForcedAddBuff);
+
+                    if (context.Element == ElementType.Ice && context.Target.HasBuff(applyInfo.BuffId))
+                        ElementBuildUpSystem.NotifyFreezeTriggered(context.Target, context.SourcePlayer);
                 }
                 //PrintText($"Applying buff {applyInfo.BuffId} to {context.Target.FullName} for {applyInfo.Duration} ticks");
             }

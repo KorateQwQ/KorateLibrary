@@ -66,6 +66,8 @@ public class ElementalInfusionPlayer : ModPlayer
 public class ElementalGlobalProjectile : GlobalProjectile
 {
     public ElementType InfusionElement;
+    /// <summary>每次有效命中增加的冻结点数（0..100），由技能赋值；默认0，不从伤害推算。</summary>
+    public float FreezeBuildup;
 
     public override bool InstancePerEntity => true;
 
@@ -75,11 +77,22 @@ public class ElementalGlobalProjectile : GlobalProjectile
         ElementHitInfoHelper.TryAttachElementTag(ref modifiers, InfusionElement);
         base.ModifyHitNPC(projectile, target, ref modifiers);
     }
+
+    public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone)
+    {
+        if (projectile.owner != Main.myPlayer || FreezeBuildup <= 0) return;
+        Player owner = Main.player[projectile.owner];
+        ElementType element = InfusionElement == ElementType.None
+            ? owner.GetModPlayer<ElementalInfusionPlayer>().InfusionElement : InfusionElement;
+        if (element == ElementType.Ice)
+            owner.GetModPlayer<FreezeBuildupPlayer>().Request(target, FreezeBuildup, damageDone);
+    }
 }
 
 public class ElementalGlobalItem : GlobalItem
 {
     public ElementType InfusionElement;
+    public float FreezeBuildup;
 
     public override bool InstancePerEntity => true;
 
@@ -88,5 +101,13 @@ public class ElementalGlobalItem : GlobalItem
         // 规则：攻击本体自带元素时，优先使用本体元素
         ElementHitInfoHelper.TryAttachElementTag(ref modifiers, InfusionElement);
         base.ModifyHitNPC(item, player, target, ref modifiers);
+    }
+
+    public override void OnHitNPC(Item item, Player player, NPC target, NPC.HitInfo hit, int damageDone)
+    {
+        ElementType element = InfusionElement == ElementType.None
+            ? player.GetModPlayer<ElementalInfusionPlayer>().InfusionElement : InfusionElement;
+        if (element == ElementType.Ice)
+            player.GetModPlayer<FreezeBuildupPlayer>().Request(target, FreezeBuildup, damageDone);
     }
 }

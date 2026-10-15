@@ -3,7 +3,7 @@ using KL.Drawing;
 
 namespace KL.Projectiles;
 
-/// <summary>Manages trails that are refreshed by their owner while being drawn.</summary>
+/// <summary>Manages trails refreshed during draw-cache preparation, including trails left by expired projectiles.</summary>
 public sealed class TrailManager : ModSystem
 {
     public sealed class TrailHandle
@@ -30,8 +30,9 @@ public sealed class TrailManager : ModSystem
     private static int nextId;
 
     /// <summary>Creates or refreshes a trail. Point data is copied and survives its submitting projectile.</summary>
-    /// <remarks>Update the source points before calling this method. For KLProjectile.OldCenter,
-    /// call base.PreDraw(ref lightColor) first; later updates cannot change this copied snapshot.</remarks>
+    /// <remarks>Call from DrawBehind before the draw queues are submitted. For KLProjectile.OldCenter,
+    /// enable SampleTrailInDrawBehind and call base.DrawBehind first to sample this frame's center.
+    /// Later updates cannot change this copied snapshot.</remarks>
     public static void CreateOrUpdateTrail<TState>(
         ref TrailHandle handle,
         Vector2[] points,
@@ -89,6 +90,7 @@ public sealed class TrailManager : ModSystem
         base.PostUpdateProjectiles();
     }
 
+    /// <summary>Called once after CacheProjDraws has prepared all active projectiles, before any projectile layer draws.</summary>
     public static void SubmitDrawRequests()
     {
         foreach (TrailEntry entry in Entries.Values)

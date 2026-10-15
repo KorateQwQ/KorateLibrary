@@ -19,6 +19,7 @@ float EdgeSoftness = 0.002;
 float TextureRotation = 0.0;
 float2 TextureScale = float2(1.0, 1.0);
 float2 TextureFlow = float2(0.0, 0.0);
+// 灰度遮罩模式：灰度只控制透明度，RGB 由绘制颜色提供，适配非预乘混合。
 bool useRGBforApha = false;
 
 // ===== 消融：进度与轮廓 =====
@@ -81,7 +82,8 @@ float4 MainPS(float2 uv : TEXCOORD0, float4 inputColor : COLOR0) : COLOR0
 
     float alpha = (useRGBforApha ? material.r : material.a)
         * capMask * visible * inputColor.a * EffectColor.a;
-    float3 rgb = material.rgb * inputColor.rgb * EffectColor.rgb;
+    float3 materialColor = useRGBforApha ? float3(1.0, 1.0, 1.0) : material.rgb;
+    float3 rgb = materialColor * inputColor.rgb * EffectColor.rgb;
     return float4(rgb, alpha);
 }
 

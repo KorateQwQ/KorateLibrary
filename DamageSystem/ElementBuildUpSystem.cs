@@ -9,6 +9,12 @@ namespace KL.DamageSystem;
 /// </summary>
 public class ElementBuildUpSystem : ModSystem
 {
+    /// <summary>冻结条统一容量；命中点数属于各攻击来源，不在这里决定命中次数。</summary>
+    public const float FreezeCapacity = 100f;
+    /// <summary>权威端实际施加冻结后通知，参数为元素锚点及本次命中的玩家；未知来源为 -1。</summary>
+    public static event System.Action<NPC, int> FreezeTriggered;
+
+    internal static void NotifyFreezeTriggered(NPC anchor, int sourcePlayer) => FreezeTriggered?.Invoke(anchor, sourcePlayer);
     /// <summary>
     /// 加载元素积蓄系统。
     /// </summary>
@@ -24,15 +30,14 @@ public class ElementBuildUpSystem : ModSystem
             ModifyFireBuildUp,
             OnHit_Fire);
 
-        // 冰：按有效命中次数积累，54 点阈值，每发 +1。
-        // 冰锥每轮 3 发，单目标全部命中需 18 轮；按 0.75 秒周期约需 13.5 秒。
+        // 冰：标准100点条。攻击来源传入各自积蓄量；未配置来源默认不积蓄。
         // 积蓄与 CD 统一挂到元素锚点，多部位 Boss 共享一套冻结状态。
         ElementBuildupBuffRegistry.RegisterHitCount(
             ElementType.Ice,
             ModContent.BuffType<ElementalAffliction_Freeze>(),
             240,
-            54f,
-            1f,
+            FreezeCapacity,
+            0f,
             FreezePredict,
             ModifyFreezeBuildUp,
             routeToAnchor: true);
@@ -108,6 +113,7 @@ public class ElementBuildUpSystem : ModSystem
 
     public override void Unload()
     {
+        FreezeTriggered = null;
         ElementBuildupBuffRegistry.Clear();
         base.Unload();
     }

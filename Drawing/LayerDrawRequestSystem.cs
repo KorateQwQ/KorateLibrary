@@ -92,6 +92,8 @@ public sealed class LayerDrawRequestSystem : ModSystem
     /// Requests a complete visual draw that is collected with other bloom requests at the same layer.
     /// KL renders the callback once into an isolated target, then composites its normal appearance
     /// and its blurred bloom back into the requested layer.
+    /// Draw through KL helpers, or pass direct device blend states through
+    /// DrawSystem.GetBlendStateForBloom, so additive light and alpha coverage remain distinct.
     /// </summary>
     public static void RequestBloom(string id, DrawTargetLayer layer, DrawTiming timing, Action drawAction)
     {

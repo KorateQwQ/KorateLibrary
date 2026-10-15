@@ -80,7 +80,9 @@ float4 BloomBlend(float2 coords : TEXCOORD0, float4 Color : COLOR0) : COLOR0//�
     // 再应用色调映射
     //blended.rgb = ACESFilmic(blended.rgb);
     
-    return max(blended, sceneColor);
+    // Blurred alpha describes light spread, not geometry coverage. Only the original
+    // visual may attenuate the destination; the halo must never hide the background.
+    return float4(max(blended.rgb, sceneColor.rgb), sceneColor.a);
 }
 
 technique Technique1
