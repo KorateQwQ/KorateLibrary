@@ -220,7 +220,12 @@ public class DrawSystem : ModSystem
         LayerDrawRequestSystem.DrawTiming timing)
     {
         LayerDrawRequestSystem.Flush(layer, timing);
-        RenderRequestedBloom(layer, timing);
+        if (!LayerDrawRequestSystem.HasBloomRequests(layer, timing))
+            return;
+
+        long start = Stopwatch.GetTimestamp();
+        try { RenderRequestedBloom(layer, timing); }
+        finally { RenderPerformanceDiagnostics.RecordBloom(start, layer, timing); }
     }
 
     private static void CaptureBloomRequests(LayerDrawRequestSystem.DrawTargetLayer layer,
