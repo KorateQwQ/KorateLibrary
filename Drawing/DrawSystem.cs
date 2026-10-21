@@ -611,6 +611,9 @@ public class DrawSystem : ModSystem
         CurrentDrawLayer = DrawLayer.Normal;
         FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.Before);
         orig(self);
+        // Dust.PreDraw runs later than this target. Submit from live dust now so particles
+        // share this frame's projectile bloom, with order keeping them above the bodies.
+        KLBasicDust.SubmitBloomDrawRequests();
         FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.After);
     }
 

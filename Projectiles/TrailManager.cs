@@ -24,6 +24,7 @@ public sealed class TrailManager : ModSystem
         public required LayerDrawRequestSystem.DrawTiming Timing;
         public required bool Bloom;
         public required bool ShrinkPathOnExpire;
+        public required int Order;
     }
 
     private static readonly Dictionary<int, TrailEntry> Entries = new();
@@ -42,7 +43,8 @@ public sealed class TrailManager : ModSystem
         LayerDrawRequestSystem.DrawTargetLayer layer = LayerDrawRequestSystem.DrawTargetLayer.Projectiles,
         LayerDrawRequestSystem.DrawTiming timing = LayerDrawRequestSystem.DrawTiming.After,
         bool bloom = false,
-        bool shrinkPathOnExpire = true)
+        bool shrinkPathOnExpire = true,
+        int order = LayerDrawRequestSystem.TrailOrder)
     {
         if (Main.dedServ || points == null || points.Length < 2 || lifetime <= 0 || draw == null)
             return;
@@ -60,7 +62,8 @@ public sealed class TrailManager : ModSystem
                 Layer = layer,
                 Timing = timing,
                 Bloom = bloom,
-                ShrinkPathOnExpire = shrinkPathOnExpire
+                ShrinkPathOnExpire = shrinkPathOnExpire,
+                Order = order
             };
             Entries.Add(handle.Id, entry);
         }
@@ -72,6 +75,7 @@ public sealed class TrailManager : ModSystem
         entry.Timing = timing;
         entry.Bloom = bloom;
         entry.ShrinkPathOnExpire = shrinkPathOnExpire;
+        entry.Order = order;
         entry.Draw = (submittedPoints, remainingRatio) => draw(state, submittedPoints, remainingRatio);
     }
 
@@ -107,9 +111,9 @@ public sealed class TrailManager : ModSystem
             };
             string id = $"KL:ManagedTrail:{entry.Handle.Id}";
             if (entry.Bloom)
-                LayerDrawRequestSystem.RequestBloom(id, entry.Layer, entry.Timing, draw);
+                LayerDrawRequestSystem.RequestBloom(id, entry.Layer, entry.Timing, draw, entry.Order);
             else
-                LayerDrawRequestSystem.Request(id, entry.Layer, entry.Timing, draw);
+                LayerDrawRequestSystem.Request(id, entry.Layer, entry.Timing, draw, entry.Order);
         }
     }
 

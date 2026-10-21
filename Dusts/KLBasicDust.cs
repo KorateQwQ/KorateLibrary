@@ -110,15 +110,32 @@ public abstract class KLBasicDust : ModDust
         base.OnSpawn(dust);
     }
 
-    public override bool PreDraw(Dust dust)
+    /// <summary>Collect bloom particles before Projectiles.After is flushed, including paused frames.</summary>
+    public static void SubmitBloomDrawRequests()
     {
-        ModDust modDust = DustLoader.GetDust(dust.type);
-        if (modDust is KLBasicDust { ShouldBloom: true })
+        for (int i = 0; i < Main.maxDust; i++)
         {
-            DrawSystem.KLDustList.Add(dust);
+            Dust dust = Main.dust[i];
+            if (dust.active && DustLoader.GetDust(dust.type) is KLBasicDust modDust)
+                modDust.SubmitBloomDrawRequest(dust);
         }
-        return false;
     }
+
+    /// <summary>Override for custom bloom visuals; all particle requests use the projectile target, above bodies.</summary>
+    public virtual void SubmitBloomDrawRequest(Dust dust)
+    {
+        if (!ShouldBloom) return;
+        int type = dust.type;
+        object data = dust.customData;
+        LayerDrawRequestSystem.RequestBloom(GetType().FullName,
+            LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.After, () =>
+            {
+                if (dust.active && dust.type == type && ReferenceEquals(dust.customData, data))
+                    DrawBloom(dust);
+            }, order: LayerDrawRequestSystem.DustOrder);
+    }
+
+    public override bool PreDraw(Dust dust) => false;
 
     public override bool MidUpdate(Dust dust)
     {
