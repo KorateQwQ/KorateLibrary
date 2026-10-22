@@ -9,6 +9,7 @@ sampler iChannel0 : register(s0); //贴图槽 0（SpriteBatch 绘制的贴图）
 sampler iChannel1 : register(s1); //消融材质
 sampler iChannel2 : register(s2); //噪声，用于置换图效果
 sampler iChannel3 : register(s3); //贴图槽 1
+sampler iChannel4 : register(s4); //火焰色带（横向 0~1 对应贴图亮度）
 
 #define MAX_LAYERS 4
 
@@ -41,6 +42,10 @@ float2 TexScale = float2(1.0, 1.0);
 float2 DissolveTexMultiplier = float2(1.0, 1.0);
 // 0 表示不消融
 float DissolveThreshold = 0.0;
+// 消融烧边宽度与颜色（rgb=颜色，a=透明度倍率），只作用于 LayerRamp.z 开启的层；
+// 不消融时 C# 传入宽度 0，烧边自然为空
+float DissolveEdgeWidth = 0.0;
+float4 DissolveEdgeColor = float4(1.0, 0.6, 0.2, 1.0);
 
 // ===== 每层参数（按绘制顺序）=====
 // 原本 DrawInWorld 传入的顶点颜色
@@ -52,6 +57,8 @@ float4 LayerParams[MAX_LAYERS];
 // xy=该层矩形尺寸 / 实际绘制矩形尺寸（<=1，两者中心相同），z=Tilt
 // 与上一层相同时直接复用上一层的形状计算
 float4 LayerShape[MAX_LAYERS];
+// x=是否用火焰色带（iChannel4）着色, y=色带输入倍率（贴图 r 值 * y）, z=是否画消融烧边
+float4 LayerRamp[MAX_LAYERS];
 
 // 1 表示目标为 8 位格式，模拟逐层绘制时输出被截断到 0~1 的行为
 float ClampLayers = 0.0;
@@ -188,12 +195,21 @@ float4 MainPS(float2 texCoord : TEXCOORD0) : COLOR0
             else
                 tex = tex2Dlod(iChannel3, texUV);
 
+            float4 ramp = LayerRamp[i];
+            float3 rampColor = tex2Dlod(iChannel4, float4(saturate(tex.r * ramp.y), 0.5, 0.0, 0.0)).rgb * tex.a;
+            tex.rgb = lerp(tex.rgb, rampColor, ramp.x);
             float4 col = tex * LayerTint[i] * shape.fade;
 
             float dissolve = tex2Dlod(iChannel1, float4(frac(cylUV * DissolveTexMultiplier), 0.0, 0.0)).r;
-            col *= lerp(1.0, step(DissolveThreshold, dissolve), enabledDissolve);
+            float visible = lerp(1.0, step(DissolveThreshold, dissolve), enabledDissolve);
+            col *= visible;
             col.a = lerp(col.a, col.r, layer.x);
-            col *= LayerEffectColor[i] * shape.mask;
+            col *= LayerEffectColor[i];
+            // 消融边缘替换为烧边颜色（同 Tornado.fx，不乘 EffectColor）
+            float edge = ramp.z * visible * (1.0 - step(DissolveThreshold + DissolveEdgeWidth, dissolve));
+            col.rgb = lerp(col.rgb, DissolveEdgeColor.rgb * shape.fade, edge);
+            col.a *= lerp(1.0, DissolveEdgeColor.a, edge);
+            col *= shape.mask;
             col = lerp(col, saturate(col), ClampLayers);
 
             float occlusion = col.a * (1.0 - layer.y);
