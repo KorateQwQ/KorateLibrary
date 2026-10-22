@@ -22,6 +22,10 @@ public readonly struct TornadoLayer
     public bool UseRForAlpha { get; init; }
     /// <summary>true 等价于 Additive 混合，false 等价于 NonPremultiplied 混合</summary>
     public bool Additive { get; init; }
+    /// <summary>大于 0 时按贴图亮度 * RampGain 从 TornadoLayerShape.RampTexture 取色（再乘 Color），0 为直接用 贴图 * Color</summary>
+    public float RampGain { get; init; }
+    /// <summary>消融边缘画 TornadoLayerShape.DissolveEdgeColor 烧边</summary>
+    public bool BurnEdge { get; init; }
 
     public TornadoLayer(Texture2D texture, Color color, Vector2 scale)
     {
@@ -47,6 +51,13 @@ public sealed class TornadoLayerShape
     public Texture2D DissolveTexture;
     public Vector2 DissolveTexTiling = Vector2.One;
     public float DissolveThreshold;
+    /// <summary>消融烧边宽度，0 关闭；只作用于 BurnEdge 的层</summary>
+    public float DissolveEdgeWidth;
+    /// <summary>烧边颜色（rgb=颜色，a=透明度倍率）</summary>
+    public Vector4 DissolveEdgeColor = new(1.0f, 0.6f, 0.2f, 1.0f);
+
+    /// <summary>色带贴图（横向 0~1 对应贴图亮度，如 256x1 的 PNG），用于 RampGain 大于 0 的层</summary>
+    public Texture2D RampTexture;
 
     public float HorizontalFadeRange = 0.02f;
     public float VerticalFadeRange = 0.02f;
@@ -77,6 +88,7 @@ public static class TornadoLayerRenderer
     private static readonly Vector4[] LayerEffectColor = new Vector4[MaxLayers];
     private static readonly Vector4[] LayerParams = new Vector4[MaxLayers];
     private static readonly Vector4[] LayerShape = new Vector4[MaxLayers];
+    private static readonly Vector4[] LayerRamp = new Vector4[MaxLayers];
 
     /// <summary>
     /// 需在 SpriteSortMode.Immediate、BlendState.AlphaBlend 的 SpriteBatch 中调用，
@@ -100,6 +112,7 @@ public static class TornadoLayerRenderer
             {
                 LayerParams[i] = Vector4.Zero;
                 LayerShape[i] = Vector4.One;
+                LayerRamp[i] = Vector4.Zero;
                 continue;
             }
 
@@ -118,6 +131,9 @@ public static class TornadoLayerRenderer
             LayerEffectColor[i] = layer.EffectColor;
             LayerParams[i] = new Vector4(layer.UseRForAlpha ? 1f : 0f, layer.Additive ? 1f : 0f, textureSlot, 1f);
             LayerShape[i] = new Vector4(groupScale, layer.Tilt, 0f);
+            LayerRamp[i] = new Vector4(layer.RampGain > 0f ? 1f : 0f, layer.RampGain, layer.BurnEdge ? 1f : 0f, 0f);
+            if (layer.RampGain > 0f && shape.RampTexture == null)
+                throw new ArgumentException("使用火焰色带的层需要 TornadoLayerShape.RampTexture。", nameof(layers));
         }
 
         SetShapeParameters(effect, shape);
@@ -125,6 +141,7 @@ public static class TornadoLayerRenderer
         effect.Parameters["LayerEffectColor"].SetValue(LayerEffectColor);
         effect.Parameters["LayerParams"].SetValue(LayerParams);
         effect.Parameters["LayerShape"].SetValue(LayerShape);
+        effect.Parameters["LayerRamp"].SetValue(LayerRamp);
 
         GraphicsDevice device = spriteBatch.GraphicsDevice;
         effect.Parameters["ClampLayers"].SetValue(TargetClampsOutput(device) ? 1f : 0f);
@@ -132,11 +149,14 @@ public static class TornadoLayerRenderer
         device.Textures[2] = shape.NoiseTexture;
         device.Textures[3] = slot1;
         device.SamplerStates[3] = device.SamplerStates[0];
+        device.Textures[4] = shape.RampTexture;
+        device.SamplerStates[4] = SamplerState.LinearClamp;
         effect.CurrentTechnique.Passes[0].Apply();
 
         spriteBatch.Draw(slot0, position, null, Color.White, 0f, Size(slot0) / 2f, drawSize / Size(slot0),
             SpriteEffects.None, 0f);
         device.Textures[3] = null;
+        device.Textures[4] = null;
     }
 
     private static void SetShapeParameters(Effect effect, TornadoLayerShape shape)
@@ -171,6 +191,9 @@ public static class TornadoLayerRenderer
         effect.Parameters["TexScale"].SetValue(shape.TexScale);
         effect.Parameters["DissolveTexMultiplier"].SetValue(shape.DissolveTexTiling);
         effect.Parameters["DissolveThreshold"].SetValue(dissolveThreshold);
+        // 不消融时烧边宽度必须为 0，shader 依赖这一点关闭烧边
+        effect.Parameters["DissolveEdgeWidth"].SetValue(dissolveThreshold > 0.0001f ? shape.DissolveEdgeWidth : 0f);
+        effect.Parameters["DissolveEdgeColor"].SetValue(shape.DissolveEdgeColor);
     }
 
     /// <summary>
