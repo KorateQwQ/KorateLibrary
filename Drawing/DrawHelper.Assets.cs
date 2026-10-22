@@ -54,6 +54,9 @@ public partial class DrawHelper : ModSystem
     //龙卷风effect
     static Effect tornado = null!;
 
+    //多层龙卷风合并绘制effect
+    static Effect tornadoLayered = null!;
+
     //旋转effect
     static Effect spinEffect = null!;
     

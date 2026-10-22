@@ -176,6 +176,93 @@ float4 MainPS2(float2 texCoord : TEXCOORD0,float4 Color: COLOR0) : COLOR0
 
     return backColor;
 }
+// ===== 双层合并（pass 2 正面 / pass 3 背面）=====
+// 一次绘制同一形状的两层：先 Additive 层，再 NonPremultiplied 层。
+// 输出预乘颜色，需配合 BlendState.AlphaBlend 使用；颜色已包含顶点色，绘制时顶点色用白色。
+// 仅在浮点目标（Bloom 捕获）上与逐层绘制一致：8 位目标会在 Additive 层后截断目标颜色，需逐层绘制。
+float4 DualAddColor = float4(1.0, 1.0, 1.0, 1.0);
+float4 DualOverColor = float4(1.0, 1.0, 1.0, 1.0);
+float dualAddDissolve = 0.0f;
+float dualOverDissolve = 0.0f;
+
+float4 DualPS(float2 texCoord, float zSign)
+{
+    const float PI = 3.14159265;
+
+    float2 uv = texCoord * 2.0 - 1.0;
+    float r2 = dot(uv, uv);
+    if (r2 > 1.0)
+    {
+        return float4(0.0, 0.0, 0.0, 0.0);
+    }
+
+    float3 pos = float3(uv.x, uv.y, zSign * sqrt(1.0 - r2));
+
+    float cwx = cos(RotWorldY);
+    float swx = sin(RotWorldY);
+    float cwy = cos(RotWorldX);
+    float swy = sin(RotWorldX);
+    float cwz = cos(RotWorldZ);
+    float swz = sin(RotWorldZ);
+
+    float clx = cos(RotLocalY);
+    float slx = sin(RotLocalY);
+    float cly = cos(RotLocalX);
+    float sly = sin(RotLocalX);
+    float clz = cos(RotLocalZ);
+    float slz = sin(RotLocalZ);
+
+    float3 worldX = float3(pos.x, pos.y * cwx - pos.z * swx, pos.y * swx + pos.z * cwx);
+    float3 worldY = float3(worldX.x * cwy + worldX.z * swy, worldX.y, -worldX.x * swy + worldX.z * cwy);
+    float3 worldZ = float3(worldY.x * cwz - worldY.y * swz, worldY.x * swz + worldY.y * cwz, worldY.z);
+
+    float3 localX = float3(worldZ.x, worldZ.y * clx - worldZ.z * slx, worldZ.y * slx + worldZ.z * clx);
+    float3 localY = float3(localX.x * cly + localX.z * sly, localX.y, -localX.x * sly + localX.z * cly);
+    float3 localZ = float3(localY.x * clz - localY.y * slz, localY.x * slz + localY.y * clz, localY.z);
+
+    float u = atan2(localZ.x, localZ.z) / (2.0 * PI) + 0.5;
+    float v = asin(localZ.y) / PI + 0.5;
+
+    float2 scale = max(ImageScale, float2(0.0001, 0.0001));
+    float2 scaledUV = (float2(u, v) - 0.5) / scale + 0.5;
+
+    float t = saturate(scaledUV.x);
+    float oneMinus = 1.0 - t;
+    float yScale = SpecialYScale.x * oneMinus * oneMinus
+        + 2.0 * SpecialYScale.y * oneMinus * t
+        + SpecialYScale.z * t * t;
+    scaledUV.y = (scaledUV.y - 0.5) / max(yScale, 0.0001) + 0.5;
+
+    float2 texScaleSafe = max(TexScale, float2(0.0001, 0.0001));
+    float2 tiledUV = frac((scaledUV - 0.5) * texScaleSafe + 0.5);
+
+    bool outX = clipImageX && (scaledUV.x < 0.0 || scaledUV.x > 1.0);
+    bool outY = clipImageY && (scaledUV.y < 0.0 || scaledUV.y > 1.0);
+    if (outX || outY)
+    {
+        return float4(0.0, 0.0, 0.0, 0.0);
+    }
+
+    float4 tex = tex2D(iChannel0, tiledUV);
+    float fade = tex2D(iChannel1, (float2(u, v) - 0.5) / dissolveTexScale + 0.5).r;
+
+    float4 addColor = fade < dualAddDissolve ? float4(0.0, 0.0, 0.0, 0.0) : tex * DualAddColor;
+    float4 overColor = fade < dualOverDissolve ? float4(0.0, 0.0, 0.0, 0.0) : tex * DualOverColor;
+
+    float3 premul = overColor.rgb * overColor.a + addColor.rgb * addColor.a * (1.0 - overColor.a);
+    return float4(premul, overColor.a);
+}
+
+float4 DualFrontPS(float2 texCoord : TEXCOORD0) : COLOR0
+{
+    return DualPS(texCoord, 1.0);
+}
+
+float4 DualBackPS(float2 texCoord : TEXCOORD0) : COLOR0
+{
+    return DualPS(texCoord, -1.0);
+}
+
 technique Technique1
 {
     pass expand
@@ -185,5 +272,13 @@ technique Technique1
     pass expand
     {
         PixelShader = compile ps_3_0 MainPS2();
+    }
+    pass dualFront
+    {
+        PixelShader = compile ps_3_0 DualFrontPS();
+    }
+    pass dualBack
+    {
+        PixelShader = compile ps_3_0 DualBackPS();
     }
 }
