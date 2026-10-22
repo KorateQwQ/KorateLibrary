@@ -1,3 +1,4 @@
+using System;
 using ReLogic.Utilities;
 
 namespace KL.Drawing;
@@ -286,6 +287,64 @@ public partial class DrawHelper : ModSystem
         
         sphereEffect.SetTexture(1,dissolveTex);
         sphereEffect.Apply(drawInner ? 1 : 0);
+    }
+
+    /// <summary>
+    /// 一次绘制多层形状相同的龙卷风，代替多次 TornadoEffect + DrawInWorld，减少 overdraw。
+    /// 调用前需 EndBeginDraw(0, 1, ss: SamplerState.LinearWrap)：shader 输出预乘颜色，
+    /// 普通层与 Additive 层分别等价于原本的 NonPremultiplied / Additive 混合。
+    /// 最多 4 层、2 张不同贴图；不支持消融描边。
+    /// </summary>
+    /// <param name="worldPosition">所有层的中心（世界坐标）</param>
+    /// <param name="shape">共享形状参数</param>
+    /// <param name="layers">按原本绘制顺序排列的层</param>
+    public static void DrawTornadoLayers(Vector2 worldPosition, TornadoLayerShape shape, ReadOnlySpan<TornadoLayer> layers)
+    {
+        TornadoLayerRenderer.Draw(Main.spriteBatch, tornadoLayered, worldPosition - Main.screenPosition, shape, layers);
+    }
+
+    /// <summary>
+    /// 一次绘制形状相同的两层球体贴图：先 Additive 层，再 NonPremultiplied 层。
+    /// 调用前需 EndBeginDraw(0, 1)，绘制时顶点颜色用 Color.White（颜色已在参数里）。
+    /// 只在浮点目标上与逐层绘制一致；TornadoLayerRenderer.TargetClampsOutput 为 true 时（关闭 Bloom）应逐层绘制。
+    /// </summary>
+    /// <param name="additiveColor">Additive 层颜色，等于原本的顶点颜色 * sphereColor</param>
+    /// <param name="additiveDissolve">Additive 层消融程度</param>
+    /// <param name="overColor">NonPremultiplied 层颜色，等于原本的顶点颜色 * sphereColor</param>
+    /// <param name="overDissolve">NonPremultiplied 层消融程度</param>
+    /// <param name="drawInner">仅绘制球体背面内壁，默认为绘制正面</param>
+    public static void SphereDualLayerEffect(Vector4 additiveColor, float additiveDissolve, Vector4 overColor, float overDissolve,
+        Vector3? worldRotation = null, Vector3? localRotation = null, bool drawInner = false,
+        bool clipImageX = false, bool clipImageY = false, Vector3? specialYScale = null, Vector2? sphereScale = null, Vector2? texScale = null,
+        Texture2D dissolveTex = null, Vector2? dissolveTexScale = null)
+    {
+        worldRotation ??= Vector3.Zero;
+        localRotation ??= Vector3.Zero;
+        specialYScale ??= Vector3.One;
+        sphereScale ??= Vector2.One;
+        texScale ??= Vector2.One;
+        dissolveTexScale ??= Vector2.One;
+
+        sphereEffect.SetValue("RotWorldX",worldRotation.Value.X);
+        sphereEffect.SetValue("RotWorldY",worldRotation.Value.Y);
+        sphereEffect.SetValue("RotWorldZ",worldRotation.Value.Z);
+        sphereEffect.SetValue("RotLocalX",localRotation.Value.X);
+        sphereEffect.SetValue("RotLocalY",localRotation.Value.Y);
+        sphereEffect.SetValue("RotLocalZ",localRotation.Value.Z);
+        sphereEffect.SetValue("clipImageX",clipImageX);
+        sphereEffect.SetValue("clipImageY",clipImageY);
+        sphereEffect.SetValue("SpecialYScale",specialYScale.Value);
+        sphereEffect.SetValue("ImageScale",sphereScale.Value);
+        sphereEffect.SetValue("TexScale",texScale.Value);
+        sphereEffect.SetValue("dissolveTexScale",dissolveTexScale.Value);
+
+        sphereEffect.SetValue("DualAddColor",additiveColor);
+        sphereEffect.SetValue("DualOverColor",overColor);
+        sphereEffect.SetValue("dualAddDissolve",additiveDissolve);
+        sphereEffect.SetValue("dualOverDissolve",overDissolve);
+
+        sphereEffect.SetTexture(1,dissolveTex);
+        sphereEffect.Apply(drawInner ? 3 : 2);
     }
 
     public static void SpinEffect(float rotation, float scale = 1, Color? color = null)
