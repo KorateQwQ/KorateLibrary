@@ -75,3 +75,14 @@ Buffs: {
 		// Description: Mods.KL.Buffs.ElementalAffliction_Wet.Description
 	}
 }
+
+Terms: {
+	Seconds: 秒
+
+	Freeze: {
+		Name: 冻结
+		Description: 冻结值积满{0}点时，敌人被冻结，期间无法行动。解冻后进入冻结冷却，冷却中不会积累冻结值。
+		Duration: 冻结时长
+		Cooldown: 冻结冷却
+	}
+}

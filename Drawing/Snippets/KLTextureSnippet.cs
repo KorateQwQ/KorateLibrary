@@ -16,12 +16,13 @@ public sealed class KLTextureSnippet : TextSnippet
     private float _fontScale = 1f;
     private float _fontVerticalOffset;
 
+    /// <summary>klicon 标签中的贴图路径，用于识别 <see cref="KLTerms"/> 中的专有名词。</summary>
+    public string Path { get; }
 
-    public KLTextureSnippet(Asset<Texture2D> texture, float baseSize, float yOffset, Color color)
-
-
+    public KLTextureSnippet(Asset<Texture2D> texture, float baseSize, float yOffset, Color color, string path = null)
         : base(" ", color)
     {
+        Path = path;
         _texture = texture;
         _baseSize = baseSize;
         _yOffset = yOffset;

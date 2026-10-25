@@ -75,3 +75,14 @@ Buffs: {
 		Description: Mods.KL.Buffs.ElementalAffliction_Wet.Description
 	}
 }
+
+Terms: {
+	Seconds: s
+
+	Freeze: {
+		Name: Freeze
+		Description: When freeze buildup reaches {0}, the enemy is frozen and cannot act. Thawing starts a freeze cooldown, during which no buildup accumulates.
+		Duration: Duration
+		Cooldown: Cooldown
+	}
+}
