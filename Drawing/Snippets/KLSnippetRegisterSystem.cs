@@ -12,6 +12,8 @@ public sealed class KLSnippetRegisterSystem : ModSystem
 
         ChatManager.Register<KLTextureTagHandler>("klicon");
     }
+
+    public override void Unload() => KLTerms.Clear();
 }
 public static class SnippetsExtensions
 {

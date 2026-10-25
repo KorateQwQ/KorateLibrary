@@ -25,6 +25,6 @@ public sealed class KLTextureTagHandler : ITagHandler
         }
 
         var asset = ModContent.Request<Texture2D>(text, AssetRequestMode.ImmediateLoad);
-        return new KLTextureSnippet(asset, size, yOffset, Color.White);
+        return new KLTextureSnippet(asset, size, yOffset, Color.White, text);
     }
 }

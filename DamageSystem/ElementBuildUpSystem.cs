@@ -1,4 +1,5 @@
 using KL.Buffs.ElementalDebuff;
+using KL.Drawing.Snippets;
 using KL.Extensions;
 using KL.Utils;
 
@@ -11,6 +12,10 @@ public class ElementBuildUpSystem : ModSystem
 {
     /// <summary>冻结条统一容量；命中点数属于各攻击来源，不在这里决定命中次数。</summary>
     public const float FreezeCapacity = 100f;
+    /// <summary>冻结条积满后的冻结时长（tick）。</summary>
+    public const int FreezeDuration = 240;
+    /// <summary>富文本中冻结专有名词使用的 klicon 图标路径。</summary>
+    public const string FreezeTermIcon = "KL/Drawing/Snippets/Icons/IceIcon";
     /// <summary>权威端实际施加冻结后通知，参数为元素锚点及本次命中的玩家；未知来源为 -1。</summary>
     public static event System.Action<NPC, int> FreezeTriggered;
 
@@ -35,7 +40,7 @@ public class ElementBuildUpSystem : ModSystem
         ElementBuildupBuffRegistry.RegisterHitCount(
             ElementType.Ice,
             ModContent.BuffType<ElementalAffliction_Freeze>(),
-            240,
+            FreezeDuration,
             FreezeCapacity,
             0f,
             FreezePredict,
@@ -59,6 +64,15 @@ public class ElementBuildUpSystem : ModSystem
             x => x,
             0.05f,
             ModifyWetBuildUp);
+
+        KLTerms.Register(new KLTerm(FreezeTermIcon, new Color(143, 227, 255),
+            () => Language.GetTextValue("Mods.KL.Terms.Freeze.Name"),
+            () => Language.GetTextValue("Mods.KL.Terms.Freeze.Description", FreezeCapacity),
+            () =>
+            [
+                (Language.GetTextValue("Mods.KL.Terms.Freeze.Duration"), (FreezeDuration / 60f).ToString("0.##"), Language.GetTextValue("Mods.KL.Terms.Seconds")),
+                (Language.GetTextValue("Mods.KL.Terms.Freeze.Cooldown"), (ElementalGlobalNPC.FreezeCooldownDuration / 60f).ToString("0.##"), Language.GetTextValue("Mods.KL.Terms.Seconds")),
+            ]));
 
         base.Load();
     }
