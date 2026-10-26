@@ -1,0 +1,6 @@
+<Project>
+  <!-- tModLoader's in-game compiler has no opt-in; only SDK Debug builds enable these keys. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>$(DefineConstants);KL_DEBUG_KEYBINDS</DefineConstants>
+  </PropertyGroup>
+</Project>

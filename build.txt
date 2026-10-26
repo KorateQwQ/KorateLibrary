@@ -2,3 +2,4 @@ displayName = Korate Library
 author = Korate
 version = 0.1
 modReferences = SilkyUIFramework
+buildIgnore = .vissandbox/*,Tools/*,Properties/*,*.md,*.txt,*.log,*.cache,*.tmp,*.bak,*.orig,*.rej,*.user,*.suo,*.sln*,*.csproj*,*.props,*.targets,*.bat,*.cmd,*.ps1,*.sh,*.py,*.pyc,*.js,*.cjs,*.mjs,*.html,*.css,*.exe,*.xlsx,*.xls,*.lnk,*.svg,*.dynamicfont,*.source.json,Effects/*.dll,FargowiltasSouls.dll

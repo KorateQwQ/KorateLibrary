@@ -21,18 +21,8 @@ Configs: {
 
 	BloomConfig: {
 		ShouldBloom: {
-			Tooltip: ""
-			Label: Should Bloom
-		}
-
-		BloomIteration: {
-			Tooltip: ""
-			Label: Bloom Iteration
-		}
-
-		BloomStrength: {
-			Tooltip: ""
-			Label: Bloom Strength
+			Tooltip: Enable bloom effects. Disabling them can improve game performance.
+			Label: Enable Bloom
 		}
 
 		DisplayName: Bloom Config

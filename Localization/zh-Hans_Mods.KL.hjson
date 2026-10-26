@@ -25,16 +25,6 @@ Configs: {
 			Label: 启用泛光效果
 		}
 
-		BloomIteration: {
-			Tooltip: 控制泛光效果的迭代次数，范围2-5，次数越多效果越平滑但性能消耗越大
-			Label: 泛光迭代次数
-		}
-
-		BloomStrength: {
-			Tooltip: 控制泛光效果的强度，范围0-1，数值越大效果越明显
-			Label: 泛光强度
-		}
-
 		DisplayName: 泛光效果设置
 	}
 }
