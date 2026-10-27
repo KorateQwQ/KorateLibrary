@@ -64,7 +64,7 @@ public class DrawSystem : ModSystem
 
     private static float bloomStr = 1;
     //bloom迭代次数
-    private static int bloomItr = 5;
+    private static int bloomItr = 3;
 
     //bloom效果
     private static bool ShouldBloom2 = true;
@@ -182,7 +182,7 @@ public class DrawSystem : ModSystem
 
     private void On_Main_DrawInfernoRings(On_Main.orig_DrawInfernoRings orig, Main self)
     {
-        #if DEBUG
+        #if DEBUG && KL_DEBUG_KEYBINDS
         if (KeyBinds.释放技能.JustPressed)
         {
             //Main.LocalPlayer.GetModPlayer<TimeStopPlayer>().ImmuneTimeStop = true;
