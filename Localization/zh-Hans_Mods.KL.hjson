@@ -69,6 +69,11 @@ Buffs: {
 Terms: {
 	Seconds: 秒
 
+	Categories: {
+		Mechanic: 机制
+		CraftingStation: 制作站
+	}
+
 	Freeze: {
 		Name: 冻结
 		Description: 冻结值积满{0}点时，敌人被冻结，期间无法行动。解冻后进入冻结冷却，冷却中不会积累冻结值。

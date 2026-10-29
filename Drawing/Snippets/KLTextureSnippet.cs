@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -53,9 +54,11 @@ public sealed class KLTextureSnippet : TextSnippet
             return true;
 
         var tex = _texture.Value;
-        var drawScale = new Vector2(size.X / tex.Width, size.Y / tex.Height);
+        // 非正方形贴图（如原版物品）等比缩放并居中于图标格。
+        float drawScale = size.X / Math.Max(tex.Width, tex.Height);
+        Vector2 inset = (size - new Vector2(tex.Width, tex.Height) * drawScale) / 2;
 
-        Vector2 drawPosition = position + new Vector2(0, _yOffset * snippetScale + _fontVerticalOffset * scale);
+        Vector2 drawPosition = position + inset + new Vector2(0, _yOffset * snippetScale + _fontVerticalOffset * scale);
         spriteBatch.Draw(tex, drawPosition, null, color, 0f, Vector2.Zero, drawScale, SpriteEffects.None, 0f);
 
         

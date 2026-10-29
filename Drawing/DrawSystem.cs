@@ -260,7 +260,9 @@ public class DrawSystem : ModSystem
         }
         RenderHelper.EnsureRenderTargets();
         GraphicsDevice graphicsDevice = Main.instance.GraphicsDevice;
-        if (graphicsDevice.GetRenderTargets().Length == 0)
+        // CanUseRender is false for Retro/Trippy lighting and for WaveQuality 0; both disable
+        // the vanilla scene target, so they share the backbuffer path.
+        if (!CanUseRender || graphicsDevice.GetRenderTargets().Length == 0)
         {
             RenderBloomRequestsWithoutSceneTarget(layer, timing);
             return;
@@ -324,7 +326,7 @@ public class DrawSystem : ModSystem
         RestoreSpriteBatchState(spriteBatch, previousState);
     }
 
-    // Retro lighting can draw directly to the backbuffer, so there is no scene texture
+    // Retro/Trippy lighting and WaveQuality 0 draw directly to the backbuffer, so there is no scene texture
     // to sample. Bloom can still be produced from the requested visual itself; the
     // transparent background makes the final pass a foreground-only composite.
     private void RenderBloomRequestsWithoutSceneTarget(LayerDrawRequestSystem.DrawTargetLayer layer,

@@ -69,6 +69,11 @@ Buffs: {
 Terms: {
 	Seconds: s
 
+	Categories: {
+		Mechanic: MECHANIC
+		CraftingStation: STATION
+	}
+
 	Freeze: {
 		Name: Freeze
 		Description: When freeze buildup reaches {0}, the enemy is frozen and cannot act. Thawing starts a freeze cooldown, during which no buildup accumulates.

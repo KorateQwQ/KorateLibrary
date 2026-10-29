@@ -8,9 +8,10 @@ namespace KL.Drawing.Snippets;
 /// 富文本中的专有名词，写法为 klicon 图标紧跟同色名称，例如 <c>[klicon/16,0:路径][c/颜色:名称]</c>。
 /// 支持悬停的界面按图标路径识别，并显示名称与说明；名称和说明在显示时读取，以跟随当前语言。
 /// <paramref name="Stats"/> 可选，给出固定规则数值（标签、数值、单位），说明卡以大号数字分栏显示。
+/// <paramref name="Category"/> 可选，名词类型（如“机制”“制作站”），显示在说明卡右上角；常用类型见 <c>Mods.KL.Terms.Categories</c>。
 /// </summary>
 public sealed record KLTerm(string IconPath, Color Color, Func<string> Name, Func<string> Description,
-    Func<(string Label, string Value, string Unit)[]> Stats = null);
+    Func<(string Label, string Value, string Unit)[]> Stats = null, Func<string> Category = null);
 
 /// <summary>专有名词注册表，以 klicon 图标路径为键；各模组在 Load 中注册自己的名词。</summary>
 public static class KLTerms

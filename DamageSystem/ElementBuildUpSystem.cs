@@ -72,7 +72,8 @@ public class ElementBuildUpSystem : ModSystem
             [
                 (Language.GetTextValue("Mods.KL.Terms.Freeze.Duration"), (FreezeDuration / 60f).ToString("0.##"), Language.GetTextValue("Mods.KL.Terms.Seconds")),
                 (Language.GetTextValue("Mods.KL.Terms.Freeze.Cooldown"), (ElementalGlobalNPC.FreezeCooldownDuration / 60f).ToString("0.##"), Language.GetTextValue("Mods.KL.Terms.Seconds")),
-            ]));
+            ],
+            () => Language.GetTextValue("Mods.KL.Terms.Categories.Mechanic")));
 
         base.Load();
     }
