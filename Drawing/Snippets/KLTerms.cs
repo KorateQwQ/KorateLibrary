@@ -17,6 +17,7 @@ public sealed record KLTerm(string IconPath, Color Color, Func<string> Name, Fun
 public static class KLTerms
 {
     private static readonly Dictionary<string, KLTerm> Terms = new(StringComparer.Ordinal);
+    private static readonly Dictionary<int, string> ItemTerms = [];
 
     /// <summary>注册或替换以 <see cref="KLTerm.IconPath"/> 为键的专有名词。</summary>
     public static void Register(KLTerm term) => Terms[term.IconPath] = term;
@@ -25,6 +26,17 @@ public static class KLTerms
     public static KLTerm Find(string iconPath)
         => iconPath != null && Terms.TryGetValue(iconPath, out var term) ? term : null;
 
+    /// <summary>把物品关联到已注册名词的图标路径，供研习材料等按物品列出的界面显示说明。</summary>
+    public static void RegisterItem(int itemType, string iconPath) => ItemTerms[itemType] = iconPath;
+
+    /// <summary>按物品类型查找关联的专有名词；未关联时返回 null。</summary>
+    public static KLTerm FindItem(int itemType)
+        => ItemTerms.TryGetValue(itemType, out var iconPath) ? Find(iconPath) : null;
+
     /// <summary>卸载时清空注册表。</summary>
-    public static void Clear() => Terms.Clear();
+    public static void Clear()
+    {
+        Terms.Clear();
+        ItemTerms.Clear();
+    }
 }
