@@ -64,12 +64,12 @@ public class DrawSystem : ModSystem
 
     private static float bloomStr = 1;
     //bloom迭代次数
-    private static int bloomItr = 3;
+    private static int bloomItr = 5;
 
     //bloom效果
     private static bool ShouldBloom2 = true;
 
-    private static Vector2 bloomDrawOffset;
+    private static Vector2 bloomDrawOffset = Vector2.Zero;
 
     private static bool capturingBloom;
     // RGB follows the caller's blend mode; alpha records how much destination color is occluded.

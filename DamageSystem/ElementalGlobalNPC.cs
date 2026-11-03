@@ -19,6 +19,29 @@ public class ElementalGlobalNPC : KLGlobalNpc
 {
     public override bool InstancePerEntity => true;
 
+    public const uint AttachmentCooldownTicks = 2;
+    private readonly Dictionary<ElementType, uint> attachmentTicks = new();
+
+    public override void SetDefaults(NPC npc)
+    {
+        attachmentTicks.Clear();
+        base.SetDefaults(npc);
+    }
+
+    /// <summary>同一主体（含所有体节）每两帧最多接受一次同属性附着，跨弹幕及玩家共用。</summary>
+    public bool TryBeginAttachment(NPC npc, ElementType element)
+    {
+        if (Main.netMode == NetmodeID.MultiplayerClient) return false;
+        NPC anchor = npc.GetElementAnchorNPC();
+        if (anchor == null) return false;
+        var state = anchor.GetGlobalNPC<ElementalGlobalNPC>();
+        uint now = Main.GameUpdateCount;
+        if (state.attachmentTicks.TryGetValue(element, out uint previous) && now - previous < AttachmentCooldownTicks)
+            return false;
+        state.attachmentTicks[element] = now;
+        return true;
+    }
+
     /// <summary>
     /// 当前实体的蠕虫血条位置缓存。
     /// </summary>
@@ -123,7 +146,7 @@ public class ElementalGlobalNPC : KLGlobalNpc
     }
 
     // 取该元素的积蓄上下文，不存在时补一个空壳（用于绘制冻结 CD 这类没有积蓄值也要显示的状态）
-    private BuildUpProgressContext GetOrCreateAccumulation(ElementType type)
+    internal BuildUpProgressContext GetOrCreateAccumulation(ElementType type)
     {
         if (ElementAccumulation == null)
             ElementAccumulation = new Dictionary<ElementType, BuildUpProgressContext>();
@@ -148,9 +171,9 @@ public class ElementalGlobalNPC : KLGlobalNpc
 
 
     /// <summary>
-    /// 基础冻结 CD（tick），60 秒。
+    /// 基础冻结 CD（tick），30 秒。
     /// </summary>
-    public const int FreezeCooldownDuration = 3600;
+    public const int FreezeCooldownDuration = 1800;
 
     // 距离可以再次积累冻结还需要多久，仅在冻结结束后开始计时。
     private int freezeCooldown;
@@ -400,6 +423,11 @@ public class ElementalGlobalNPC : KLGlobalNpc
                 IdleTime = binaryReader.ReadInt32(),
                 IdleResetTime = binaryReader.ReadInt32(),
             };
+
+            // 首次收到未满积蓄时没有旧 VisualTime，仍需立即显示进度圈。
+            if (context.Current > 0 || context.InAffliction) context.VisualTime = 120f;
+            // 新版火焰由独立照射计时负责清零，服务器确认中断后不保留空圈残影。
+            else if (type is ElementType.Fire or ElementType.Water && context.IdleResetTime == 0) context.VisualTime = 0f;
 
             ElementAccumulation[type] = context;
         }
@@ -651,51 +679,18 @@ public class ElementalGlobalNPC : KLGlobalNpc
     /// <param name="element"></param>
     public void ApplyAfflictionDamage(NPC target, int damage, ElementType element)
     {
-        if (target == null || !target.active || damage <= 0 || target.realLife>=0)
-            return ;
-        
-        if (!target.active)
-            return ;
-
-        if (target.life <= 0 || target.dontTakeDamage)
-            return ;
-        RPC("ApplyAfflictionDamageInternal", target, [target,damage,(byte)element], KLNetModule.NetSendType.ServerToAll);
+        ApplyAfflictionDamageInternal(target, damage, (byte)element);
     }
 
     public void ApplyAfflictionDamageInternal(NPC target, int damage, byte element)
     {
-        if (target == null || !target.active || damage <= 0)
-            return ;
-        
-        if (!target.active)
-            return ;
-
-        if (target.life <= 0 || target.dontTakeDamage)
-            return ;
-
-        target.life -= damage;
-        if (target.life < 0)
-            target.life = 0;
-        
-
-        target.HitEffect();
-        if (target.life <= 0)
-        { 
-            target.checkDead();
-        }
-        
-        if(Main.netMode == NetmodeID.Server)
-        {
-            if (target.life <= 0)
-            { 
-                target.netUpdate = true;
-            }
-        }
-        else
-        {
-            Color elementColor = ElementTypeHelper.GetElementColor((ElementType)element);
-            CombatText.NewText(new Rectangle((int)target.position.X, (int)target.position.Y, target.width, target.height), elementColor, damage,false,true);
-        }
+        if (Main.netMode == NetmodeID.MultiplayerClient || target is not { active: true }
+            || damage <= 0 || target.life <= 0 || target.dontTakeDamage || target.immortal) return;
+        var hit = new NPC.HitInfo { Damage = damage, SourceDamage = damage, DamageType = DamageClass.Default };
+        if (ElementTables.TryGetId((ElementType)element, out byte id))
+            hit.Knockback = ElementTagCodec.EncodeIntoKnockback(0, (byte)(id + ElementTables.NoBuildupOffset));
+        target.StrikeNPC(hit, noPlayerInteraction: true);
+        if (Main.netMode == NetmodeID.Server) NetMessage.SendStrikeNPC(target, hit);
     }
 
     #region 异常条绘制
@@ -750,10 +745,16 @@ public class ElementalGlobalNPC : KLGlobalNpc
 
         if (npc.GetRealNpc() is {} realNpc && realNpc.whoAmI!=npc.whoAmI) return base.DrawHealthBar(npc, hbPosition, ref scale, ref position);
 
+        bool wormRoot = npc.GetGlobalNPC<MainParentGlobalNpc>().IsWormMainParent;
+        BuildUpProgressContext fireProgress = GetFireHealthBarProgress(npc);
+        if (fireProgress != null) GetOrCreateAccumulation(ElementType.Fire);
+        BuildUpProgressContext waterProgress = GetWaterHealthBarProgress(npc);
+        if (waterProgress != null) GetOrCreateAccumulation(ElementType.Water);
+
         Vector2 anchor = position;
 
         // 多体节蠕虫：只让主体绘制一次，并让位置按毁灭者风格跟随离玩家最近且可见的体节。
-        if (npc.GetGlobalNPC<MainParentGlobalNpc>().IsWormMainParent)
+        if (wormRoot)
         {
             if (TryGetWormHealthBarAnchor(npc, out Vector2 wormAnchor))
                 anchor = wormAnchor;
@@ -775,31 +776,34 @@ public class ElementalGlobalNPC : KLGlobalNpc
         //Todo: 改为反向绘制，避免最先出现的异常改变位置
         foreach (var accumulationPair in ElementAccumulation)
         {
-            if(accumulationPair.Value.VisualTime<=0)continue;
-            float alpha = KLMathF.ClampLerp(0, 1, accumulationPair.Value.VisualTime / 60f);
-            //accumulationPair.Value.InAffliction
+            BuildUpProgressContext displayProgress = accumulationPair.Key == ElementType.Fire
+                ? fireProgress ?? accumulationPair.Value : accumulationPair.Key == ElementType.Water
+                    ? waterProgress ?? accumulationPair.Value : accumulationPair.Value;
+            if(displayProgress.VisualTime<=0)continue;
+            float alpha = KLMathF.ClampLerp(0, 1, displayProgress.VisualTime / 60f);
+            //displayProgress.InAffliction
             Asset<Texture2D> icon = ElementTypeHelper.GetElementIconTexture(accumulationPair.Key);
-            //rintText(accumulationPair.Value.Current);
+            //rintText(displayProgress.Current);
             Vector4 progressColor = ElementTypeHelper.GetElementColor(accumulationPair.Key).ToVector4();
-            float progress = accumulationPair.Value.Current/(float)accumulationPair.Value.Max;
+            float progress = displayProgress.Current/(float)displayProgress.Max;
 
             // 冻结 CD 中的冰：灰白图标 + 反向倒计时环
             bool freezeCooldownVisual = accumulationPair.Key == ElementType.Ice
-                                        && !accumulationPair.Value.InAffliction
+                                        && !displayProgress.InAffliction
                                         && cooldown > 0;
 
-            if (progress <= 0.001f&&!accumulationPair.Value.InAffliction)
+            if (progress <= 0.001f&&!displayProgress.InAffliction)
             {
                 progressColor = new Vector4(0.20f, 0.20f, 0.20f, 0.80f);
             }
 
-            if (accumulationPair.Value.InAffliction)
+            if (displayProgress.InAffliction)
             {
-                progress = accumulationPair.Value.Duration/(float)accumulationPair.Value.MaxDuration;
+                progress = displayProgress.Duration/(float)displayProgress.MaxDuration;
 
 
                 ProgressCircleEffect(1, ringWidth: 0.08f, progressColor: progressColor,bloomStrength:0.5f);
-                int count = accumulationPair.Value.UpdateCounter;
+                int count = displayProgress.UpdateCounter;
                 //根据count持续的做从3到1的渐变
                 float extraScale = KLMathF.ClampLerp(1,1.8f, count%30/30f);
                 float extraAlpha = KLMathF.ClampLerp(0, 1, 1-count%30/30f);
@@ -823,12 +827,15 @@ public class ElementalGlobalNPC : KLGlobalNpc
         offset = new Vector2(0, 17 + 12.0f * scale);
         foreach (var accumulationPair in ElementAccumulation)
         {
-            if(accumulationPair.Value.VisualTime<=0)continue;
-            float alpha = KLMathF.ClampLerp(0, 1, accumulationPair.Value.VisualTime / 60f);
+            BuildUpProgressContext displayProgress = accumulationPair.Key == ElementType.Fire
+                ? fireProgress ?? accumulationPair.Value : accumulationPair.Key == ElementType.Water
+                    ? waterProgress ?? accumulationPair.Value : accumulationPair.Value;
+            if(displayProgress.VisualTime<=0)continue;
+            float alpha = KLMathF.ClampLerp(0, 1, displayProgress.VisualTime / 60f);
 
             Asset<Texture2D> icon = ElementTypeHelper.GetElementIconTexture(accumulationPair.Key);
             bool freezeCooldownVisual = accumulationPair.Key == ElementType.Ice
-                                        && !accumulationPair.Value.InAffliction
+                                        && !displayProgress.InAffliction
                                         && cooldown > 0;
 
             // 冻结 CD 中显示灰白图标，剩余时间由外圈进度弧表示
@@ -840,6 +847,25 @@ public class ElementalGlobalNPC : KLGlobalNpc
         return base.DrawHealthBar(npc, hbPosition, ref scale, ref position);
     }
     
+
+    // 显示与实际点燃判定读取同一个元素主体，不再从独立体节中挑选进度。
+    internal BuildUpProgressContext GetFireHealthBarProgress(NPC npc)
+    {
+        NPC anchor = FireBurnNPC.GetBurnAnchor(npc);
+        if (anchor == null) return null;
+        ElementalGlobalNPC owner = anchor == npc ? this : anchor.GetGlobalNPC<ElementalGlobalNPC>();
+        owner.ElementAccumulation.TryGetValue(ElementType.Fire, out var progress);
+        return progress;
+    }
+
+    internal BuildUpProgressContext GetWaterHealthBarProgress(NPC npc)
+    {
+        NPC anchor = FireBurnNPC.GetBurnAnchor(npc);
+        if (anchor == null) return null;
+        ElementalGlobalNPC owner = anchor == npc ? this : anchor.GetGlobalNPC<ElementalGlobalNPC>();
+        owner.ElementAccumulation.TryGetValue(ElementType.Water, out var progress);
+        return progress;
+    }
 
     private bool TryGetWormHealthBarAnchor(NPC root, out Vector2 anchor)
     {

@@ -2,33 +2,34 @@ namespace KL.Dusts.Fire;
 
 public class FireDust : KLBasicDust
 {
-    private static Texture2D light;
-    public override void OnSpawn(Dust dust)
+    private const string RequestId = "KL:FireDust";
+    // 序列帧本体乘 HDR 倍率，柔光交给与弹幕共用的 Projectiles.After Bloom
+    private static float Hdr => 2.2f;
+
+    public override bool PreDraw(Dust dust) => false;
+
+    public override void SubmitBloomDrawRequest(Dust dust)
     {
-        //ShouldBloom = true;
-        light ??= Mod.Assets.Request<Texture2D>("Dusts/Spark_Premultiplied", AssetRequestMode.ImmediateLoad).Value;
-        base.OnSpawn(dust);
+        int type = dust.type;
+        object data = dust.customData;
+        // 同组只切换一次批次；与弹幕和其他粒子共用 Projectiles.After 的 Bloom
+        LayerDrawRequestSystem.RequestBloom(RequestId, LayerDrawRequestSystem.DrawTargetLayer.Projectiles,
+            LayerDrawRequestSystem.DrawTiming.After, context =>
+        {
+            if (context.IsFirst) EndBeginDraw(0, 1, ss: SamplerState.LinearClamp);
+            if (dust.active && dust.type == type && ReferenceEquals(dust.customData, data))
+                DrawFire(dust);
+            if (context.IsLast) EndBeginDraw();
+        }, order: LayerDrawRequestSystem.DustOrder);
     }
 
-    
-    public override bool PreDraw(Dust dust)
+    private void DrawFire(Dust dust)
     {
-        int Frame = 0;
-        Frame = (int)MathHelper.Lerp(0, 16, dust.LifeProgress());
-        float lightAlpha = MathHelper.Lerp( 0,1, (dust.CurrentLifeTime()-5)/dust.LifeTime());
-        lightAlpha = Math.Max(lightAlpha, 0);
-        
-        
-        //dust.rotation = -3.14f/2;
-
-        DrawInWorld(new TextureInfo(MainTexture,Frame,4,4), dust.position, dust.color,
+        if (MainTexture == null) return;
+        int Frame = (int)MathHelper.Lerp(0, 16, dust.LifeProgress());
+        ReColorEffect(new Vector4(Hdr, Hdr, Hdr, 1f));
+        DrawInWorld(new TextureInfo(MainTexture,Frame,4,4), dust.position, dust.GetRealColor(dust.color),
             dust.Size(), dust.rotation+3.14f/2);
-        Vector4 color = new Color(255, 150, 50, 0).ToVector4() * dust.color.ToVector4();
-        
-        DrawInWorld(light, dust.position, new Color(255, 150, 50, 255)*lightAlpha,
-            dust.Size()*1f, dust.rotation);  
-        
-        return base.PreDraw(dust);
     }
 
     public override bool Update(Dust dust)

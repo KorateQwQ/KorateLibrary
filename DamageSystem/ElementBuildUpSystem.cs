@@ -12,6 +12,7 @@ public class ElementBuildUpSystem : ModSystem
 {
     /// <summary>冻结条统一容量；命中点数属于各攻击来源，不在这里决定命中次数。</summary>
     public const float FreezeCapacity = 100f;
+    public const float FreezeDamageFraction = .5f;
     /// <summary>冻结条积满后的冻结时长（tick）。</summary>
     public const int FreezeDuration = 240;
     /// <summary>富文本中冻结专有名词使用的 klicon 图标路径。</summary>
@@ -73,6 +74,12 @@ public class ElementBuildUpSystem : ModSystem
                 (Language.GetTextValue("Mods.KL.Terms.Freeze.Duration"), (FreezeDuration / 60f).ToString("0.##"), Language.GetTextValue("Mods.KL.Terms.Seconds")),
                 (Language.GetTextValue("Mods.KL.Terms.Freeze.Cooldown"), (ElementalGlobalNPC.FreezeCooldownDuration / 60f).ToString("0.##"), Language.GetTextValue("Mods.KL.Terms.Seconds")),
             ],
+            () => Language.GetTextValue("Mods.KL.Terms.Categories.Mechanic")));
+
+        KLTerms.Register(new KLTerm("KL/Drawing/Snippets/Icons/WaterIcon", new Color(102, 195, 232),
+            () => Language.GetTextValue("Mods.KL.Terms.Wet.Name"),
+            () => Language.GetTextValue("Mods.KL.Terms.Wet.Description"),
+            () => [(Language.GetTextValue("Mods.KL.Terms.Wet.Duration"), (WaterExposureNPC.DurationTicks / 60f).ToString("0.##"), Language.GetTextValue("Mods.KL.Terms.Seconds"))],
             () => Language.GetTextValue("Mods.KL.Terms.Categories.Mechanic")));
 
         base.Load();

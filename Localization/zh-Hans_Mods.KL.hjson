@@ -67,6 +67,12 @@ Buffs: {
 }
 
 Terms: {
+	Wet: {
+		Name: 潮湿
+		Description: 水附着积满后触发，继续施加水附着可维持持续时间。水火会快速消耗彼此的状态，消耗期间不积累新的状态。冰攻击不消耗潮湿。
+		Duration: 持续上限
+	}
+
 	Seconds: 秒
 
 	Categories: {
@@ -76,7 +82,7 @@ Terms: {
 
 	Freeze: {
 		Name: 冻结
-		Description: 冻结值积满{0}点时，敌人被冻结，期间无法行动。解冻后进入冻结冷却，冷却中不会积累冻结值。
+		Description: 冻结值积满{0}点时，敌人被冻结，期间无法行动。解冻后进入冻结冷却，冷却中不会积累冻结值。生命上限较低的敌人更容易被冻结。
 		Duration: 冻结时长
 		Cooldown: 冻结冷却
 	}

@@ -12,7 +12,7 @@ public class BloomConfig : ModConfig
 
     public override void OnChanged()
     {
-        DrawSystem.SetBloomInfo(1f, 3, Vector2.Zero, ShouldBloom);
+        DrawSystem.SetBloomInfo(1f, 5, Vector2.Zero, ShouldBloom);
         base.OnChanged();
     }
 }

@@ -33,7 +33,7 @@ public class ElementalInfusionPlayer : ModPlayer
         // 规则：只有当攻击本体没有元素时，才补全为玩家附着元素
         if (proj.GetGlobalProjectile<ElementalGlobalProjectile>().InfusionElement == ElementType.None)
         {
-            ElementHitInfoHelper.TryAttachElementTag(ref modifiers, InfusionElement);
+            ElementHitInfoHelper.TryAttachElementTag(ref modifiers, InfusionElement, proj.GetGlobalProjectile<ElementalGlobalProjectile>().SuppressBuildup);
         }
         
         
@@ -66,6 +66,7 @@ public class ElementalInfusionPlayer : ModPlayer
 public class ElementalGlobalProjectile : GlobalProjectile
 {
     public ElementType InfusionElement;
+    public bool SuppressBuildup;
     /// <summary>每次有效命中增加的冻结点数（0..100），由技能赋值；默认0，不从伤害推算。</summary>
     public float FreezeBuildup;
 
@@ -74,7 +75,7 @@ public class ElementalGlobalProjectile : GlobalProjectile
     public override void ModifyHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
     {
         // 规则：攻击本体自带元素时，优先使用本体元素
-        ElementHitInfoHelper.TryAttachElementTag(ref modifiers, InfusionElement);
+        ElementHitInfoHelper.TryAttachElementTag(ref modifiers, InfusionElement, SuppressBuildup);
         base.ModifyHitNPC(projectile, target, ref modifiers);
     }
 

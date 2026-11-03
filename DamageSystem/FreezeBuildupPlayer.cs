@@ -10,12 +10,12 @@ public sealed class FreezeBuildupPlayer : KLModPlayer
     {
         if (Player.whoAmI != Main.myPlayer || damageDone <= 0 || !float.IsFinite(amount) || amount <= 0) return;
         if (Main.netMode == NetmodeID.MultiplayerClient)
-            RPC(nameof(Apply), [target.whoAmI, target.type, amount], KLNetModule.NetSendType.ClientToServer);
+            RPC(nameof(Apply), [target.whoAmI, target.type, amount, damageDone], KLNetModule.NetSendType.ClientToServer);
         else
-            Apply(target.whoAmI, target.type, amount);
+            Apply(target.whoAmI, target.type, amount, damageDone);
     }
 
-    public void Apply(int targetIndex, int expectedType, float amount)
+    public void Apply(int targetIndex, int expectedType, float amount, int damageDone = 0)
     {
         if (Main.netMode == NetmodeID.MultiplayerClient || !Player.active || Player.dead
             || !float.IsFinite(amount) || amount <= 0 || amount > ElementBuildUpSystem.FreezeCapacity
@@ -23,7 +23,7 @@ public sealed class FreezeBuildupPlayer : KLModPlayer
         NPC target = Main.npc[targetIndex];
         if (!target.active || target.life <= 0 || target.type != expectedType || target.friendly) return;
         target.GetGlobalNPC<ElementalGlobalNPC>().OnHitByElement(ElementType.Ice, target,
-            new NPC.HitInfo(), Player.whoAmI, amount);
+            new NPC.HitInfo { Damage = Math.Max(0, damageDone) }, Player.whoAmI, amount);
         target.GetElementAnchorNPC().netUpdate = true;
     }
 }

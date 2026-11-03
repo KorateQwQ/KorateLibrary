@@ -276,6 +276,13 @@ internal static class ElementBuildupBuffRegistry
         {
             maxBuildUpValue = entry.FixedThreshold;
             newBuildUpValue = context.HitCountGain ?? entry.GainPerHit;
+            if (context.Element == ElementType.Ice && newBuildUpValue > 0)
+            {
+                // 时间保底与实际伤害补偿取较大者，二者不相加；潮湿维持原速度，干燥减半。
+                float damageGain = context.Target.lifeMax > 0
+                    ? Math.Max(0, context.Hit.Damage) / (context.Target.lifeMax * ElementBuildUpSystem.FreezeDamageFraction) * maxBuildUpValue : 0f;
+                newBuildUpValue = Math.Max(newBuildUpValue * (WaterExposureNPC.IsWet(context.Target) ? 1f : .5f), damageGain);
+            }
         }
         else
         {
@@ -289,6 +296,8 @@ internal static class ElementBuildupBuffRegistry
         // 阈值非法时视为该规则未配置完成，直接跳过，避免出现除零或瞬间满额。
         if (maxBuildUpValue <= 0f || !float.IsFinite(newBuildUpValue) || newBuildUpValue <= 0f)
             return false;
+
+        if (!g.TryBeginAttachment(context.Target, context.Element)) return false;
 
         if (!g.ElementAccumulation.TryGetValue(context.Element, out ElementalGlobalNPC.BuildUpProgressContext progress))
         {

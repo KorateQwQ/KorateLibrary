@@ -67,6 +67,12 @@ Buffs: {
 }
 
 Terms: {
+	Wet: {
+		Name: Wet
+		Description: Triggers when Water buildup is full. Further Water hits maintain its duration. Water and Fire rapidly consume each other's status without building up a new one during the reaction. Ice attacks do not consume Wet.
+		Duration: Duration cap
+	}
+
 	Seconds: s
 
 	Categories: {
@@ -76,7 +82,7 @@ Terms: {
 
 	Freeze: {
 		Name: Freeze
-		Description: When freeze buildup reaches {0}, the enemy is frozen and cannot act. Thawing starts a freeze cooldown, during which no buildup accumulates.
+		Description: When freeze buildup reaches {0}, the enemy is frozen and cannot act. Thawing starts a freeze cooldown, during which no buildup accumulates. Enemies with lower maximum health are easier to freeze.
 		Duration: Duration
 		Cooldown: Cooldown
 	}

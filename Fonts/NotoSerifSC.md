@@ -17,11 +17,11 @@ It is derived from the same installed variable font used by the HTML reference.
 The source is licensed under SIL OFL 1.1; see `NotoSerifSC-OFL.txt`.
 Source font copyright: © 2017–2023 Adobe (http://www.adobe.com/).
 
-Coverage: 30,485 printable BMP characters from the source font's actual cmap.
-This includes CJK ideographs and Extension A, Latin letters, numbers, punctuation,
-Greek, and supported symbols. Supplementary-plane characters and emoji are outside
-this char-based resource. Missing characters use `?`. Always check
-`font.AreCharactersSupported(text)` when introducing new symbols.
+Coverage: `NotoSerifSC.dynamicfont` describes all 30,485 printable BMP characters of the source cmap,
+but the packed `NotoSerifSC.xnb` is trimmed to the characters the UI can show (about 2,400): basic Latin
+and CJK punctuation, 伊蕾娜 and KL localization, both mods' C# string literals and vanilla item names in
+every language. Missing characters use `?`; after adding text with new characters, rerun
+`伊蕾娜/Tools/FontTiers/build.ps1`. Always check `font.AreCharactersSupported(text)` for new symbols.
 In particular, `✧` and `✦` are absent from this font: draw them as the existing UI
 ornaments, or use a separate font explicitly supporting those characters.
 

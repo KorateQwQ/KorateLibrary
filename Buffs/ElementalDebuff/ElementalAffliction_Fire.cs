@@ -25,12 +25,7 @@ public class ElementalAffliction_Fire : ElementaiAffictionDebuff
                 ModContent.DustType<FireDust>(),new Vector2(Main.rand.NextFloat(-0.5f,0.5f),-1),30,new Color(255,255,255,0),new Vector2(Main.rand.NextFloat(0.2f,0.4f)));
         }
 
-        int duration = npc.buffTime[buffIndex];
-
-        if (duration%30==0&&ServerOrLocalMode())
-        {
-            npc.GetGlobalNPC<ElementalGlobalNPC>().ApplyAfflictionDamage(npc, npc.lifeMax / 20, ElementType.Fire);
-        }
+        npc.GetGlobalNPC<FireBurnNPC>().UpdateDamage(npc);
         base.Update(npc, ref buffIndex);
     }
 
