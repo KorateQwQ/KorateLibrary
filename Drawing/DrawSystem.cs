@@ -275,6 +275,7 @@ public class DrawSystem : ModSystem
         }
         SpriteBatch spriteBatch = Main.spriteBatch;
         SpriteBatchState? previousState = CaptureSpriteBatchState(spriteBatch);
+        SamplerState previousAuxiliarySampler = graphicsDevice.SamplerStates[1];
         EndSpriteBatchIfActive(spriteBatch);
 
         graphicsDevice.SetRenderTarget(RenderHelper.SaveScreenRender);
@@ -293,14 +294,14 @@ public class DrawSystem : ModSystem
         // The callback draws once. Its normal appearance and bloom are both derived from this source.
         EnsureSpriteBatchActive(spriteBatch);
 
-        RenderHelper.SwitchRender(RenderHelper.Render, state: 0);
+        BeginBloomPass(RenderHelper.Render);
         // Keep the original HDR RGB. Normalizing it by luminance changes the base visual
         // even when bloom strength is zero; only the glow extraction applies a threshold.
         spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
         // Blur only HDR pixels above the bloom threshold, not the complete visual.
         // Render2 is scratch space here; the final scene composite is built after UpSampler.
-        RenderHelper.SwitchRender(RenderHelper.Render2, state: 0);
+        BeginBloomPass(RenderHelper.Render2);
         DrawOverflowColorEffect();
         spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
@@ -310,19 +311,18 @@ public class DrawSystem : ModSystem
 
         // These targets already contain premultiplied results. Multiplying by alpha again
         // lowers scene coverage, so subsequent bloom layers darken the earlier visuals.
-        RenderHelper.SwitchRender(RenderHelper.Render2, state: 0);
+        BeginBloomPass(RenderHelper.Render2);
         spriteBatch.Draw(RenderHelper.SaveScreenRender, Vector2.Zero, Color.White);
         spriteBatch.Draw(RenderHelper.Render, Vector2.Zero, Color.White);
 
-        EndBeginDraw(0, 1, false);
-        graphicsDevice.SetRenderTarget(sceneTarget);
-        graphicsDevice.Clear(Color.Transparent);
-        /*spriteBatch.Draw(RenderHelper.Render2, Vector2.Zero, Color.White);
-
-        EndBeginDraw(0, 1, false);*/
+        BeginBloomPass(sceneTarget);
         ReColorEffect(Vector4.One * bloomStr, ReColorState.Bloom, RenderHelper.Render2);
-        spriteBatch.Draw(RenderHelper.BloomUpSample[5], bloomDrawOffset, Color.White);
+        spriteBatch.Draw(RenderHelper.BloomUpSample[5],
+            bloomDrawOffset, null, Color.White, 0, Vector2.Zero,
+            new Vector2(sceneTarget.Width, sceneTarget.Height) /
+                new Vector2(RenderHelper.BloomUpSample[5].Width, RenderHelper.BloomUpSample[5].Height), SpriteEffects.None, 0);
         EndSpriteBatchIfActive(spriteBatch);
+        graphicsDevice.SamplerStates[1] = previousAuxiliarySampler;
         RestoreSpriteBatchState(spriteBatch, previousState);
     }
 
@@ -335,6 +335,7 @@ public class DrawSystem : ModSystem
         GraphicsDevice graphicsDevice = Main.instance.GraphicsDevice;
         SpriteBatch spriteBatch = Main.spriteBatch;
         SpriteBatchState? previousState = CaptureSpriteBatchState(spriteBatch);
+        SamplerState previousAuxiliarySampler = graphicsDevice.SamplerStates[1];
         EndSpriteBatchIfActive(spriteBatch);
 
         PresentationParameters presentation = graphicsDevice.PresentationParameters;
@@ -352,10 +353,10 @@ public class DrawSystem : ModSystem
             CaptureBloomRequests(layer, timing);
             EnsureSpriteBatchActive(spriteBatch);
 
-            RenderHelper.SwitchRender(RenderHelper.Render, state: 0, ignoreCanUseRender: true);
+            BeginBloomPass(RenderHelper.Render);
             spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
-            RenderHelper.SwitchRender(RenderHelper.Render2, state: 0, ignoreCanUseRender: true);
+            BeginBloomPass(RenderHelper.Render2);
             DrawOverflowColorEffect();
             spriteBatch.Draw(RenderHelper.BloomRender, Vector2.Zero, Color.White);
 
@@ -363,10 +364,10 @@ public class DrawSystem : ModSystem
             DownSampler(RenderHelper.Render2, iterationCount, ignoreCanUseRender: true);
             UpSampler(iterationCount, ignoreCanUseRender: true);
 
-            RenderHelper.SwitchRender(RenderHelper.Render2, state: 0, ignoreCanUseRender: true);
+            BeginBloomPass(RenderHelper.Render2);
             spriteBatch.Draw(RenderHelper.Render, Vector2.Zero, Color.White);
 
-            RenderHelper.SwitchRender(null, state: 0, ignoreCanUseRender: true, clearTarget: false);
+            BeginBloomPass(null, clearTarget: false);
             ReColorEffect(Vector4.One * bloomStr, ReColorState.Bloom, RenderHelper.Render2);
             spriteBatch.Draw(RenderHelper.BloomUpSample[5], bloomDrawOffset, Color.White);
         }
@@ -377,6 +378,7 @@ public class DrawSystem : ModSystem
             presentation.RenderTargetUsage = previousUsage;
             graphicsDevice.Viewport = previousViewport;
             graphicsDevice.ScissorRectangle = previousScissor;
+            graphicsDevice.SamplerStates[1] = previousAuxiliarySampler;
             RestoreSpriteBatchState(spriteBatch, previousState);
         }
     }
@@ -619,57 +621,51 @@ public class DrawSystem : ModSystem
         FlushLayerRequests(LayerDrawRequestSystem.DrawTargetLayer.Projectiles, LayerDrawRequestSystem.DrawTiming.After);
     }
 
+    // Bloom samples radiance, not pixel art. Set the destination before Begin so the
+    // SpriteBatch projection belongs to this viewport, and explicitly filter both inputs.
+    // Do not change the world's default sampler or the callbacks' own material choices.
+    private static void BeginBloomPass(RenderTarget2D target, BlendState blend = null, bool clearTarget = true)
+    {
+        var device = Main.instance.GraphicsDevice;
+        var batch = Main.spriteBatch;
+        EndSpriteBatchIfActive(batch);
+        device.SetRenderTarget(target);
+        if (clearTarget) device.Clear(Color.Transparent);
+        batch.Begin(SpriteSortMode.Immediate, blend ?? BlendState.AlphaBlend, SamplerState.LinearClamp,
+            DepthStencilState.None, RasterizerState.CullNone);
+        device.SamplerStates[1] = SamplerState.LinearClamp;
+    }
+
     private void DownSampler(Texture2D bloomSource, int time = 5, bool ignoreCanUseRender = false)
     {
-        Vector2 screenCenter = new Vector2(Main.screenWidth / 2f, Main.screenHeight / 2f);
+        if (!ignoreCanUseRender && !CanUseRender) return;
+        Texture2D source = bloomSource;
         for (int i = 0; i < time; i++)
         {
-            RenderHelper.SwitchRender(RenderHelper.BloomDownSample[i], state: 0,
-                ignoreCanUseRender: ignoreCanUseRender);
-            Vector2 screenSize = new Vector2(RenderHelper.BloomDownSample[i].Width,
-                RenderHelper.BloomDownSample[i].Height);
-            //EndBeginDraw(1,1,false);
-            //GaussianBlur(screenSize);
-            if (i == 0)
-            {
-                GaussianBlur(screenSize / 4f, strength: 1.2f);
-                DrawInScreen(bloomSource, screenSize / 2f, Color.White);
-            }
-            else
-            {
-                GaussianBlur(screenSize / 4f, 1f);
-                DrawInScreen(RenderHelper.BloomDownSample[i - 1], screenSize, Color.White,
-                    screenSize / new Vector2(RenderHelper.BloomDownSample[i - 1].Width,
-                        RenderHelper.BloomDownSample[i - 1].Height) * 2);
-            }
+            var target = RenderHelper.BloomDownSample[i];
+            BeginBloomPass(target, BlendState.Opaque);
+            // Contiguous source texels prefilter thin HDR features before each reduction.
+            // targetSize/4 used to skip 4–8 source pixels and replicate separated lobes.
+            GaussianBlur(new Vector2(source.Width, source.Height), i == 0 ? 1.2f : 1f);
+            Main.spriteBatch.Draw(source, new Rectangle(0, 0, target.Width, target.Height), Color.White);
+            source = target;
         }
     }
 
     private void UpSampler(int time = 5, bool ignoreCanUseRender = false)
     {
-        float lastResultScale = 0.5f;
-        float BackGroundStrength = TotalBloomBackGroundStrength;
-        float BlurStrength = TotalBloomStrength;
+        if (!ignoreCanUseRender && !CanUseRender) return;
         int startIndex = 7 - time;
-        for (int i = 7 - time; i < startIndex + (time - 1); i++)
+        Texture2D source = RenderHelper.BloomDownSample[time - 1];
+        for (int i = startIndex; i < RenderHelper.BloomUpSample.Length; i++)
         {
-            Vector2 screenSize = new Vector2(RenderHelper.BloomUpSample[i].Width,
-                RenderHelper.BloomUpSample[i].Height);
-
             float scale = MathHelper.Lerp(0.5f, 0.2f, (float)i / 5);
-            RenderHelper.SwitchRender(RenderHelper.BloomUpSample[i], state: 0,
-                ignoreCanUseRender: ignoreCanUseRender);
-            GaussianBlurTwice(screenSize / 4f, BackGroundStrength * scale, BlurStrength,
-                RenderHelper.BloomDownSample[5 - i]); //MathF.Pow(2,time-2-i)
-            //GaussianBlur(screenSize,1f);
-            if (i == startIndex)
-            {
-                DrawInScreen(RenderHelper.BloomDownSample[time - 1], screenSize / 4f, Color.White, Vector2.One); //
-            }
-            else
-            {
-                DrawInScreen(RenderHelper.BloomUpSample[i - 1], screenSize / 4f, Color.White, Vector2.One); //
-            }
+            var target = RenderHelper.BloomUpSample[i];
+            BeginBloomPass(target, BlendState.Opaque);
+            GaussianBlurTwice(new Vector2(source.Width, source.Height), TotalBloomBackGroundStrength * scale,
+                TotalBloomStrength, RenderHelper.BloomDownSample[5 - i]);
+            Main.spriteBatch.Draw(source, new Rectangle(0, 0, target.Width, target.Height), Color.White);
+            source = target;
         }
     }
 }
